@@ -37,3 +37,12 @@
 | 30 | [30_user_info](./30_user_info/) | Account list, user info, broker firm |
 | 31 | [31_misc](./31_misc/) | Holding changes, rehab data, user security groups |
 | 32 | [32_order_query](./32_order_query/) | Order query, modify, cancel, deal history |
+| 33 | [33_trading_info](./33_trading_info/) | Max buy/sell quantity (acctradinginfo_query) |
+| 34 | [34_cancel_all](./34_cancel_all/) | Cancel all open orders |
+| 35 | [35_cashflow](./35_cashflow/) | Account cash flow history |
+| 36 | [36_stock_basicinfo](./36_stock_basicinfo/) | Stock basic info by market or code list |
+| 37 | [37_margin_ratio](./37_margin_ratio/) | Margin ratio for positions |
+| 38 | [38_order_fee](./38_order_fee/) | Order fee query |
+| 39 | [39_push_sysnotify](./39_push_sysnotify/) | System notification push (SysNotifyHandlerBase) |
+| 40 | [40_push_trade](./40_push_trade/) | Trade order/deal push (TradeOrder/DealHandlerBase) |
+| 41 | [41_rehab](./41_rehab/) | Rehabilitation/ex-dividend/ex-right data |
