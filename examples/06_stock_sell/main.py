@@ -52,6 +52,9 @@ def simple_sell(quote_ctx, trade_ctx, stock_code, trade_price, volume,
         break
 
     qty = int(volume // lot_size) * lot_size
+    if qty == 0:
+        logger.error("Volume %d is less than one lot (%d) — cannot sell", volume, lot_size)
+        return None
     logger.info("  adjusted qty to %d (rounded to lot=%d)", qty, lot_size)
 
     ret, data = trade_ctx.place_order(
@@ -97,7 +100,10 @@ def smart_sell(quote_ctx, trade_ctx, stock_code, volume,
             return None
         break
 
-    qty = int(volume / lot_size) * lot_size
+    qty = int(volume // lot_size) * lot_size
+    if qty == 0:
+        logger.error("Volume %d is less than one lot (%d) — cannot sell", volume, lot_size)
+        return None
     logger.info("  adjusted qty=%d (lot=%d)", qty, lot_size)
 
     ret, data = quote_ctx.get_order_book(stock_code)

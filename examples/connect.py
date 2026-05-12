@@ -254,17 +254,19 @@ def create_quote_context(is_rsa: bool | None = None, *, _use_cache=True):
     return OpenQuoteContext(host=info["host"], port=info.get("port", PORT))
 
 
-def create_trade_context(is_rsa: bool | None = None, **kwargs):
+def create_trade_context(is_rsa: bool | None = None, *, _use_cache=True, **kwargs):
     """
     Create and return a connected trade context (OpenSecTradeContext) using
     the same HA gateway as create_quote_context(). Call .close() when done.
 
     is_rsa: override RSA setting (None = per-host config, auto-fallback)
+    _use_cache: if True (default), reuse a prior TCP probe result when both
+                quote and trade contexts are needed in the same session.
     kwargs: passed through to OpenSecTradeContext (e.g. filter_trdmarket, security_firm)
     """
     from futu import OpenSecTradeContext
     global _cached_probe_result
-    if _cached_probe_result is not None:
+    if _use_cache and _cached_probe_result is not None:
         info, actual_rsa = _cached_probe_result
         configure_rsa(enable=actual_rsa)
         logger.info("create_trade_context: reusing cached connection to %s:%s (RSA=%s)", info["host"], info["port"], actual_rsa)

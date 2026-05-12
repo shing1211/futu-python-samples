@@ -101,7 +101,7 @@ class SysNotifyTest(SysNotifyHandlerBase):
 class TradeOrderTest(TradeOrderHandlerBase):
     def on_recv(self, rsp_str):
         ret, content = super().on_recv(rsp_str)
-        if ret == 0:
+        if ret == RET_OK:
             logger.info("[TradeOrder] %s", content)
         return ret, content
 
@@ -109,7 +109,7 @@ class TradeOrderTest(TradeOrderHandlerBase):
 class TradeDealTest(TradeDealHandlerBase):
     def on_recv(self, rsp_str):
         ret, content = super().on_recv(rsp_str)
-        if ret == 0:
+        if ret == RET_OK:
             logger.info("[TradeDeal] %s", content)
         return ret, content
 

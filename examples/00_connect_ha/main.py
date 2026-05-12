@@ -141,6 +141,7 @@ def main():
     logger.info("\nFastest: %s:%s (TCP %.1fms)\n", fastest[0], fastest[1], fastest_tcp)
     logger.info("Attempting connection...")
 
+    # connect_host(name, host, port, is_rsa) — name here is just a label, same as host since we have no separate alias
     ok, data, api_lat = connect_host(fastest[0], fastest[0], fastest[1], fastest_rsa)
 
     if not ok:
