@@ -27,6 +27,12 @@ import os
 import socket
 import time
 import logging
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env from the repo root (parent of examples/)
+_dotenv_path = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(_dotenv_path)
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from futu import OpenQuoteContext, RET_OK, SysConfig
 

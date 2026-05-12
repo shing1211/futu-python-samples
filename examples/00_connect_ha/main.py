@@ -19,9 +19,13 @@ Configuration (environment variables override hardcoded defaults):
 import socket
 import time
 import logging
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from futu import OpenQuoteContext, RET_OK, SysConfig
 import os
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
