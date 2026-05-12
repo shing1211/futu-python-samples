@@ -4,13 +4,11 @@ Examples for use the python functions: get push data
 """
 from time import sleep
 from futu import *
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from connect import create_quote_context
 
-#打印数据不全请把以下注释打开
-#import pandas as pd
-#pd.set_option('display.height', 10000)
-#pd.set_option('display.max_rows', 500)
-#pd.set_option('display.max_columns', 500)
-#pd.set_option('display.width', 1000)
 
 class StockQuoteTest(StockQuoteHandlerBase):
     """
@@ -22,9 +20,7 @@ class StockQuoteTest(StockQuoteHandlerBase):
         if ret_code != RET_OK:
             logger.debug("StockQuoteTest: error, msg: %s" % content)
             return RET_ERROR, content
-        #需要打印数据把以下注释打开，其他回调数据同样处理即可
-        #else:
-        #    print(content)
+        print("* StockQuoteTest : %s" % content)
         return RET_OK, content
 
 
@@ -66,7 +62,7 @@ def quote_test():
     行情接口调用测试
     :return:
     '''
-    quote_ctx = OpenQuoteContext(host='127.0.0.1', port=11111)
+    quote_ctx = create_quote_context()
 
     # 设置异步回调接口
     quote_ctx.set_handler(StockQuoteTest())
@@ -85,6 +81,3 @@ if __name__ =="__main__":
     set_futu_debug_model(True)
     ''' 行情api测试 '''
     quote_test()
-
-
-

@@ -5,6 +5,9 @@
 from time import sleep
 import futu as ft
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from connect import create_quote_context, create_trade_context
 
 def simple_sell(quote_ctx, trade_ctx, stock_code, trade_price, volume, trade_env, order_type=ft.OrderType.NORMAL):
     """简单卖出函数。取到股票每手的股数后，就下单卖出"""
@@ -66,17 +69,15 @@ def smart_sell(quote_ctx, trade_ctx, stock_code, volume, trade_env, order_type=f
 
 
 if __name__ =="__main__":
-    ip = '127.0.0.1'
-    port = 11111
     code = 'HK.00700'      # 要卖出的股票
     unlock_pwd = '123456'  # 解锁交易密码
     trd_env = ft.TrdEnv.SIMULATE  # 模拟交易
     order_type = ft.OrderType.NORMAL  # 订单类型
 
-    quote_ctx = ft.OpenQuoteContext(ip, port)
-    trd_ctx = ft.OpenSecTradeContext(ft.TrdMarket.HK, ip, port)
+    quote_ctx = create_quote_context()
+    trd_ctx = create_trade_context(filter_trdmarket=ft.TrdMarket.HK)
 
-    quote_ctx.subscribe(code, ft.SubType.ORDER_BOOK)  # 订阅摆盘，这样后面才能调用get_order_book
+    quote_ctx.subscribe(code, ft.SubType.ORDER_BOOK)  # 订阅摆盘
     ret, data = trd_ctx.unlock_trade(unlock_pwd)
     if ret == ft.RET_OK:
         print("* unlock_trade success")
@@ -87,4 +88,3 @@ if __name__ =="__main__":
 
     quote_ctx.close()
     trd_ctx.close()
-

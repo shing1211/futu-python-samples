@@ -3,17 +3,18 @@
 """演示如何使用股票筛选功能"""
 
 import futu as ft
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from connect import create_quote_context
 
-def simple_financial_filter(api_svr_ip, api_svr_port):
+
+def simple_financial_filter():
     """
     验证接口：条件选股功能 get_stock_filter
-    这里只设置了“简单属性”和“财务属性”作为筛选条件，。
-    :param api_svr_ip: (string)ip
-    :param api_svr_port: (int)port
-    :return:
+    这里只设置了"简单属性"和"财务属性"作为筛选条件。
     """
-    # 创建行情api
-    quote_ctx = ft.OpenQuoteContext(host=api_svr_ip, port=api_svr_port)
+    quote_ctx = create_quote_context()
 
     # 简单属性
     simple_filter = ft.SimpleFilter()
@@ -29,7 +30,7 @@ def simple_financial_filter(api_svr_ip, api_svr_port):
     financial_filter.filter_max = 50
     financial_filter.stock_field = ft.StockField.CURRENT_RATIO
     financial_filter.is_no_filter = False
-    financial_filter.sort = ft.SortDir.ASCEND # 多个筛选条件，只能有一个排序方向。
+    financial_filter.sort = ft.SortDir.ASCEND  # 多个筛选条件，只能有一个排序方向。
     financial_filter.quarter = ft.FinancialQuarter.ANNUAL
 
     # 对香港市场的股票做简单和财务筛选
@@ -47,10 +48,8 @@ def simple_financial_filter(api_svr_ip, api_svr_port):
     else:
         print('error: ', ls)
 
-    quote_ctx.close()  # 结束后记得关闭当条连接，防止连接条数用尽
+    quote_ctx.close()
+
 
 if __name__ == "__main__":
-    ip = '127.0.0.1'
-    port = 11111
-
-    simple_financial_filter(ip, port)
+    simple_financial_filter()

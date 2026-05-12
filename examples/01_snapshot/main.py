@@ -4,18 +4,19 @@
 """
 import time
 import futu as ft
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from connect import create_quote_context
 
 
-def loop_get_mkt_snapshot(api_svr_ip, api_svr_port, market):
+def loop_get_mkt_snapshot(market):
     """
     验证接口：获取某个市场的全部快照数据 get_mkt_snapshot
-    :param api_svr_ip: (string)ip
-    :param api_svr_port: (int)port
     :param market: market type
     :return:
     """
-    # 创建行情api
-    quote_ctx = ft.OpenQuoteContext(host=api_svr_ip, port=api_svr_port)
+    quote_ctx = create_quote_context()
     stock_type = [ft.SecurityType.STOCK, ft.SecurityType.IDX, ft.SecurityType.ETF, ft.SecurityType.WARRANT,
                   ft.SecurityType.BOND]
 
@@ -45,8 +46,5 @@ def loop_get_mkt_snapshot(api_svr_ip, api_svr_port, market):
 
 
 if __name__ == "__main__":
-    ip = '127.0.0.1'
-    port = 11111
-
     for mkt in [ft.Market.HK, ft.Market.US, ft.Market.SZ, ft.Market.SH]:
-        loop_get_mkt_snapshot(ip, port, mkt)
+        loop_get_mkt_snapshot(mkt)

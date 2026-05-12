@@ -4,15 +4,16 @@ import math
 import datetime
 import logging
 import futu as ft
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from connect import create_quote_context, create_trade_context
 
 
 class MACD(object):
     """
     A simple MACD strategy
     """
-    # API parameter setting
-    api_svr_ip = '127.0.0.1'  # 账户登录的牛牛客户端PC的IP, 本机默认为127.0.0.1
-    api_svr_port = 11111  # 富途牛牛端口，默认为11111
     unlock_password = "123456"  # 美股和港股交易解锁密码
     trade_env = ft.TrdEnv.SIMULATE
 
@@ -34,17 +35,15 @@ class MACD(object):
 
     def context_setting(self):
         """
-        API trading and quote context setting
-        :returns: trade context, quote context
+        API trading and quote context setting using HA gateway connection.
+        :returns: quote context, trade context
         """
         if self.unlock_password == "":
             raise Exception("请先配置交易解锁密码! password: {}".format(
                 self.unlock_password))
 
-        quote_ctx = ft.OpenQuoteContext(
-            host=self.api_svr_ip, port=self.api_svr_port)
-
-        trade_ctx = ft.OpenSecTradeContext(filter_trdmarket=ft.TrdMarket.NONE, host=self.api_svr_ip, port=self.api_svr_port)
+        quote_ctx = create_quote_context()
+        trade_ctx = create_trade_context(filter_trdmarket=ft.TrdMarket.NONE)
 
         if self.trade_env == ft.TrdEnv.REAL:
             ret_code, ret_data = trade_ctx.unlock_trade(
