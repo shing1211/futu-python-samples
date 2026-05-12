@@ -38,7 +38,7 @@ def simple_sell(quote_ctx, trade_ctx, stock_code, trade_price, volume,
     lot_size = 0
     while True:
         sleep(1)
-        ret, data = quote_ctx.get_market_snapshot(stock_code)
+        ret, data = quote_ctx.get_market_snapshot([stock_code])
         if ret != ft.RET_OK:
             logger.warning("get_market_snapshot failed (retrying): %s", data)
             continue
@@ -90,7 +90,7 @@ def smart_sell(quote_ctx, trade_ctx, stock_code, volume,
 
     lot_size = 0
     while True:
-        ret, data = quote_ctx.get_market_snapshot(stock_code)
+        ret, data = quote_ctx.get_market_snapshot([stock_code])
         lot_size = data.iloc[0]['lot_size'] if ret == ft.RET_OK else 0
         if ret != ft.RET_OK:
             logger.warning("get_market_snapshot failed (retrying): %s", data)

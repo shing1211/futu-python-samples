@@ -143,7 +143,7 @@ class MACD:
 
             if has_position and cur_qty > 0:
                 ret_code, snapshot = self.quote_ctx.get_market_snapshot([self.stock])
-                if ret_code != 0:
+                if ret_code != ft.RET_OK:
                     logger.error("get_market_snapshot failed: %s", snapshot)
                     return
 
@@ -172,7 +172,7 @@ class MACD:
             logger.info("\n>>> BUY SIGNAL (golden cross) — MACD crossed above signal")
 
             ret_code, acc_info = self.trade_ctx.accinfo_query(trd_env=self.trade_env)
-            if ret_code != 0:
+            if ret_code != ft.RET_OK:
                 logger.error("accinfo_query failed: %s", acc_info)
                 return
 
@@ -181,7 +181,7 @@ class MACD:
             logger.info("  Buying power: %.2f", buying_power)
 
             ret_code, snapshot = self.quote_ctx.get_market_snapshot([self.stock])
-            if ret_code != 0:
+            if ret_code != ft.RET_OK:
                 logger.error("get_market_snapshot failed: %s", snapshot)
                 return
 
