@@ -34,6 +34,16 @@ env/
 # Logs
 *.log
 
+# Claude CLI
+.claude/
+
+# GitNexus index
+.gitnexus/
+
+# Knowledge graph output (from /graphify skill)
+graphify-out/
+examples/graphify-out/
+
 # Local config overrides
 .env
 .env.local
