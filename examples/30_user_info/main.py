@@ -18,20 +18,24 @@ if __name__ == "__main__":
     else:
         print("error:", data)
 
-    # 获取券商信息
-    print("\n=== get_security_firm ===")
-    ret, data = trd_ctx.get_security_firm()
+    # 获取券商信息 — get_security_firm is on quote context
+    print("\n=== get_security_firm (quote context) ===")
+    quote_ctx = create_quote_context()
+    ret, data = quote_ctx.get_security_firm()
     if ret == 0:
         print(data)
     else:
         print("error:", data)
+    quote_ctx.close()
 
-    # 获取用户信息
-    print("\n=== get_user_info ===")
-    ret, data = trd_ctx.get_user_info()
+    # 获取用户信息 — get_user_info is on quote context
+    print("\n=== get_user_info (quote context) ===")
+    quote_ctx = create_quote_context()
+    ret, data = quote_ctx.get_user_info()
     if ret == 0:
         print(data)
     else:
         print("error:", data)
+    quote_ctx.close()
 
     trd_ctx.close()
