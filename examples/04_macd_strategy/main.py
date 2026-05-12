@@ -1,4 +1,15 @@
 # -*- coding: utf-8 -*-
+"""MACD 量化交易策略示例
+
+Demonstrates:
+  - request_history_kline: fetch historical K-line data
+  - talib.MACD: compute MACD indicator
+  - get_market_snapshot: fetch current price + lot_size
+  - accinfo_query: check buying power
+  - position_list_query: check current holdings
+  - place_order: buy/sell with proper lot sizing
+  - Proper logging of all fields and signals
+"""
 import talib
 import math
 import datetime
@@ -7,125 +18,177 @@ import futu as ft
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from connect import create_quote_context, create_trade_context
+from connect import create_quote_context, create_trade_context, get_demo_trade_password
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 
-class MACD(object):
+class MACD:
     """
-    A simple MACD strategy
-    """
-    unlock_password = "123456"  # 美股和港股交易解锁密码
-    trade_env = ft.TrdEnv.SIMULATE
+    A simple MACD cross strategy.
 
-    def __init__(self, stock, short_period, long_period, smooth_period,
-                 observation):
-        """
-        Constructor
-        """
+    Entry signal: short MA crosses above long MA (golden cross)
+    Exit signal:  short MA crosses below long MA (death cross)
+
+    All key values are logged at each step.
+    """
+
+    def __init__(self, stock, short_period, long_period, smooth_period, observation):
         self.stock = stock
         self.short_period = short_period
         self.long_period = long_period
         self.smooth_period = smooth_period
         self.observation = observation
-        self.quote_ctx, self.trade_ctx = self.context_setting()
+        self.trade_env = ft.TrdEnv.SIMULATE
+        self.quote_ctx, self.trade_ctx = self._setup_contexts()
 
-    def close(self):
-        self.quote_ctx.close()
-        self.trade_ctx.close()
-
-    def context_setting(self):
-        """
-        API trading and quote context setting using HA gateway connection.
-        :returns: quote context, trade context
-        """
-        if self.unlock_password == "":
-            raise Exception("请先配置交易解锁密码! password: {}".format(
-                self.unlock_password))
-
+    def _setup_contexts(self):
+        logger.info("Setting up contexts...")
         quote_ctx = create_quote_context()
         trade_ctx = create_trade_context(filter_trdmarket=ft.TrdMarket.NONE)
 
+        pwd = get_demo_trade_password()
         if self.trade_env == ft.TrdEnv.REAL:
-            ret_code, ret_data = trade_ctx.unlock_trade(
-                self.unlock_password)
-            if ret_code == ft.RET_OK:
-                print('解锁交易成功!')
-            else:
-                raise Exception("请求交易解锁失败: {}".format(ret_data))
+            ret_code, ret_data = trade_ctx.unlock_trade(pwd)
+            if ret_code != ft.RET_OK:
+                raise RuntimeError(f"unlock_trade failed: {ret_data}")
+            logger.info("Trade unlocked (REAL mode)")
         else:
-            print('解锁交易成功!')
+            logger.info("Trade unlocked (SIMULATE mode — no password needed)")
 
         return quote_ctx, trade_ctx
 
+    def close(self):
+        logger.info("Closing contexts...")
+        self.quote_ctx.close()
+        self.trade_ctx.close()
+
     def handle_data(self):
-        """
-        handle stock data for trading signal, and make order
-        """
-        # 读取历史数据，使用sma方式计算均线准确度和数据长度无关，但是在使用ema方式计算均线时建议将历史数据窗口适当放大，结果会更加准确
+        """Main strategy logic — fetch data, compute MACD, place orders."""
+        logger.info("=== MACD Strategy ===")
+        logger.info("Stock: %s | short=%d long=%d smooth=%d observation=%d",
+                    self.stock, self.short_period, self.long_period,
+                    self.smooth_period, self.observation)
+
+        # ── Fetch historical K-line ──────────────────────────────────
         today = datetime.datetime.today()
-        pre_day = (today - datetime.timedelta(days=self.observation)
-                   ).strftime('%Y-%m-%d')
+        pre_day = (today - datetime.timedelta(days=self.observation)).strftime('%Y-%m-%d')
         end_dt = today.strftime('%Y-%m-%d')
-        ret_code, prices, page_req_key = self.quote_ctx.request_history_kline(self.stock, start=pre_day, end=end_dt)
+
+        logger.info("Fetching history kline: %s to %s", pre_day, end_dt)
+        ret_code, prices, page_req_key = self.quote_ctx.request_history_kline(
+            self.stock, start=pre_day, end=end_dt,
+        )
         if ret_code != ft.RET_OK:
-            print("request_history_kline fail: {}".format(prices))
+            logger.error("request_history_kline failed: %s", prices)
             return
 
-        # 用talib计算MACD取值，得到三个时间序列数组，分别为 macd, signal 和 hist
-        # macd 是长短均线的差值，signal 是 macd 的均线
-        # 使用 macd 策略有几种不同的方法，我们这里采用 macd 线突破 signal 线的判断方法
-        macd, signal, hist = talib.MACD(prices['close'].values,
-                                        self.short_period, self.long_period,
-                                        self.smooth_period)
+        logger.info("Received %d bars (columns: %s)", len(prices), list(prices.columns))
+        logger.info("Date range: %s to %s", prices['time_key'].min(), prices['time_key'].max())
+        logger.info("Close price sample: %s", prices['close'].tail(5).tolist())
 
-        # 如果macd从上往下跌破macd_signal
-        if macd[-1] < signal[-1] and macd[-2] > signal[-2]:
-            # 计算现在portfolio中股票的仓位
-            ret_code, data = self.trade_ctx.position_list_query(
-                trd_env=self.trade_env)
+        # ── Compute MACD ─────────────────────────────────────────────
+        close_arr = prices['close'].values
+        macd, signal, hist = talib.MACD(
+            close_arr,
+            self.short_period,
+            self.long_period,
+            self.smooth_period,
+        )
 
-            if ret_code != ft.RET_OK:
-                raise Exception('账户信息获取失败: {}'.format(data))
-            pos_info = data.set_index('code')
+        latest_macd = macd[-1]
+        latest_signal = signal[-1]
+        prev_macd = macd[-2]
+        prev_signal = signal[-2]
 
-            cur_pos = int(pos_info['qty'][self.stock])
-            # 进行清仓
-            if cur_pos > 0:
-                ret_code, data = self.quote_ctx.get_market_snapshot(
-                    [self.stock])
+        logger.info(
+            "MACD: macd=%.4f signal=%.4f hist=%.4f | prev: macd=%.4f signal=%.4f",
+            latest_macd, latest_signal, hist[-1], prev_macd, prev_signal,
+        )
+
+        # ── Get current positions ─────────────────────────────────────
+        logger.info("\n--- Portfolio Check ---")
+        ret_code, pos_data = self.trade_ctx.position_list_query(trd_env=self.trade_env)
+        if ret_code != ft.RET_OK:
+            logger.error("position_list_query failed: %s", pos_data)
+            return
+
+        if pos_data.empty:
+            logger.info("No positions held")
+            has_position = False
+            cur_qty = 0
+        else:
+            logger.info("Positions (%d rows): columns=%s", len(pos_data), list(pos_data.columns))
+            pos_info = pos_data.set_index('code')
+            if self.stock in pos_info.index:
+                cur_qty = int(pos_info.loc[self.stock, 'qty'])
+                has_position = True
+                logger.info("  Holding %s: qty=%d", self.stock, cur_qty)
+            else:
+                logger.info("  Not holding %s", self.stock)
+                has_position = False
+                cur_qty = 0
+
+        # ── Sell Signal: MACD crosses below signal ───────────────────
+        if latest_macd < latest_signal and prev_macd > prev_signal:
+            logger.info("\n>>> SELL SIGNAL (death cross) — MACD crossed below signal")
+
+            if has_position and cur_qty > 0:
+                ret_code, snapshot = self.quote_ctx.get_market_snapshot([self.stock])
                 if ret_code != 0:
-                    raise Exception('市场快照数据获取异常 {}'.format(data))
-                cur_price = data['last_price'][0]
+                    logger.error("get_market_snapshot failed: %s", snapshot)
+                    return
+
+                cur_price = snapshot['last_price'][0]
+                lot_size = snapshot['lot_size'][0]
+                logger.info("  Current price: %.2f | lot_size: %d", cur_price, lot_size)
+
                 ret_code, ret_data = self.trade_ctx.place_order(
                     price=cur_price,
-                    qty=cur_pos,
+                    qty=cur_qty,
                     code=self.stock,
                     trd_side=ft.TrdSide.SELL,
                     order_type=ft.OrderType.NORMAL,
-                    trd_env=self.trade_env)
+                    trd_env=self.trade_env,
+                )
                 if ret_code == ft.RET_OK:
-                    print('stop_loss MAKE SELL ORDER\n\tcode = {} price = {} quantity = {}'
-                          .format(self.stock, cur_price, cur_pos))
+                    logger.info("SELL ORDER PLACED: code=%s price=%.2f qty=%d order_id=%s",
+                                self.stock, cur_price, cur_qty, ret_data.get("order_id", "N/A"))
                 else:
-                    print('stop_loss: MAKE SELL ORDER FAILURE: {}'.format(ret_data))
+                    logger.error("SELL ORDER FAILED: %s", ret_data)
+            else:
+                logger.info("  No position to sell")
 
-        # 如果短均线从下往上突破长均线，为入场信号
-        if macd[-1] > signal[-1] and macd[-2] < signal[-2]:
-            # 满仓入股
-            ret_code, acc_info = self.trade_ctx.accinfo_query(
-                trd_env=self.trade_env)
-            if ret_code != 0:
-                raise Exception('账户信息获取失败! 请重试: {}'.format(acc_info))
+        # ── Buy Signal: MACD crosses above signal ────────────────────
+        elif latest_macd > latest_signal and prev_macd < prev_signal:
+            logger.info("\n>>> BUY SIGNAL (golden cross) — MACD crossed above signal")
 
-            ret_code, snapshot = self.quote_ctx.get_market_snapshot(
-                [self.stock])
+            ret_code, acc_info = self.trade_ctx.accinfo_query(trd_env=self.trade_env)
             if ret_code != 0:
-                raise Exception('市场快照数据获取异常 {}'.format(snapshot))
-            lot_size = snapshot['lot_size'][0]
+                logger.error("accinfo_query failed: %s", acc_info)
+                return
+
+            logger.info("Account info columns: %s", list(acc_info.columns))
+            buying_power = acc_info['power'][0]
+            logger.info("  Buying power: %.2f", buying_power)
+
+            ret_code, snapshot = self.quote_ctx.get_market_snapshot([self.stock])
+            if ret_code != 0:
+                logger.error("get_market_snapshot failed: %s", snapshot)
+                return
+
             cur_price = snapshot['last_price'][0]
-            cash = acc_info['power'][0]  # 购买力
-            qty = int(math.floor(cash / cur_price))
-            qty = qty // lot_size * lot_size
+            lot_size = snapshot['lot_size'][0]
+            logger.info("  Current price: %.2f | lot_size: %d", cur_price, lot_size)
+
+            qty = int(math.floor(buying_power / cur_price))
+            qty = (qty // lot_size) * lot_size
+            logger.info("  Calculated qty: %d (buying_power=%.2f / price=%.2f)", qty, buying_power, cur_price)
+
+            if qty < lot_size:
+                logger.info("  qty < lot_size, skipping buy")
+                return
 
             ret_code, ret_data = self.trade_ctx.place_order(
                 price=cur_price,
@@ -133,13 +196,17 @@ class MACD(object):
                 code=self.stock,
                 trd_side=ft.TrdSide.BUY,
                 order_type=ft.OrderType.NORMAL,
-                trd_env=self.trade_env)
-            if not ret_code:
-                print(
-                    'stop_loss MAKE BUY ORDER\n\tcode = {} price = {} quantity = {}'
-                    .format(self.stock, cur_price, qty))
+                trd_env=self.trade_env,
+            )
+            if ret_code == ft.RET_OK:
+                logger.info("BUY ORDER PLACED: code=%s price=%.2f qty=%d order_id=%s",
+                            self.stock, cur_price, qty, ret_data.get("order_id", "N/A"))
             else:
-                print('stop_loss: MAKE BUY ORDER FAILURE: {}'.format(ret_data))
+                logger.error("BUY ORDER FAILED: %s", ret_data)
+        else:
+            logger.info("\n>>> No signal (MACD=%.4f, Signal=%.4f) — holding%s",
+                        latest_macd, latest_signal,
+                        f" {cur_qty} shares" if has_position else "")
 
 
 if __name__ == "__main__":
@@ -147,9 +214,12 @@ if __name__ == "__main__":
     LONG_PERIOD = 26
     SMOOTH_PERIOD = 9
     OBSERVATION = 100
+    STOCK = "HK.00700"
 
-    STOCK = "HK.00123"
+    strategy = MACD(STOCK, SHORT_PERIOD, LONG_PERIOD, SMOOTH_PERIOD, OBSERVATION)
+    try:
+        strategy.handle_data()
+    finally:
+        strategy.close()
 
-    test = MACD(STOCK, SHORT_PERIOD, LONG_PERIOD, SMOOTH_PERIOD, OBSERVATION)
-    test.handle_data()
-    test.close()
+    logger.info("Done.")

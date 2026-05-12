@@ -1,45 +1,96 @@
 # -*- coding: utf-8 -*-
-"""价格提醒 (set_price_reminder / get_price_reminder)"""
+"""价格提醒 (set_price_reminder / get_price_reminder)
+
+Demonstrates:
+  - set_price_reminder: add/delete price alert conditions
+  - get_price_reminder: list all active alerts for a stock
+  - PriceReminderOp: ADD, DEL
+  - PriceReminderType: PRICE_UP, PRICE_DOWN, etc.
+  - PriceReminderFreq: ONCE, ALWAYS
+  - All returned fields logged
+
+Note: Alerts trigger via push notifications — no polling needed.
+"""
+import logging
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import futu as ft
 from connect import create_quote_context
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logger = logging.getLogger(__name__)
+
 
 if __name__ == "__main__":
+    logger.info("=== Price Reminder Demo ===")
+
     ctx = create_quote_context()
 
-    code = "HK.00700"
+    try:
+        code = "HK.00700"
 
-    # 设置价格提醒 — 当价格超过500时提醒
-    print(f"=== set_price_reminder: {code} above 500 ===")
-    ret, data = ctx.set_price_reminder(
-        code=code,
-        op=ft.PriceReminderOp.ADD,
-        key="above_500",
-        reminder_type=ft.PriceReminderType.PRICE_UP,
-        reminder_freq=ft.PriceReminderFreq.ONCE,
-        value=500.0,
-        note="TCEH above 500!",
-    )
-    print("set ret:", ret, data)
+        # ── Add price alert (above threshold) ───────────────────────────
+        logger.info("\n=== set_price_reminder: ADD above_500 (PRICE_UP) ===")
+        ret, data = ctx.set_price_reminder(
+            code=code,
+            op=ft.PriceReminderOp.ADD,
+            key="above_500",
+            reminder_type=ft.PriceReminderType.PRICE_UP,
+            reminder_freq=ft.PriceReminderFreq.ONCE,
+            value=500.0,
+            note="TCEH above 500!",
+        )
+        logger.info("set_price_reminder (ADD) ret=%d data=%s", ret, data)
 
-    # 查询所有价格提醒
-    print("\n=== get_price_reminder ===")
-    ret, data = ctx.get_price_reminder(code=code)
-    if ret == 0:
-        print(data.to_string())
-    else:
-        print("error:", data)
+        # ── Add price alert (below threshold) ───────────────────────────
+        logger.info("\n=== set_price_reminder: ADD below_300 (PRICE_DOWN) ===")
+        ret2, data2 = ctx.set_price_reminder(
+            code=code,
+            op=ft.PriceReminderOp.ADD,
+            key="below_300",
+            reminder_type=ft.PriceReminderType.PRICE_DOWN,
+            reminder_freq=ft.PriceReminderFreq.ONCE,
+            value=300.0,
+            note="TCEH below 300!",
+        )
+        logger.info("set_price_reminder (ADD) ret=%d data=%s", ret2, data2)
 
-    # 删除刚加的提醒
-    print("\n=== delete price reminder ===")
-    ret, data = ctx.set_price_reminder(
-        code=code,
-        op=ft.PriceReminderOp.DEL,
-        key="above_500",
-    )
-    print("delete ret:", ret, data)
+        # ── Query all active alerts ─────────────────────────────────────
+        logger.info("\n=== get_price_reminder: %s ===", code)
+        ret3, data3 = ctx.get_price_reminder(code=code)
+        if ret3 != 0:
+            logger.error("get_price_reminder failed: %s", data3)
+        else:
+            if data3.empty:
+                logger.info("No active price reminders")
+            else:
+                logger.info("Active reminders (%d):", len(data3))
+                logger.info("Columns: %s", list(data3.columns))
+                for _, row in data3.iterrows():
+                    logger.info("  key=%s type=%s freq=%s value=%.2f note=%s enable=%s",
+                                row.get("key", "?"), row.get("reminder_type", "?"),
+                                row.get("reminder_freq", "?"), row.get("value", 0),
+                                row.get("note", ""), row.get("enable", "?"))
+                logger.info("\n%s", data3.to_string())
 
-    ctx.close()
+        # ── Delete alerts ────────────────────────────────────────────────
+        logger.info("\n=== set_price_reminder: DEL above_500 ===")
+        ret4, data4 = ctx.set_price_reminder(
+            code=code,
+            op=ft.PriceReminderOp.DEL,
+            key="above_500",
+        )
+        logger.info("set_price_reminder (DEL) ret=%d data=%s", ret4, data4)
+
+        logger.info("\n=== set_price_reminder: DEL below_300 ===")
+        ret5, data5 = ctx.set_price_reminder(
+            code=code,
+            op=ft.PriceReminderOp.DEL,
+            key="below_300",
+        )
+        logger.info("set_price_reminder (DEL) ret=%d data=%s", ret5, data5)
+
+    finally:
+        ctx.close()
+        logger.info("Done.")

@@ -105,7 +105,14 @@ ctx = OpenQuoteContext(host="172.18.208.88", port=11111)
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `FUTU_ADDR` | OpenD server address | `127.0.0.1:11111` |
+| `FUTU_OPEND_HOSTS` | HA gateway list (host:port:is_rsa[,...]); overrules FUTU_ADDR | _(none)_ |
+| `FUTU_ADDR` | Single host fallback (host:port) | `127.0.0.1:11111` |
+| `FUTU_RSA_KEY` | Path to RSA private key | `/etc/futu/keys/private_key.pem` |
+| `FUTU_TCP_TIMEOUT` | TCP probe timeout (seconds) | `3` |
+| `FUTU_TRADE_PWD` | Demo SIMULATE trade unlock password | `123456` |
+
+For local development, copy `.env.example` to `.env` and fill in your values.
+`.env` is gitignored — never commit real credentials.
 
 ## License
 
