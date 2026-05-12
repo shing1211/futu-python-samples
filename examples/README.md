@@ -5,75 +5,101 @@
 | # | Name | Description |
 |---|------|-------------|
 | 00 | [00_connect_ha](./00_connect_ha/) | HA gateway connection — TCP probe, per-host RSA, auto-fallback |
-| 01 | [01_snapshot](./01_snapshot/) | Market snapshot — `get_market_snapshot` |
-| 02 | [02_quote_push](./02_quote_push/) | Real-time quote push — `subscribe` + push handlers |
-| 03 | [03_filter](./03_filter/) | Stock screener — `get_stock_filter` |
-| 04 | [04_macd_strategy](./04_macd_strategy/) | MACD trading strategy — K-line subscription + signal |
-| 05 | [05_quote_trade](./05_quote_trade/) | Quote + trade combined — quotes, kline, ticker, orderbook, broker, trade order/deal push |
-| 06 | [06_stock_sell](./06_stock_sell/) | Smart stock sell — `simple_sell` and `smart_sell` |
+| 01 | [01_snapshot](./01_snapshot/) | Market snapshot for all stocks in a market |
+| 02 | [02_quote_push](./02_quote_push/) | Real-time quote/orderbook/ticker/broker push via handlers |
+| 03 | [03_filter](./03_filter/) | Stock screener with SimpleFilter + FinancialFilter |
+| 04 | [04_macd_strategy](./04_macd_strategy/) | MACD trading signal strategy (buy/sell on cross) |
+| 05 | [05_quote_trade](./05_quote_trade/) | Full quote + trade push with all handler types |
+| 06 | [06_stock_sell](./06_stock_sell/) | Simple and smart sell functions |
+| 07 | [07_kline](./07_kline/) | K-line data — get_cur_kline + request_history_kline |
+| 08 | [08_rt_ticker](./08_rt_ticker/) | Real-time tick data — get_rt_ticker + get_rt_data |
+| 09 | [09_broker_queue](./09_broker_queue/) | Broker queue — bid/ask queue data |
+| 10 | [10_orderbook](./10_orderbook/) | Order book — 10-level bid/ask depth |
+| 11 | [11_accinfo](./11_accinfo/) | Account info + positions (accinfo_query / position_list_query) |
+| 12 | [12_trading_days](./12_trading_days/) | Trading days calendar per market |
+| 13 | [13_plate](./13_plate/) | Plate (sector/industry) listing and stock membership |
+| 14 | [14_cur_kline](./14_cur_kline/) | Real-time K-line push via CurKlineHandlerBase |
 
-## 00 — connect_ha
+## 07 — kline
 
-High-availability gateway selector with TCP health checks.
+Get current and historical candlestick (K-line) data.
 
-**Features:**
-- Parallel TCP probe to all configured hosts (3s timeout)
-- Connects to fastest reachable gateway
-- Per-host `is_rsa` flag: `True` = RSA encryption, `False` = plain, `None` = auto-fallback
-- SDK fallback retry if primary RSA mode fails
+```python
+from connect import create_quote_context
 
-**Usage:**
-```bash
-python examples/00_connect_ha/main.py
+ctx = create_quote_context()
+ret, data = ctx.get_cur_kline("HK.00700", num=10, ktype=KLType.K_DAY, AuType=AuType.qfq)
+ret, data = ctx.request_history_kline("HK.00700", start="2026-01-01", end="2026-05-12",
+                                       ktype=KLType.K_DAY, AuType=AuType.qfq)
+ctx.close()
 ```
 
-## 01 — snapshot
+## 08 — rt_ticker
 
-Market snapshot data for a given stock code list.
+Real-time transaction (tick) data and minute-level time-series data.
 
-```bash
-python examples/01_snapshot/main.py
+```python
+ret, data = ctx.get_rt_ticker("HK.00700", num=50)
+ret, data = ctx.get_rt_data("HK.00700")
 ```
 
-## 02 — quote_push
+## 09 — broker_queue
 
-Real-time quote push using handler callbacks. Demonstrates `StockQuoteHandlerBase`, `TickerHandlerBase`, `OrderBookHandlerBase`, `BrokerHandlerBase`.
+Broker bid/ask queue — shows top brokers on each side of the book.
 
-```bash
-python examples/02_quote_push/main.py
+```python
+ctx.subscribe(code, SubType.BROKER)
+ret, bid_data, ask_data = ctx.get_broker_queue(code)
 ```
 
-## 03 — filter
+## 10 — orderbook
 
-Stock screener using financial filters (`get_stock_filter`).
+Level-10 order book (bid/ask depth with volume per price level).
 
-```bash
-python examples/03_filter/main.py
+```python
+ctx.subscribe(code, SubType.ORDER_BOOK)
+ret, data = ctx.get_order_book(code, num=10)
 ```
 
-## 04 — macd_strategy
+## 11 — accinfo
 
-MACD-based trading signal on K-line data. Subscribes to real-time K-lines and computes MACD crossover signals.
+Account capital and position queries.
 
-```bash
-python examples/04_macd_strategy/main.py
+```python
+trd_ctx = create_trade_context(filter_trdmarket=TrdMarket.HK)
+trd_ctx.unlock_trade("123456")
+ret, data = trd_ctx.accinfo_query()
+ret, data = trd_ctx.position_list_query()
 ```
 
-## 05 — quote_trade
+## 12 — trading_days
 
-Full quote and trade demo. Covers:
-- Stock quote, K-line, Ticker, OrderBook, Broker push
-- HK/US/CC Trade (with trading password)
-- Trade Order and Deal push
+Query trading days for a given market and date range.
 
-```bash
-python examples/05_quote_trade/main.py
+```python
+ret, data = ctx.request_trading_days(Market.HK, "2026-01-01", "2026-12-31")
 ```
 
-## 06 — stock_sell
+## 13 — plate
 
-Smart sell helpers — `simple_sell` (fixed price) and `smart_sell` (limit order logic).
+List industry/sector plates and get constituent stocks.
 
-```bash
-python examples/06_stock_sell/main.py
+```python
+ret, data = ctx.get_plate_list(Market.HK, Plate.ALL)
+ret, data = ctx.get_plate_stock("HK.BK1001")
+```
+
+## 14 — cur_kline
+
+Real-time K-line push using `CurKlineHandlerBase`.
+
+```python
+class MyKlineHandler(CurKlineHandlerBase):
+    def on_recv_rsp(self, rsp_pb):
+        ret_code, kline_list = super().on_recv_rsp(rsp_pb)
+        # kline_list[0].code, .time_key, .open, .high, .low, .close, .volume
+        return ret_code, kline_list
+
+ctx.set_handler(MyKlineHandler())
+ctx.subscribe("HK.00700", SubType.K_DAY)
 ```
