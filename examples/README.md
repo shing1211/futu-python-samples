@@ -19,87 +19,21 @@
 | 12 | [12_trading_days](./12_trading_days/) | Trading days calendar per market |
 | 13 | [13_plate](./13_plate/) | Plate (sector/industry) listing and stock membership |
 | 14 | [14_cur_kline](./14_cur_kline/) | Real-time K-line push via CurKlineHandlerBase |
-
-## 07 — kline
-
-Get current and historical candlestick (K-line) data.
-
-```python
-from connect import create_quote_context
-
-ctx = create_quote_context()
-ret, data = ctx.get_cur_kline("HK.00700", num=10, ktype=KLType.K_DAY, AuType=AuType.qfq)
-ret, data = ctx.request_history_kline("HK.00700", start="2026-01-01", end="2026-05-12",
-                                       ktype=KLType.K_DAY, AuType=AuType.qfq)
-ctx.close()
-```
-
-## 08 — rt_ticker
-
-Real-time transaction (tick) data and minute-level time-series data.
-
-```python
-ret, data = ctx.get_rt_ticker("HK.00700", num=50)
-ret, data = ctx.get_rt_data("HK.00700")
-```
-
-## 09 — broker_queue
-
-Broker bid/ask queue — shows top brokers on each side of the book.
-
-```python
-ctx.subscribe(code, SubType.BROKER)
-ret, bid_data, ask_data = ctx.get_broker_queue(code)
-```
-
-## 10 — orderbook
-
-Level-10 order book (bid/ask depth with volume per price level).
-
-```python
-ctx.subscribe(code, SubType.ORDER_BOOK)
-ret, data = ctx.get_order_book(code, num=10)
-```
-
-## 11 — accinfo
-
-Account capital and position queries.
-
-```python
-trd_ctx = create_trade_context(filter_trdmarket=TrdMarket.HK)
-trd_ctx.unlock_trade("123456")
-ret, data = trd_ctx.accinfo_query()
-ret, data = trd_ctx.position_list_query()
-```
-
-## 12 — trading_days
-
-Query trading days for a given market and date range.
-
-```python
-ret, data = ctx.request_trading_days(Market.HK, "2026-01-01", "2026-12-31")
-```
-
-## 13 — plate
-
-List industry/sector plates and get constituent stocks.
-
-```python
-ret, data = ctx.get_plate_list(Market.HK, Plate.ALL)
-ret, data = ctx.get_plate_stock("HK.BK1001")
-```
-
-## 14 — cur_kline
-
-Real-time K-line push using `CurKlineHandlerBase`.
-
-```python
-class MyKlineHandler(CurKlineHandlerBase):
-    def on_recv_rsp(self, rsp_pb):
-        ret_code, kline_list = super().on_recv_rsp(rsp_pb)
-        # kline_list[0].code, .time_key, .open, .high, .low, .close, .volume
-        return ret_code, kline_list
-
-ctx.set_handler(MyKlineHandler())
-ctx.subscribe("HK.00700", SubType.K_DAY)
-```
+| 15 | [15_sub_list](./15_sub_list/) | Query subscription list (query_subscription) |
+| 16 | [16_stock_quote](./16_stock_quote/) | Real-time quote fields (get_stock_quote) |
+| 17 | [17_owner_plate](./17_owner_plate/) | Owner plate + referencestock list |
+| 18 | [18_referencestock](./18_referencestock/) | Warrant/bull-bear reference stocks |
+| 19 | [19_capital_flow](./19_capital_flow/) | Capital flow + capital distribution |
+| 20 | [20_ipo_list](./20_ipo_list/) | IPO calendar per market |
+| 21 | [21_future_info](./21_future_info/) | Futures contract details |
+| 22 | [22_market_state](./22_market_state/) | Market state (pre/open/after/closed) |
+| 23 | [23_price_reminder](./23_price_reminder/) | Price alert setup and query |
+| 24 | [24_user_security](./24_user_security/) | Watchlist group management |
+| 25 | [25_option_chain](./25_option_chain/) | Option chain + expiration dates |
+| 26 | [26_history_kl_quota](./26_history_kl_quota/) | Historical K-line quota and usage |
+| 27 | [27_code_change](./27_code_change/) | Stock code change records |
+| 28 | [28_warrant](./28_warrant/) | Warrant data by underlying |
+| 29 | [29_unusual](./29_unusual/) | Technical/financial/derivative unusual alerts |
+| 30 | [30_user_info](./30_user_info/) | Account list, user info, broker firm |
+| 31 | [31_misc](./31_misc/) | Holding changes, rehab data, user security groups |
+| 32 | [32_order_query](./32_order_query/) | Order query, modify, cancel, deal history |

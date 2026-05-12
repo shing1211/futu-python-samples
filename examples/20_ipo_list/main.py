@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""获取交易日历 (get_trading_days)"""
+"""IPO列表 (get_ipo_list)"""
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -10,11 +10,12 @@ from connect import create_quote_context
 if __name__ == "__main__":
     ctx = create_quote_context()
 
-    for market in [ft.Market.HK, ft.Market.US, ft.Market.SH, ft.Market.SZ]:
-        print(f"\n=== request_trading_days: {market} ===")
-        ret, data = ctx.request_trading_days(market, "2026-04-01", "2026-05-31")
+    for market in [ft.Market.HK, ft.Market.US]:
+        print(f"\n=== get_ipo_list: {market} ===")
+        ret, data = ctx.get_ipo_list(market)
         if ret == 0:
-            print(data)
+            print(f"Total: {len(data)}")
+            print(data.head(5).to_string())
         else:
             print("error:", data)
 
