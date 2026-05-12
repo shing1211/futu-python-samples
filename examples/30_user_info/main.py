@@ -18,14 +18,11 @@ if __name__ == "__main__":
     else:
         print("error:", data)
 
-    # 获取券商信息 — get_security_firm is on quote context
+    # 获取券商信息 — get_security_firm is on quote context, returns str directly
     print("\n=== get_security_firm (quote context) ===")
     quote_ctx = create_quote_context()
-    ret, data = quote_ctx.get_security_firm()
-    if ret == 0:
-        print(data)
-    else:
-        print("error:", data)
+    data = quote_ctx.get_security_firm()
+    print(data)
     quote_ctx.close()
 
     # 获取用户信息 — get_user_info is on quote context
