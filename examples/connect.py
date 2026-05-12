@@ -69,8 +69,9 @@ def connect_opend(is_rsa: bool | None = None):
     is_rsa=False → no-RSA mode only
     is_rsa=None  → auto: try RSA first, fallback without on failure
 
-    Returns (ctx, info_dict) where info_dict has keys:
-        name, host, tcp_ms, api_ms, server_ver, quote_login, trade_login,
+    Returns (info_dict, actual_rsa) where actual_rsa is the bool RSA setting
+    that succeeded, and info_dict has keys:
+        name, host, tcp_ms, api_ms, server ver, quote_login, trade_login,
         market_hk, market_us, market_sh, market_sz
     """
     # Parallel TCP probe
@@ -96,10 +97,12 @@ def connect_opend(is_rsa: bool | None = None):
     # Try with primary RSA mode, then fallback
     rsa_mode = host_rsa if host_rsa is not None else True
     ok, data, api_lat = try_connect(fastest_host, PORT, is_rsa=rsa_mode)
+    actual_rsa = rsa_mode
 
     if not ok and is_rsa is None:
         fallback_rsa = not rsa_mode
         ok, data, api_lat = try_connect(fastest_host, PORT, is_rsa=fallback_rsa)
+        actual_rsa = fallback_rsa
 
     if not ok:
         raise RuntimeError(f"Failed to connect to {fastest_host}: {data}")
@@ -116,7 +119,7 @@ def connect_opend(is_rsa: bool | None = None):
         "market_us": data.get("market_us", "?"),
         "market_sh": data.get("market_sh", "?"),
         "market_sz": data.get("market_sz", "?"),
-    }
+    }, actual_rsa
 
 
 def create_quote_context(is_rsa: bool | None = None):
@@ -126,8 +129,9 @@ def create_quote_context(is_rsa: bool | None = None):
 
     is_rsa: override RSA setting (None = per-host config, auto-fallback)
     """
-    info = connect_opend(is_rsa=is_rsa)
-    configure_rsa(enable=False)  # reset to plain for subsequent contexts
+    info, actual_rsa = connect_opend(is_rsa=is_rsa)
+    # Re-configure with the RSA mode that actually worked before returning the context
+    configure_rsa(enable=actual_rsa)
     return OpenQuoteContext(host=info["host"], port=PORT)
 
 
@@ -140,6 +144,7 @@ def create_trade_context(is_rsa: bool | None = None, **kwargs):
     kwargs: passed through to OpenSecTradeContext (e.g. filter_trdmarket, security_firm)
     """
     from futu import OpenSecTradeContext
-    info = connect_opend(is_rsa=is_rsa)
-    configure_rsa(enable=False)
+    info, actual_rsa = connect_opend(is_rsa=is_rsa)
+    # Configure RSA with the mode that actually worked — required for trade context
+    configure_rsa(enable=actual_rsa)
     return OpenSecTradeContext(host=info["host"], port=PORT, **kwargs)
