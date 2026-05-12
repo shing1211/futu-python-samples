@@ -118,7 +118,7 @@ def main():
     logger.info("=== Full Quote+Trade Push Demo ===")
 
     quote_ctx = create_quote_context()
-    trd_ctx = create_trade_context(filter_trdmarket=ft.TrdMarket.HK)
+    trd_ctx = create_trade_context(filter_trdmarket=TrdMarket.HK)
 
     try:
         # Quote push handlers

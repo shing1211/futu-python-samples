@@ -31,11 +31,11 @@ if __name__ == "__main__":
         logger.info("\n=== get_cur_kline: %s last 10 daily bars ===", code)
         for ktype_label, ktype in [
             ("K_DAY (daily)", ft.KLType.K_DAY),
-            ("K_1H (hourly)", ft.KLType.K_1H),
+            ("K_60M (hourly)", ft.KLType.K_60M),
             ("K_30M", ft.KLType.K_30M),
             ("K_5M", ft.KLType.K_5M),
         ]:
-            ret, data = ctx.get_cur_kline(code, num=5, ktype=ktype, AuType=ft.AuType.qfq)
+            ret, data = ctx.get_cur_kline(code, num=5, ktype=ktype, AuType=ft.AuType.QFQ)
             if ret != 0:
                 logger.error("get_cur_kline (%s) failed: %s", ktype_label, data)
             else:
@@ -52,7 +52,7 @@ if __name__ == "__main__":
             start="2026-04-01",
             end="2026-05-12",
             ktype=ft.KLType.K_DAY,
-            AuType=ft.AuType.qfq,
+            AuType=ft.AuType.QFQ,
         )
         if ret != 0:
             logger.error("request_history_kline failed: %s", data)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
         # ── Different AuType ───────────────────────────────────────────
         logger.info("\n=== request_history_kline: AuType comparison (bfq vs qfq) ===")
-        for au_label, au_type in [("bfq (no adjustment)", ft.AuType.bfq), ("qfq (adjusted)", ft.AuType.qfq)]:
+        for au_label, au_type in [("bfq (no adjustment)", ft.AuType.BFQ), ("qfq (adjusted)", ft.AuType.QFQ)]:
             ret, data = ctx.request_history_kline(code, start="2026-04-01", end="2026-05-12",
                                                   ktype=ft.KLType.K_DAY, AuType=au_type)
             if ret == 0:

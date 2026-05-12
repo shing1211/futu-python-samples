@@ -10,7 +10,7 @@ Demonstrates:
   - place_order: buy/sell with proper lot sizing
   - Proper logging of all fields and signals
 """
-import talib
+import pandas as pd
 import math
 import datetime
 import logging
@@ -85,22 +85,29 @@ class MACD:
             return
 
         logger.info("Received %d bars (columns: %s)", len(prices), list(prices.columns))
+        if prices.empty or len(prices) < self.long_period + self.smooth_period:
+            logger.error("Not enough kline data (%d bars) for MACD (need %d)",
+                         len(prices), self.long_period + self.smooth_period)
+            return
         logger.info("Date range: %s to %s", prices['time_key'].min(), prices['time_key'].max())
         logger.info("Close price sample: %s", prices['close'].tail(5).tolist())
 
         # ── Compute MACD ─────────────────────────────────────────────
-        close_arr = prices['close'].values
-        macd, signal, hist = talib.MACD(
-            close_arr,
-            self.short_period,
-            self.long_period,
-            self.smooth_period,
-        )
+        def macd(close, fast=12, slow=26, signal=9):
+            ema_fast = close.ewm(span=fast, adjust=False).mean()
+            ema_slow = close.ewm(span=slow, adjust=False).mean()
+            macd_line = ema_fast - ema_slow
+            macd_signal = macd_line.ewm(span=signal, adjust=False).mean()
+            macd_hist = macd_line - macd_signal
+            return macd_line, macd_signal, macd_hist
 
-        latest_macd = macd[-1]
-        latest_signal = signal[-1]
-        prev_macd = macd[-2]
-        prev_signal = signal[-2]
+        close_arr = prices['close']
+        macd_line, signal, hist = macd(close_arr, self.short_period, self.long_period, self.smooth_period)
+
+        latest_macd = macd_line.iloc[-1]
+        latest_signal = signal.iloc[-1]
+        prev_macd = macd_line.iloc[-2]
+        prev_signal = signal.iloc[-2]
 
         logger.info(
             "MACD: macd=%.4f signal=%.4f hist=%.4f | prev: macd=%.4f signal=%.4f",

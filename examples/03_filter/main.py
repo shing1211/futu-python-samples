@@ -62,10 +62,9 @@ def main():
             else:
                 logger.info("First few matches:")
                 for item in ret_list[:5]:
-                    logger.info("  code=%s name=%s cur_price=%s current_ratio=%s",
-                                item.stock_code, item.stock_name,
-                                item.cur_price, item.current_ratio)
-                    logger.info("    (raw item dict: %s)", dict(item) if hasattr(item, '__dict__') else item)
+                    logger.info("  code=%s name=%s cur_price=%s",
+                                item.stock_code, item.stock_name, item.cur_price)
+                    logger.info("    item type: %s", type(item).__name__)
 
                 logger.info("\nTotal returned: %d stocks | Total count (all pages): %d",
                             len(ret_list), all_count)

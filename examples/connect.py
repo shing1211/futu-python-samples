@@ -164,9 +164,9 @@ def connect_opend(is_rsa: bool | None = None):
     # Parallel TCP probe
     tcp_results = {}
     with ThreadPoolExecutor(max_workers=len(HOSTS)) as ex:
-        futures = {ex.submit(tcp_connect, h, p): (n, h, p, r) for n, h, p, r in HOSTS}
+        futures = {ex.submit(tcp_connect, h, p): (h, p, r) for h, p, r in HOSTS}
         for future in as_completed(futures):
-            name, host, port, rsa = futures[future]
+            host, port, rsa = futures[future]
             ms = future.result()
             tcp_results[(host, port)] = (ms, rsa)
             status = f"{ms:.0f}ms" if ms is not None else "unreachable"
