@@ -5,6 +5,7 @@
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org/)
+[![SDK Version](https://img.shields.io/badge/SDK-10.5.6508-blue)](https://pypi.org/project/futu-api/)
 
 ---
 
@@ -13,12 +14,11 @@
 ```bash
 git clone https://github.com/shing1211/futu-python-samples.git
 cd futu-python-samples
-pip install futu-api python-dotenv
-cp .env.example .env        # ← edit with your gateway host
+pip install futu-api python-dotenv    # tested with SDK 10.5.6508
+cp .env.example .env                  # ← edit with your gateway host
 
 # pick any example — they're all self-contained
 python3 examples/07_kline/main.py
-```
 
 That's it. No API keys, no compile step, no boilerplate to write first.
 
