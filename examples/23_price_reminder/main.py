@@ -34,8 +34,8 @@ if __name__ == "__main__":
         logger.info("\n=== set_price_reminder: ADD above_500 (PRICE_UP) ===")
         ret, data = ctx.set_price_reminder(
             code=code,
-            op=ft.PriceReminderOp.ADD,
-            key="above_500",
+            op=ft.SetPriceReminderOp.ADD,
+            key=0,
             reminder_type=ft.PriceReminderType.PRICE_UP,
             reminder_freq=ft.PriceReminderFreq.ONCE,
             value=500.0,
@@ -47,8 +47,8 @@ if __name__ == "__main__":
         logger.info("\n=== set_price_reminder: ADD below_300 (PRICE_DOWN) ===")
         ret2, data2 = ctx.set_price_reminder(
             code=code,
-            op=ft.PriceReminderOp.ADD,
-            key="below_300",
+            op=ft.SetPriceReminderOp.ADD,
+            key=0,
             reminder_type=ft.PriceReminderType.PRICE_DOWN,
             reminder_freq=ft.PriceReminderFreq.ONCE,
             value=300.0,
@@ -74,20 +74,20 @@ if __name__ == "__main__":
                                 row.get("note", ""), row.get("enable", "?"))
                 logger.info("\n%s", data3.to_string())
 
-        # ── Delete alerts ────────────────────────────────────────────────
+        # ── Delete alerts (use the key/id from get_price_reminder) ──────
         logger.info("\n=== set_price_reminder: DEL above_500 ===")
         ret4, data4 = ctx.set_price_reminder(
             code=code,
-            op=ft.PriceReminderOp.DEL,
-            key="above_500",
+            op=ft.SetPriceReminderOp.DEL,
+            key=0,  # in practice, read key/id from get_price_reminder response
         )
         logger.info("set_price_reminder (DEL) ret=%d data=%s", ret4, data4)
 
         logger.info("\n=== set_price_reminder: DEL below_300 ===")
         ret5, data5 = ctx.set_price_reminder(
             code=code,
-            op=ft.PriceReminderOp.DEL,
-            key="below_300",
+            op=ft.SetPriceReminderOp.DEL,
+            key=0,
         )
         logger.info("set_price_reminder (DEL) ret=%d data=%s", ret5, data5)
 

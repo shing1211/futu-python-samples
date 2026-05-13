@@ -65,10 +65,9 @@ if __name__ == "__main__":
         if ret2 != 0:
             logger.error("get_broker_queue (%s) failed: %s", code2, bid2)
         else:
-            logger.info("%s BID brokers: %d | ASK brokers: %d",
-                        code2,
-                        len(bid2) if bid2 else 0,
-                        len(ask2) if ask2 else 0)
+            bid_len = len(bid2) if bid2 is not None and not bid2.empty else 0
+            ask_len = len(ask2) if ask2 is not None and not ask2.empty else 0
+            logger.info("%s BID brokers: %d | ASK brokers: %d", code2, bid_len, ask_len)
 
     finally:
         ctx.close()

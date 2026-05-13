@@ -54,17 +54,24 @@ if __name__ == "__main__":
                 logger.info("\n%s", data.head(5).to_string())
 
         # ── get_referencestock_list: bull/bear ────────────────────────────
-        logger.info("\n=== get_referencestock_list: %s [BULL_BEAR] ===", code)
-        ret, data = ctx.get_referencestock_list(code, ft.SecurityReferenceType.BULL_BEAR)
-        if ret != 0:
-            logger.error("get_referencestock_list (BULL_BEAR) failed: %s", data)
+        # Note: BULL_BEAR is not available in all SDK versions;
+        # skip gracefully if the enum doesn't exist.
+        try:
+            ref_type_bull = ft.SecurityReferenceType.BULL_BEAR
+        except AttributeError:
+            logger.info("\n=== get_referencestock_list: %s [BULL_BEAR] — not available in this SDK ===", code)
         else:
-            logger.info("Bull/Bear reference stocks (%d):", len(data))
-            if not data.empty:
-                logger.info("Columns: %s", list(data.columns))
-                for _, row in data.head(5).iterrows():
-                    logger.info("  code=%s name=%s", row.get("code"), row.get("name"))
-                logger.info("\n%s", data.head(5).to_string())
+            logger.info("\n=== get_referencestock_list: %s [BULL_BEAR] ===", code)
+            ret, data = ctx.get_referencestock_list(code, ref_type_bull)
+            if ret != 0:
+                logger.error("get_referencestock_list (BULL_BEAR) failed: %s", data)
+            else:
+                logger.info("Bull/Bear reference stocks (%d):", len(data))
+                if not data.empty:
+                    logger.info("Columns: %s", list(data.columns))
+                    for _, row in data.head(5).iterrows():
+                        logger.info("  code=%s name=%s", row.get("code"), row.get("name"))
+                    logger.info("\n%s", data.head(5).to_string())
 
     finally:
         ctx.close()

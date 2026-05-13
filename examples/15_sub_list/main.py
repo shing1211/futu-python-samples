@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
         # ── Unsubscribe specific subtype ───────────────────────────────────
         logger.info("\n=== unsubscribe: K_DAY from HK.00700 ===")
-        ret = ctx.unsubscribe(codes=['HK.00700'], subtype_list=[ft.SubType.K_DAY])
+        ret = ctx.unsubscribe(code_list=['HK.00700'], subtype_list=[ft.SubType.K_DAY])
         logger.info("unsubscribe ret=%d", ret)
 
         # ── Re-query ───────────────────────────────────────────────────────

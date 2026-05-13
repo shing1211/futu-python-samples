@@ -45,7 +45,7 @@ if __name__ == "__main__":
         ret, plates = ctx.get_plate_list(ft.Market.HK, ft.Plate.INDUSTRY)
         if ret == 0 and not plates.empty:
             first_plate = plates.iloc[0]['code']
-            first_name = plates.iloc[0]['name']
+            first_name = plates.iloc[0]['plate_name']
             logger.info("\n=== get_plate_stock: %s (%s) ===", first_name, first_plate)
 
             ret2, stock_list = ctx.get_plate_stock(first_plate)

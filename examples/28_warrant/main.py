@@ -27,18 +27,26 @@ if __name__ == "__main__":
     try:
         for owner in ["HK.00700", "HK.HSImain"]:
             logger.info("\n=== get_warrant: owner=%s ===", owner)
-            ret, data = ctx.get_warrant(stock_owner=owner)
+            ret, warrant_data = ctx.get_warrant(stock_owner=owner)
             if ret != 0:
-                logger.error("get_warrant failed: %s", data)
+                logger.error("get_warrant failed: %s", warrant_data)
             else:
-                if data.empty:
+                # warrant_data is (DataFrame, has_more, total_count) — unwrap
+                if isinstance(warrant_data, tuple):
+                    warrants, has_more, total = warrant_data
+                else:
+                    warrants = warrant_data
+                    has_more = None
+                    total = None
+                if warrants.empty:
                     logger.info("No warrants found for %s", owner)
                 else:
-                    logger.info("Total warrants: %d | Columns: %s", len(data), list(data.columns))
-                    for col in data.columns:
-                        vals = data[col].tolist()[:5]
+                    logger.info("Total warrants: %d | has_more=%s | Columns: %s",
+                                len(warrants), has_more, list(warrants.columns))
+                    for col in warrants.columns:
+                        vals = warrants[col].tolist()[:5]
                         logger.info("  %-25s = %s", col, vals)
-                    logger.info("\nFirst 5 warrants:\n%s", data.head(5).to_string())
+                    logger.info("\nFirst 5 warrants:\n%s", warrants.head(5).to_string())
 
     finally:
         ctx.close()

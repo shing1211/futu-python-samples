@@ -35,42 +35,43 @@ if __name__ == "__main__":
             ("K_30M", ft.KLType.K_30M),
             ("K_5M", ft.KLType.K_5M),
         ]:
-            ret, data = ctx.get_cur_kline(code, num=5, ktype=ktype, AuType=ft.AuType.QFQ)
+            ret, kline_data = ctx.get_cur_kline(code, num=5, ktype=ktype, autype=ft.AuType.QFQ)
             if ret != 0:
-                logger.error("get_cur_kline (%s) failed: %s", ktype_label, data)
+                logger.error("get_cur_kline (%s) failed: %s", ktype_label, kline_data)
             else:
-                logger.info("--- %s (ret=%d, %d rows) ---", ktype_label, ret, len(data))
-                logger.info("Columns: %s", list(data.columns))
-                for col in data.columns:
-                    logger.info("  %-15s = %s", col, data[col].tolist())
-                logger.info("\n%s", data.to_string())
+                logger.info("--- %s (ret=%d, %d rows) ---", ktype_label, ret, len(kline_data))
+                logger.info("Columns: %s", list(kline_data.columns))
+                for col in kline_data.columns:
+                    logger.info("  %-15s = %s", col, kline_data[col].tolist())
+                logger.info("\n%s", kline_data.to_string())
 
         # ── Historical K-line (request_history_kline) ───────────────────
+        # Returns (ret_code, DataFrame, next_page_token)
         logger.info("\n=== request_history_kline: %s last 30 days ===", code)
-        ret, data = ctx.request_history_kline(
+        ret, hist_data, _ = ctx.request_history_kline(
             code,
             start="2026-04-01",
             end="2026-05-12",
             ktype=ft.KLType.K_DAY,
-            AuType=ft.AuType.QFQ,
+            autype=ft.AuType.QFQ,
         )
         if ret != 0:
-            logger.error("request_history_kline failed: %s", data)
+            logger.error("request_history_kline failed: %s", hist_data)
         else:
-            logger.info("Retrieved %d bars | Columns: %s", len(data), list(data.columns))
-            for col in data.columns:
-                logger.info("  %-15s = %s", col, data[col].tolist())
-            logger.info("\nLast 5 bars:\n%s", data.tail(5).to_string())
+            logger.info("Retrieved %d bars | Columns: %s", len(hist_data), list(hist_data.columns))
+            for col in hist_data.columns:
+                logger.info("  %-15s = %s", col, hist_data[col].tolist())
+            logger.info("\nLast 5 bars:\n%s", hist_data.tail(5).to_string())
 
         # ── Different AuType ───────────────────────────────────────────
         logger.info("\n=== request_history_kline: AuType comparison (bfq vs qfq) ===")
         for au_label, au_type in [("bfq (no adjustment)", ft.AuType.BFQ), ("qfq (adjusted)", ft.AuType.QFQ)]:
-            ret, data = ctx.request_history_kline(code, start="2026-04-01", end="2026-05-12",
-                                                  ktype=ft.KLType.K_DAY, AuType=au_type)
+            ret, hist_data, _ = ctx.request_history_kline(code, start="2026-04-01", end="2026-05-12",
+                                                  ktype=ft.KLType.K_DAY, autype=au_type)
             if ret == 0:
-                logger.info("--- %s: last close=%.2f ---", au_label, data['close'].iloc[-1])
+                logger.info("--- %s: last close=%.2f ---", au_label, hist_data['close'].iloc[-1])
             else:
-                logger.error("%s failed: %s", au_label, data)
+                logger.error("%s failed: %s", au_label, hist_data)
 
     finally:
         ctx.close()

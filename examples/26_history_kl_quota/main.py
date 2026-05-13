@@ -27,23 +27,24 @@ if __name__ == "__main__":
     try:
         # ── Basic quota check ───────────────────────────────────────────
         logger.info("\n=== get_history_kl_quota (summary) ===")
-        ret, data = ctx.get_history_kl_quota()
+        ret, quota_data = ctx.get_history_kl_quota()
         if ret != 0:
-            logger.error("get_history_kl_quota failed: %s", data)
+            logger.error("get_history_kl_quota failed: %s", quota_data)
         else:
-            logger.info("Quota used: %s | Remaining: %s",
-                        data.get('used_quota', 'N/A'), data.get('remain_quota', 'N/A'))
-            logger.info("Full response: %s", data)
+            # quota_data is (used_quota, remain_quota, detail_list)
+            used_q, remain_q, detail = quota_data if isinstance(quota_data, tuple) else (quota_data, 'N/A', 'N/A')
+            logger.info("Quota used: %s | Remaining: %s", used_q, remain_q)
+            logger.info("Full response: %s", quota_data)
 
         # ── Detailed quota breakdown ───────────────────────────────────
         logger.info("\n=== get_history_kl_quota (detail=True) ===")
-        ret, data = ctx.get_history_kl_quota(get_detail=True)
+        ret, quota_data = ctx.get_history_kl_quota(get_detail=True)
         if ret != 0:
-            logger.error("get_history_kl_quota (detail) failed: %s", data)
+            logger.error("get_history_kl_quota (detail) failed: %s", quota_data)
         else:
-            logger.info("Quota used: %s | Remaining: %s",
-                        data.get('used_quota', 'N/A'), data.get('remain_quota', 'N/A'))
-            detail = data.get('detail', 'N/A')
+            used_q, remain_q, detail = quota_data if isinstance(quota_data, tuple) else (quota_data, 'N/A', 'N/A')
+            logger.info("Quota used: %s | Remaining: %s", used_q, remain_q)
+            detail = detail  # already unpacked above; re-read if needed
             if detail != 'N/A':
                 logger.info("Detail type: %s", type(detail))
                 if isinstance(detail, dict):
@@ -53,7 +54,7 @@ if __name__ == "__main__":
                     logger.info("Detail:\n%s", detail.to_string())
                 else:
                     logger.info("Detail: %s", detail)
-            logger.info("Full response: %s", data)
+            logger.info("Full response: %s", quota_data)
 
     finally:
         ctx.close()
