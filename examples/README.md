@@ -1,6 +1,6 @@
 # Examples
 
-55 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
+59 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -28,6 +28,9 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [46](./46_curkline_handler/) | CurKline Push | `CurKlineHandlerBase` — live candle build-up as it forms, before the bar closes |
 | [47](./47_price_reminder_handler/) | Price Reminder Push | `PriceReminderHandlerBase` — server-pushed alerts when your price targets are hit |
 | [48](./48_keepalive_handler/) | KeepAlive Push | `KeepAliveHandlerBase` — heartbeat monitoring between client and OpenD |
+| [54](./54_pair_trading/) | Pair Trading Signal | Rolling z-score spread between HK.00700 and HK.09988 via CurKlineHandler — statistical arbitrage signal in real time |
+| [56](./56_order_flow_imbalance/) | Order Flow Imbalance | ORDER_BOOK push accumulation — measures directional pressure as net bid vs ask volume delta over time |
+| [57](./57_vwap_benchmark/) | VWAP Benchmark | TICKER push stream → running VWAP, deviation in bps, simulated entry P&L — execution quality in real time |
 
 ### Static & Historical Market Data
 
@@ -35,6 +38,7 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 |---|------|----------------|
 | [01](./01_snapshot/) | Market Snapshot | Every single stock in a market — price, volume, turnover, bid/ask — in one shot |
 | [44](./44_multi_market_snapshot/) | Multi-Market Snapshot | All four markets (HK/US/SH/SZ) fetched concurrently via threading |
+| [55](./55_momentum_screener/) | Momentum Screener | RSI + MACD across Daily/60M/15M for 8 HK stocks — multi-timeframe signal confluence |
 | [07](./07_kline/) | K-Line History | Historical K-lines with pagination + today's live bar via `get_cur_kline` |
 | [08](./08_rt_ticker/) | Tick Data | Every trade print — exact time, price, volume, direction — for a stock |
 | [09](./09_broker_queue/) | Broker Queue | Who sits on the bid and ask, how many lots each broker is showing |
