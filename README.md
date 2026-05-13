@@ -126,22 +126,6 @@ Browse by category or find the feature you need.
 |---|-------------|
 | [00](./examples/00_connect_ha/) | **HA gateway selection** — probes all hosts, picks fastest, retries RSA on failure. Start here to verify your setup. |
 | [01](./examples/01_snapshot/) | **Market snapshot** — fetch every stock in a market (HK, US, SH, SZ) in one call |
-| [44](./examples/44_multi_market_snapshot/) | **Multi-market snapshot** — all four markets fetched concurrently via threading |
-
-### Real-Time Feeds (Push Handlers)
-
-| # | What it does |
-|---|-------------|
-| [02](./examples/02_quote_push/) | **All quote push handlers** — quote, orderbook, ticker, broker queue, all running simultaneously |
-| [05](./examples/05_quote_trade/) | **Quote + trade combined** — every push type in one script, with trade order/deal streams |
-| [14](./examples/14_cur_kline/) | **Live K-line stream** — subscribe to real-time candlestick updates |
-| [39](./examples/39_push_sysnotify/) | **System notifications** — login events, order fills, market alerts |
-| [40](./examples/40_push_trade/) | **Trade push** — live order status and deal confirmations as they happen |
-| [45](./examples/45_broker_handler/) | **Broker queue push** — `BrokerHandlerBase` for real-time broker depth changes |
-| [45b](./examples/45b_ticker_handler/) | **Ticker push** — `TickerHandlerBase` for every trade print with price, volume, direction |
-| [46](./examples/46_curkline_handler/) | **CurKline push** — `CurKlineHandlerBase` for live candle build-up before bar closes |
-| [47](./examples/47_price_reminder_handler/) | **Price reminder push** — `PriceReminderHandlerBase` for server-pushed price alerts |
-| [48](./examples/48_keepalive_handler/) | **KeepAlive push** — `KeepAliveHandlerBase` for connection heartbeat monitoring |
 
 ### Market Data
 
@@ -153,6 +137,7 @@ Browse by category or find the feature you need.
 | [10](./examples/10_orderbook/) | **10-level order book** — full bid/ask ladder with volume at each level |
 | [16](./examples/16_stock_quote/) | **Stock quotes** — last price, volume, turnover, bid/ask for a list of stocks |
 | [22](./examples/22_market_state/) | **Market state** — is the market pre-open, open, after-hours, or closed? |
+| [44](./examples/44_multi_market_snapshot/) | **Multi-market snapshot** — all four markets fetched concurrently via threading |
 
 ### Filters & Screens
 
@@ -180,6 +165,23 @@ Browse by category or find the feature you need.
 | [27](./examples/27_code_change/) | **Code changes** — stock rename/split/reorganisations |
 | [41](./examples/41_rehab/) | **Rehabilitation data** — ex-dividend, ex-rights, share consolidation dates |
 
+### Real-Time Feeds (Push Handlers)
+
+Push handlers receive streaming data from OpenD as events occur. Subscribe once, and the handler fires every time the data changes — no polling required.
+
+| # | What it does |
+|---|-------------|
+| [02](./examples/02_quote_push/) | **All quote push handlers** — quote, orderbook, ticker, broker queue, all running simultaneously |
+| [05](./examples/05_quote_trade/) | **Quote + trade combined** — every push type in one script, with trade order/deal streams |
+| [14](./examples/14_cur_kline/) | **Live K-line stream** — subscribe to real-time candlestick updates |
+| [39](./examples/39_push_sysnotify/) | **System notifications** — login events, order fills, market alerts |
+| [40](./examples/40_push_trade/) | **Trade push** — live order status and deal confirmations as they happen |
+| [45](./examples/45_broker_handler/) | **Broker queue push** — `BrokerHandlerBase` for real-time broker depth changes |
+| [45b](./examples/45b_ticker_handler/) | **Ticker push** — `TickerHandlerBase` for every trade print with price, volume, direction |
+| [46](./examples/46_curkline_handler/) | **CurKline push** — `CurKlineHandlerBase` for live candle build-up before bar closes |
+| [47](./examples/47_price_reminder_handler/) | **Price reminder push** — `PriceReminderHandlerBase` for server-pushed price alerts |
+| [48](./examples/48_keepalive_handler/) | **KeepAlive push** — `KeepAliveHandlerBase` for connection heartbeat monitoring |
+
 ### Trading (SIMULATE Account)
 
 > All trade examples use the **SIMULATE** account only. No real orders are placed.
@@ -195,7 +197,7 @@ Browse by category or find the feature you need.
 | [35](./examples/35_cashflow/) | **Cash flow history** — deposits, withdrawals, fees |
 | [37](./examples/37_margin_ratio/) | **Margin ratios** — margin utilization for leveraged positions |
 | [38](./examples/38_order_fee/) | **Order fees** — commission, platform fee, clear fees per order |
-| [49](./examples/49_acc_cash_flow/) | **Account cash flow** — `get_acc_cash_flow` via trade context |
+| [49](./examples/49_acc_cash_flow/) | **Account cash flow** — `get_acc_cash_flow` on trade context (SIMULATE may be blocked by platform) |
 | [50](./examples/50_history_order_deal/) | **Historical orders & deals** — closed-order pipeline and historical fills |
 | [51](./examples/51_acc_list/) | **Account list** — all sub-accounts (REAL + SIMULATE) with types and statuses |
 
@@ -241,8 +243,9 @@ bash scripts/test_all.sh
 
 **How `run_all.py` classifies results:**
 
-- Push examples (`02`, `05`, `39`, `40`) — 8s timeout, non-zero exit is expected
+- Push examples (`02`, `05`, `39`, `40`, `45`, `45b`, `46`, `47`, `48`) — 8s timeout, non-zero exit is expected
 - `01_snapshot` — 400s timeout, fetches 21,000+ stocks across 4 markets
+- `44_multi_market_snapshot` — 30s timeout, parallel multi-market fetch
 - Trade examples that hit a locked password — reported as **PASS** with "trade locked" note (gateway cooldown, not a bug)
 - Everything else — 30s timeout, checked for exceptions
 
