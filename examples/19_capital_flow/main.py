@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
         # ── Intraday capital flow ────────────────────────────────────────
         logger.info("\n=== get_capital_flow: INTRADAY (%s) ===", code)
-        ret, data = ctx.get_capital_flow(code, period_type=ft.PeriodType.INTRADAY)
+        ret, data = ctx.get_capital_flow(code)
         if ret != 0:
             logger.error("get_capital_flow (intraday) failed: %s", data)
         else:
@@ -37,12 +37,14 @@ if __name__ == "__main__":
             for col in data.columns:
                 logger.info("  %-20s = %s", col, data[col].tolist())
             if not data.empty:
-                logger.info("Last bar: time=%s flow=%.2f", data['time_key'].iloc[-1], data['flow'].iloc[-1] if 'flow' in data.columns else 'N/A')
+                time_col = 'capital_flow_item_time' if 'capital_flow_item_time' in data.columns else 'time_key'
+                flow_col = 'in_flow' if 'in_flow' in data.columns else 'flow'
+                logger.info("Last bar: time=%s flow=%.2f", data[time_col].iloc[-1], data[flow_col].iloc[-1])
             logger.info("\n%s", data.tail(10).to_string())
 
         # ── Daily capital flow ────────────────────────────────────────────
         logger.info("\n=== get_capital_flow: DAY (%s) ===", code)
-        ret, data = ctx.get_capital_flow(code, period_type=ft.PeriodType.DAY)
+        ret, data = ctx.get_capital_flow(code)
         if ret != 0:
             logger.error("get_capital_flow (day) failed: %s", data)
         else:

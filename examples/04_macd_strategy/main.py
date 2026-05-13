@@ -111,7 +111,7 @@ class MACD:
 
         logger.info(
             "MACD: macd=%.4f signal=%.4f hist=%.4f | prev: macd=%.4f signal=%.4f",
-            latest_macd, latest_signal, hist[-1], prev_macd, prev_signal,
+            latest_macd, latest_signal, hist.iloc[-1], prev_macd, prev_signal,
         )
 
         # ── Get current positions ─────────────────────────────────────

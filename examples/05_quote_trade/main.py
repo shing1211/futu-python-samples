@@ -149,7 +149,7 @@ def main():
             SubType.BROKER,
         ]
         sub_codes = ['HK.00700', 'HK.HSImain']
-        ret = quote_ctx.subscribe(sub_codes, subtype_list)
+        ret, _ = quote_ctx.subscribe(sub_codes, subtype_list)
         logger.info("subscribe ret=%d", ret)
 
         logger.info("\nListening for pushes (30s)... Place SIMULATE orders to see trade pushes.")

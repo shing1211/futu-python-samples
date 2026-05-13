@@ -29,7 +29,7 @@ if __name__ == "__main__":
     try:
         code = "HK.00700"
 
-        ret = ctx.subscribe(code, ft.SubType.ORDER_BOOK)
+        ret, _ = ctx.subscribe(code, ft.SubType.ORDER_BOOK)
         logger.info("subscribe ret=%d code=%s", ret, code)
 
         # ── 10-level order book ─────────────────────────────────────────
@@ -45,12 +45,18 @@ if __name__ == "__main__":
 
             logger.info("\nBID (Buy orders) — %d levels:", len(bid))
             logger.info("  %-8s %-12s %-10s %-8s", "Level", "Price", "Volume", "Count")
-            for i, (price, vol, count) in enumerate(bid):
+            for i, entry in enumerate(bid):
+                price = entry[0]
+                vol = entry[1]
+                count = entry[2]
                 logger.info("  %-8d %-12.2f %-12.0f %-8d", i + 1, price, vol, count)
 
             logger.info("\nASK (Sell orders) — %d levels:", len(ask))
             logger.info("  %-8s %-12s %-10s %-8s", "Level", "Price", "Volume", "Count")
-            for i, (price, vol, count) in enumerate(ask):
+            for i, entry in enumerate(ask):
+                price = entry[0]
+                vol = entry[1]
+                count = entry[2]
                 logger.info("  %-8d %-12.2f %-12.0f %-8d", i + 1, price, vol, count)
 
             # Best bid / best ask spread
@@ -70,8 +76,8 @@ if __name__ == "__main__":
             ask = data.get("Ask", [])
             logger.info("BID levels: %d | ASK levels: %d", len(bid), len(ask))
             # Sum total volume at bid vs ask
-            total_bid_vol = sum(v for _, v, _ in bid)
-            total_ask_vol = sum(v for _, v, _ in ask)
+            total_bid_vol = sum(entry[1] for entry in bid)
+            total_ask_vol = sum(entry[1] for entry in ask)
             logger.info("Total bid volume: %.0f | Total ask volume: %.0f | Ratio: %.2f",
                         total_bid_vol, total_ask_vol,
                         total_bid_vol / total_ask_vol if total_ask_vol else float('inf'))
