@@ -1,5 +1,9 @@
 # Examples
 
+42 examples covering the full Futu OpenAPI surface — quote, trade, and push handlers.
+
+All use `examples/connect.py` for HA gateway selection and RSA configuration.
+
 ## Index
 
 | # | Name | Description |

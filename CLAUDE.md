@@ -41,3 +41,47 @@ This project is indexed by GitNexus as **futu-python-samples** (324 symbols, 455
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+---
+
+## Project: futu-python-samples
+
+42 verified examples for the Futu OpenAPI Python SDK.
+
+### Config (`.env`)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `FUTU_OPEND_HOSTS` | `host:port:is_rsa[,...]` HA list | `127.0.0.1:11111` fallback |
+| `FUTU_ADDR` | Single host fallback | `127.0.0.1:11111` |
+| `FUTU_RSA_KEY` | RSA private key path | `/etc/futu/keys/private_key.pem` |
+| `FUTU_TCP_TIMEOUT` | TCP probe timeout (s) | `3` |
+| `FUTU_TRADE_PWD` | SIMULATE unlock password | `123456` |
+
+### Critical SDK quirks
+
+- `get_history_kl_quota()` → `(int, int, None)` tuple, not dict
+- `request_history_kline()` → 3-tuple `(ret, DataFrame, next_page_token)`
+- `get_warrant()` → `(DataFrame, bool, int)` tuple
+- `get_order_book()` → dict with 4-tuple `(price, vol, count, extra)` entries
+- `subscribe()` → `(ret_code, None)` — unpack `ret, _ = ctx.subscribe(...)`
+- `AuType.BFQ` does not exist — use `AuType.HFQ` or `AuType.QFQ`
+- `SetPriceReminderOp` (not `PriceReminderOp`)
+- `SecurityReferenceType.BULL_BEAR` — does not exist
+- `hist[-1]` on pandas Series → `KeyError` — use `hist.iloc[-1]`
+- `get_capital_flow()` → no `period_type` param; columns: `capital_flow_item_time`, `in_flow`
+
+### Architecture
+
+All examples (except `00`) import from `examples/connect.py`:
+- `create_quote_context()` — HA gateway selection + RSA config
+- `create_trade_context()` — reuses cached gateway probe
+- `get_demo_trade_password()` — returns `FUTU_TRADE_PWD`
+- `clear_connection_cache()` — force re-probe
+
+### Test
+
+```bash
+python3 scripts/run_all.py    # recommended — full runner
+bash scripts/test_all.sh      # delegates to run_all.py
+```

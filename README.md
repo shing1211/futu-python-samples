@@ -1,6 +1,6 @@
 # Futu Python Samples
 
-> **42 standalone examples** for the [Futu OpenAPI](https://openapi.futunn.com/) Python SDK.
+> **42 verified examples** for the [Futu OpenAPI](https://openapi.futunn.com/) Python SDK.
 > Each example demonstrates one SDK feature — run it directly, see the full API response logged.
 
 ## Quick Start
@@ -11,26 +11,24 @@ git clone https://github.com/shing1211/futu-python-samples.git
 cd futu-python-samples
 pip install futu-api python-dotenv
 
-# 2. Configure OpenD gateway (copy and edit .env)
+# 2. Configure gateway
 cp .env.example .env
-# Edit .env with your gateway host(s) — see Configuration below
+# Edit .env with your OpenD host(s) — see Configuration below
 
 # 3. Run an example
 python3 examples/00_connect_ha/main.py
 ```
 
-That's it. All 42 examples work out of the box — no additional setup required.
+All 42 examples work out of the box — no additional setup required.
 
 ## Features
 
-| Feature | Detail |
-|---------|--------|
-| **HA Gateway Selection** | TCP-probes all configured OpenD hosts in parallel, connects to fastest |
-| **Per-host RSA** | Each host has its own RSA flag; auto-fallback on connection failure |
-| **Connection Caching** | Quote and trade contexts share one probe result — no redundant TCP probes |
-| **Full Field Logging** | Every API response logs all its fields — nothing is silently discarded |
-| **Env-Var Config** | All host/credential config via `.env` — no hardcoded IPs or passwords |
-| **Proper Cleanup** | All examples use `try/finally` + `ctx.close()` — no leaked connections |
+- **HA Gateway Selection** — TCP-probes all configured OpenD hosts in parallel, connects to fastest
+- **Per-host RSA** — Each host has its own RSA flag; auto-fallback on connection failure
+- **Connection Caching** — Quote and trade contexts share one probe result — no redundant TCP probes
+- **Full Field Logging** — Every API response logs all its fields — nothing is silently discarded
+- **Env-Var Config** — All host/credential config via `.env` — no hardcoded IPs or passwords
+- **Proper Cleanup** — All examples use `try/finally` + `ctx.close()` — no leaked connections
 
 ## Configuration
 
@@ -133,6 +131,22 @@ See [00_connect_ha](./examples/00_connect_ha/) for the full standalone HA algori
 | 41 | [41_rehab](./examples/41_rehab/) | Rehabilitation / ex-dividend / ex-right data | `get_rehab` |
 
 Full descriptions in [examples/README.md](./examples/README.md).
+
+## Testing
+
+```bash
+# Run all 42 examples with the Python test runner
+python3 scripts/run_all.py
+
+# Or use the shell smoke test (quick grep-based check)
+bash scripts/test_all.sh
+```
+
+`run_all.py` classifies each example as PASS or FAIL:
+- Push examples (02, 05, 39, 40): 8s timeout — exit is expected
+- 01_snapshot: 400s timeout — fetches 21k+ stocks across 4 markets
+- Trade examples with locked password: reported as PASS with "trade locked" note
+- All others: 30s timeout
 
 ## RSA Encryption (Remote OpenD)
 
