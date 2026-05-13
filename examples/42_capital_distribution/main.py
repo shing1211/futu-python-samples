@@ -23,9 +23,11 @@ from connect import create_quote_context
 
 
 def fmt_inflow(val):
-    """Format capital in millions with sign."""
+    """Format capital value — handles numeric and pre-formatted string values."""
     if val is None:
         return "N/A"
+    if isinstance(val, str):
+        return val   # already formatted by SDK
     return f"{val:+.2f}M"
 
 
