@@ -1,6 +1,6 @@
 # Futu Python Samples
 
-> **42 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **55 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
@@ -30,7 +30,7 @@ That's it. No API keys, no compile step, no boilerplate to write first.
 
 **Smart gateway selection.** The `connect.py` module probes all your configured OpenD hosts simultaneously, measures real TCP latency, and picks the fastest one. If RSA is required for that host, it handles the handshake automatically. Both quote and trade contexts share the probe result — no redundant network calls.
 
-**A catalog, not a tutorial.** 42 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it. No narrative, no chapter dependencies.
+**A catalog, not a tutorial.** 55 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it. No narrative, no chapter dependencies.
 
 ---
 
@@ -126,6 +126,7 @@ Browse by category or find the feature you need.
 |---|-------------|
 | [00](./examples/00_connect_ha/) | **HA gateway selection** — probes all hosts, picks fastest, retries RSA on failure. Start here to verify your setup. |
 | [01](./examples/01_snapshot/) | **Market snapshot** — fetch every stock in a market (HK, US, SH, SZ) in one call |
+| [44](./examples/44_multi_market_snapshot/) | **Multi-market snapshot** — all four markets fetched concurrently via threading |
 
 ### Real-Time Feeds (Push Handlers)
 
@@ -136,6 +137,11 @@ Browse by category or find the feature you need.
 | [14](./examples/14_cur_kline/) | **Live K-line stream** — subscribe to real-time candlestick updates |
 | [39](./examples/39_push_sysnotify/) | **System notifications** — login events, order fills, market alerts |
 | [40](./examples/40_push_trade/) | **Trade push** — live order status and deal confirmations as they happen |
+| [45](./examples/45_broker_handler/) | **Broker queue push** — `BrokerHandlerBase` for real-time broker depth changes |
+| [45b](./examples/45b_ticker_handler/) | **Ticker push** — `TickerHandlerBase` for every trade print with price, volume, direction |
+| [46](./examples/46_curkline_handler/) | **CurKline push** — `CurKlineHandlerBase` for live candle build-up before bar closes |
+| [47](./examples/47_price_reminder_handler/) | **Price reminder push** — `PriceReminderHandlerBase` for server-pushed price alerts |
+| [48](./examples/48_keepalive_handler/) | **KeepAlive push** — `KeepAliveHandlerBase` for connection heartbeat monitoring |
 
 ### Market Data
 
@@ -153,6 +159,7 @@ Browse by category or find the feature you need.
 | # | What it does |
 |---|-------------|
 | [03](./examples/03_filter/) | **Stock screener** — filter by price, PE, market cap, turnover, and 20+ criteria |
+| [52](./examples/52_option_chain_filter/) | **Option chain filter** — slice chains by delta, IV, moneyness, open interest using `OptionDataFilter` |
 
 ### Sectors & Classifications
 
@@ -168,6 +175,7 @@ Browse by category or find the feature you need.
 | # | What it does |
 |---|-------------|
 | [19](./examples/19_capital_flow/) | **Capital flow** — where money is flowing in/out, intraday and daily heatmap |
+| [42](./examples/42_capital_distribution/) | **Capital distribution** — Super/Big/Mid/Small fund flow breakdown per stock |
 | [29](./examples/29_unusual/) | **Unusual activity** — unusual volume, price, technical and derivative signals |
 | [27](./examples/27_code_change/) | **Code changes** — stock rename/split/reorganisations |
 | [41](./examples/41_rehab/) | **Rehabilitation data** — ex-dividend, ex-rights, share consolidation dates |
@@ -187,6 +195,9 @@ Browse by category or find the feature you need.
 | [35](./examples/35_cashflow/) | **Cash flow history** — deposits, withdrawals, fees |
 | [37](./examples/37_margin_ratio/) | **Margin ratios** — margin utilization for leveraged positions |
 | [38](./examples/38_order_fee/) | **Order fees** — commission, platform fee, clear fees per order |
+| [49](./examples/49_acc_cash_flow/) | **Account cash flow** — `get_acc_cash_flow` via trade context |
+| [50](./examples/50_history_order_deal/) | **Historical orders & deals** — closed-order pipeline and historical fills |
+| [51](./examples/51_acc_list/) | **Account list** — all sub-accounts (REAL + SIMULATE) with types and statuses |
 
 ### Calendar & Reference Data
 
@@ -195,6 +206,7 @@ Browse by category or find the feature you need.
 | [12](./examples/12_trading_days/) | **Trading days calendar** — which days each market is open |
 | [20](./examples/20_ipo_list/) | **IPO calendar** — upcoming and recent IPOs per market |
 | [21](./examples/21_future_info/) | **Futures specs** — contract size, tick size, trading hours |
+| [53](./examples/53_option_expiration_cycle/) | **Option expiration cycles** — full roll calendar grouped by WEEK/MONTH/QUARTER |
 
 ### User Data & Administration
 
@@ -213,13 +225,14 @@ Browse by category or find the feature you need.
 | [25](./examples/25_option_chain/) | **Option chains** — all options for an underlying, grouped by expiration |
 | [26](./examples/26_history_kl_quota/) | **K-line quota** — how many historical K-line API calls you've used today |
 | [36](./examples/36_stock_basicinfo/) | **Stock basic info** — name, lot size, board lot, security type for a market or code list |
+| [43](./examples/43_subscribe_lifecycle/) | **Subscribe lifecycle** — batch subscribe → quota query → unsubscribe_all |
 
 ---
 
 ## Running the Full Suite
 
 ```bash
-# The proper runner — shows PASS/FAIL for all 42 examples
+# The proper runner — shows PASS/FAIL for all 55 examples
 python3 scripts/run_all.py
 
 # Smoke test (just checks for exceptions)
