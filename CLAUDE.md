@@ -44,44 +44,66 @@ This project is indexed by GitNexus as **futu-python-samples** (324 symbols, 455
 
 ---
 
-## Project: futu-python-samples
+# futu-python-samples
 
-42 verified examples for the Futu OpenAPI Python SDK.
+42 verified examples for the Futu OpenAPI Python SDK. Every script fires live API calls — no mocks.
 
-### Config (`.env`)
+## Project Config
 
-| Variable | Description | Default |
+| Variable | What it does | Default |
 |----------|-------------|---------|
-| `FUTU_OPEND_HOSTS` | `host:port:is_rsa[,...]` HA list | `127.0.0.1:11111` fallback |
+| `FUTU_OPEND_HOSTS` | `host:port:is_rsa[,...]` HA gateway list | falls back to `FUTU_ADDR` |
 | `FUTU_ADDR` | Single host fallback | `127.0.0.1:11111` |
 | `FUTU_RSA_KEY` | RSA private key path | `/etc/futu/keys/private_key.pem` |
-| `FUTU_TCP_TIMEOUT` | TCP probe timeout (s) | `3` |
+| `FUTU_TCP_TIMEOUT` | TCP probe timeout | `3` seconds |
 | `FUTU_TRADE_PWD` | SIMULATE unlock password | `123456` |
 
-### Critical SDK quirks
+Remote gateways require RSA. There is **no localhost-vs-remote auto-detection** — set `is_rsa=True` in `FUTU_OPEND_HOSTS` for remote hosts.
 
-- `get_history_kl_quota()` → `(int, int, None)` tuple, not dict
-- `request_history_kline()` → 3-tuple `(ret, DataFrame, next_page_token)`
-- `get_warrant()` → `(DataFrame, bool, int)` tuple
-- `get_order_book()` → dict with 4-tuple `(price, vol, count, extra)` entries
-- `subscribe()` → `(ret_code, None)` — unpack `ret, _ = ctx.subscribe(...)`
-- `AuType.BFQ` does not exist — use `AuType.HFQ` or `AuType.QFQ`
-- `SetPriceReminderOp` (not `PriceReminderOp`)
-- `SecurityReferenceType.BULL_BEAR` — does not exist
-- `hist[-1]` on pandas Series → `KeyError` — use `hist.iloc[-1]`
-- `get_capital_flow()` → no `period_type` param; columns: `capital_flow_item_time`, `in_flow`
+## ⚠️ SDK Quirks to Watch For
 
-### Architecture
+**Return types that differ from the docs:**
 
-All examples (except `00`) import from `examples/connect.py`:
-- `create_quote_context()` — HA gateway selection + RSA config
-- `create_trade_context()` — reuses cached gateway probe
-- `get_demo_trade_password()` — returns `FUTU_TRADE_PWD`
-- `clear_connection_cache()` — force re-probe
+- `get_history_kl_quota()` → `(used: int, remain: int, None)` — plain 3-tuple, not a dict
+- `request_history_kline()` → `(ret, DataFrame, next_page_token)` — 3-tuple, third value is a pagination cursor
+- `get_warrant()` → `(DataFrame, has_more: bool, total: int)` — 3-tuple
+- `get_order_book()` → `(ret, dict)` where dict entries are `(price, vol, count, extra)` 4-tuples
+- `subscribe()` → `(ret_code, None)` — unpack as `ret, _ = ctx.subscribe(...)`
+- `request_trading_days()` → plain `list[str]` — no tuple wrapper at all
 
-### Test
+**Enum names that don't exist:**
+
+- `ft.AuType.BFQ` → `ft.AuType.HFQ`
+- `ft.PriceReminderOp` → `ft.SetPriceReminderOp`
+- `ft.SecurityReferenceType.BULL_BEAR` → **not available**
+
+**pandas traps:**
+
+- `hist[-1]` on a Series → `KeyError` — use `hist.iloc[-1]`
+- `if df:` on a DataFrame → `ValueError` — use `if df is not None and not df.empty:`
+
+**Column and parameter names:**
+
+- `get_plate_list()` → column is `plate_name`, not `name`
+- `get_capital_flow()` → no `period_type` param; columns are `capital_flow_item_time`, `in_flow`
+- `subscribe/unsubscribe` → parameter is `code_list=`, not `codes=`
+
+## Architecture
+
+`examples/connect.py` is the shared HA connection module.
+
+| Function | What it does |
+|----------|-------------|
+| `create_quote_context(is_rsa=None)` | Probes all hosts, picks fastest, configures RSA, returns `OpenQuoteContext` |
+| `create_trade_context(is_rsa=None, **kwargs)` | Reuses cached probe result, returns `OpenSecTradeContext` |
+| `get_demo_trade_password()` | Returns `FUTU_TRADE_PWD` — SIMULATE only |
+| `clear_connection_cache()` | Force a fresh probe on the next context creation |
+
+The HA algorithm probes all hosts in parallel, sorts by TCP latency, attempts the connection, retries without RSA on failure. The result is cached so both quote and trade contexts land on the same gateway.
+
+## Test
 
 ```bash
-python3 scripts/run_all.py    # recommended — full runner
+python3 scripts/run_all.py    # recommended — full runner with PASS/FAIL
 bash scripts/test_all.sh      # delegates to run_all.py
 ```

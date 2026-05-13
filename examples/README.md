@@ -1,52 +1,103 @@
 # Examples
 
-42 examples covering the full Futu OpenAPI surface — quote, trade, and push handlers.
+42 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
 
-All use `examples/connect.py` for HA gateway selection and RSA configuration.
+All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
+
+---
 
 ## Index
 
-| # | Name | Description |
-|---|------|-------------|
-| 00 | [00_connect_ha](./00_connect_ha/) | HA gateway connection — TCP probe, per-host RSA, auto-fallback |
-| 01 | [01_snapshot](./01_snapshot/) | Market snapshot for all stocks in a market |
-| 02 | [02_quote_push](./02_quote_push/) | Real-time quote/orderbook/ticker/broker push via handlers |
-| 03 | [03_filter](./03_filter/) | Stock screener with SimpleFilter + FinancialFilter |
-| 04 | [04_macd_strategy](./04_macd_strategy/) | MACD trading signal strategy (buy/sell on cross) |
-| 05 | [05_quote_trade](./05_quote_trade/) | Full quote + trade push with all handler types |
-| 06 | [06_stock_sell](./06_stock_sell/) | Simple and smart sell functions |
-| 07 | [07_kline](./07_kline/) | K-line data — get_cur_kline + request_history_kline |
-| 08 | [08_rt_ticker](./08_rt_ticker/) | Real-time tick data — get_rt_ticker + get_rt_data |
-| 09 | [09_broker_queue](./09_broker_queue/) | Broker queue — bid/ask queue data |
-| 10 | [10_orderbook](./10_orderbook/) | Order book — 10-level bid/ask depth |
-| 11 | [11_accinfo](./11_accinfo/) | Account info + positions (accinfo_query / position_list_query) |
-| 12 | [12_trading_days](./12_trading_days/) | Trading days calendar per market |
-| 13 | [13_plate](./13_plate/) | Plate (sector/industry) listing and stock membership |
-| 14 | [14_cur_kline](./14_cur_kline/) | Real-time K-line push via CurKlineHandlerBase |
-| 15 | [15_sub_list](./15_sub_list/) | Query subscription list (query_subscription) |
-| 16 | [16_stock_quote](./16_stock_quote/) | Real-time quote fields (get_stock_quote) |
-| 17 | [17_owner_plate](./17_owner_plate/) | Owner plate + referencestock list |
-| 18 | [18_referencestock](./18_referencestock/) | Warrant/bull-bear reference stocks |
-| 19 | [19_capital_flow](./19_capital_flow/) | Capital flow + capital distribution |
-| 20 | [20_ipo_list](./20_ipo_list/) | IPO calendar per market |
-| 21 | [21_future_info](./21_future_info/) | Futures contract details |
-| 22 | [22_market_state](./22_market_state/) | Market state (pre/open/after/closed) |
-| 23 | [23_price_reminder](./23_price_reminder/) | Price alert setup and query |
-| 24 | [24_user_security](./24_user_security/) | Watchlist group management |
-| 25 | [25_option_chain](./25_option_chain/) | Option chain + expiration dates |
-| 26 | [26_history_kl_quota](./26_history_kl_quota/) | Historical K-line quota and usage |
-| 27 | [27_code_change](./27_code_change/) | Stock code change records |
-| 28 | [28_warrant](./28_warrant/) | Warrant data by underlying |
-| 29 | [29_unusual](./29_unusual/) | Technical/financial/derivative unusual alerts |
-| 30 | [30_user_info](./30_user_info/) | Account list, user info, broker firm |
-| 31 | [31_misc](./31_misc/) | Holding changes, rehab data, user security groups |
-| 32 | [32_order_query](./32_order_query/) | Order query, modify, cancel, deal history |
-| 33 | [33_trading_info](./33_trading_info/) | Max buy/sell quantity (acctradinginfo_query) |
-| 34 | [34_cancel_all](./34_cancel_all/) | Cancel all open orders |
-| 35 | [35_cashflow](./35_cashflow/) | Account cash flow history |
-| 36 | [36_stock_basicinfo](./36_stock_basicinfo/) | Stock basic info by market or code list |
-| 37 | [37_margin_ratio](./37_margin_ratio/) | Margin ratio for positions |
-| 38 | [38_order_fee](./38_order_fee/) | Order fee query |
-| 39 | [39_push_sysnotify](./39_push_sysnotify/) | System notification push (SysNotifyHandlerBase) |
-| 40 | [40_push_trade](./40_push_trade/) | Trade order/deal push (TradeOrder/DealHandlerBase) |
-| 41 | [41_rehab](./41_rehab/) | Rehabilitation/ex-dividend/ex-right data |
+### Get Going First
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [00](./00_connect_ha/) | HA Gateway | TCP probe all your hosts, pick the fastest, handle RSA. Start here to confirm your setup is solid. |
+
+### Live Market Feeds
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [02](./02_quote_push/) | Quote Push | All four quote handlers running together — stock quotes, order book updates, tick-by-tick prints, broker queue changes |
+| [05](./05_quote_trade/) | Quote + Trade Push | Every push type in one script: K-lines, trades, orderbook, and live trade order/deal events |
+| [14](./14_cur_kline/) | Live K-Line Stream | Subscribe to real-time candlestick updates as they print |
+| [39](./39_push_sysnotify/) | System Notifications | Login events, order fills, market state changes — push directly from OpenD |
+| [40](./40_push_trade/) | Trade Push | Watch orders go from submitted → filled → partially filled in real time |
+
+### Static & Historical Market Data
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [01](./01_snapshot/) | Market Snapshot | Every single stock in a market — price, volume, turnover, bid/ask — in one shot |
+| [07](./07_kline/) | K-Line History | Historical K-lines with pagination + today's live bar via `get_cur_kline` |
+| [08](./08_rt_ticker/) | Tick Data | Every trade print — exact time, price, volume, direction — for a stock |
+| [09](./09_broker_queue/) | Broker Queue | Who sits on the bid and ask, how many lots each broker is showing |
+| [10](./10_orderbook/) | Order Book | Full 10-level bid/ask ladder — price, volume, order count at each level |
+| [16](./16_stock_quote/) | Stock Quote | Last price, open, high, low, volume, turnover for a list of stocks |
+| [22](./22_market_state/) | Market State | Is the market pre-open, open, closed, or after-hours right now? |
+
+### Filtering & Screening
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [03](./03_filter/) | Stock Screener | 20+ filter criteria — price, PE, market cap, turnover, industry, flag day, and more |
+
+### Sectors, Plates & References
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [13](./13_plate/) | Sector Plates | All plates (sectors/industries) in a market, and every stock belonging to a plate |
+| [17](./17_owner_plate/) | Owner Plates | Which plate owns a given stock — useful for sector rotation |
+| [18](./18_referencestock/) | Reference Stocks | Warrant and bull-bear chain reference data — the underlying and its related instruments |
+| [28](./28_warrant/) | Warrant Data | All warrants for an underlying — issuer, implied volatility, premium, maturity |
+
+### Fundamentals & Flow
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [19](./19_capital_flow/) | Capital Flow | Intraday and daily capital flow heatmap — where money is going in/out |
+| [29](./29_unusual/) | Unusual Activity | Unusual volume, price, technical and derivative signals — pick up early mover prints |
+| [27](./27_code_change/) | Code Changes | Stock rename, split, and code change history |
+| [41](./41_rehab/) | Rehabilitation Data | Ex-dividend, ex-rights, share consolidation dates — for adjusting historical prices |
+
+### Trading — SIMULATE Account
+
+> All trade examples are for the **SIMULATE account only**. No real orders are placed.
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [04](./04_macd_strategy/) | MACD Strategy | Calculate MACD cross signals from historical K-lines, place simulated buy/sell orders |
+| [06](./06_stock_sell/) | Stock Sell | Place simple and smart-order sell orders, modify quantity and price mid-flight |
+| [11](./11_accinfo/) | Account Info | Cash, margin, positions, Unrealized P&L, dry-run your buying power |
+| [32](./32_order_query/) | Order Query | Full order lifecycle — query open orders, fills, modify price/qty, cancel |
+| [33](./33_trading_info/) | Trading Info | Max buy/sell quantity, margin ratio, required margin per lot |
+| [34](./34_cancel_all/) | Cancel All Orders | Panic button — cancel every open order at once |
+| [35](./35_cashflow/) | Cash Flow | Deposits, withdrawals, fees, corporate actions — account cash movement history |
+| [37](./37_margin_ratio/) | Margin Ratio | Margin utilization for leveraged positions |
+| [38](./38_order_fee/) | Order Fees | Commission, platform fee, clear fees — real cost of every order |
+
+### Calendars & Reference
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [12](./12_trading_days/) | Trading Days | Which days each market is open — useful for backtesting scheduling |
+| [20](./20_ipo_list/) | IPO Calendar | Upcoming and recent IPOs per market — issue price, listing date, status |
+| [21](./21_future_info/) | Futures Info | Contract spec sheet — tick size, contract multiplier, trading hours |
+
+### User Data & Alerts
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [23](./23_price_reminder/) | Price Alerts | Create price reminders, list active alerts, update trigger prices, delete alerts |
+| [24](./24_user_security/) | Watchlists | Create, rename, delete watchlist groups; add and remove stocks |
+| [30](./30_user_info/) | User Info | Account list, user profile, broker firm and account type |
+| [31](./31_misc/) | Misc | Flag days, rehabilitation data, watchlist group membership |
+
+### Utilities
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [15](./15_sub_list/) | Subscription List | What you're subscribed to and at which push frequency |
+| [25](./25_option_chain/) | Option Chains | All option contracts for an underlying grouped by expiration date |
+| [26](./26_history_kl_quota/) | K-Line Quota | How many historical K-line API calls you've burned through today |
+| [36](./36_stock_basicinfo/) | Stock Basic Info | Name, lot size, board lot, security type for a whole market or a specific list |
