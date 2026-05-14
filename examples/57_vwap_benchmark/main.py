@@ -35,7 +35,7 @@ if _REPO_ROOT not in sys.path:
 sys.stdout.reconfigure(line_buffering=True)
 
 import futu as ft
-from examples.connect import create_quote_context
+from connect import create_quote_context
 
 
 # ── VWAP accumulator ────────────────────────────────────────────────────────

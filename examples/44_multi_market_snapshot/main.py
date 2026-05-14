@@ -35,46 +35,49 @@ MARKETS = [
 TIMEOUT = 30   # hard timeout for the whole operation
 
 
-def fetch_market(ctx, market, label):
+def fetch_market(market, label):
     """Enumerate stocks in a market then snapshot them. Returns (label, DataFrame or error)."""
     import pandas as pd
 
-    # Step 1: get stock list
-    ret, basic = ctx.get_stock_basicinfo(market, ft.SecurityType.STOCK)
-    if ret != 0:
-        return label, None, f"get_stock_basicinfo: {basic}"
-
-    if basic.empty:
-        return label, None, "no stocks returned"
-
-    codes = basic["code"].tolist()
-
-    # Step 2: snapshot in batches of 200
-    all_rows = []
-    for i in range(0, len(codes), 200):
-        batch = codes[i:i + 200]
-        ret, snap = ctx.get_market_snapshot(batch)
+    # Each thread gets its own context to avoid shared-state issues across threads.
+    ctx = create_quote_context()
+    try:
+        # Step 1: get stock list
+        ret, basic = ctx.get_stock_basicinfo(market, ft.SecurityType.STOCK)
         if ret != 0:
-            return label, None, f"get_market_snapshot batch {i//200}: {snap}"
-        if snap is not None and not snap.empty:
-            all_rows.append(snap)
+            return label, None, f"get_stock_basicinfo: {basic}"
 
-    if not all_rows:
-        return label, None, "no snapshot data"
+        if basic.empty:
+            return label, None, "no stocks returned"
 
-    combined = pd.concat(all_rows, ignore_index=True)
-    return label, combined, None
+        codes = basic["code"].tolist()
+
+        # Step 2: snapshot in batches of 200
+        all_rows = []
+        for i in range(0, len(codes), 200):
+            batch = codes[i:i + 200]
+            ret, snap = ctx.get_market_snapshot(batch)
+            if ret != 0:
+                return label, None, f"get_market_snapshot batch {i//200}: {snap}"
+            if snap is not None and not snap.empty:
+                all_rows.append(snap)
+
+        if not all_rows:
+            return label, None, "no snapshot data"
+
+        combined = pd.concat(all_rows, ignore_index=True)
+        return label, combined, None
+    finally:
+        ctx.close()
 
 
 def main():
-    ctx = create_quote_context()
-
     print(f"Fetching snapshots for all 4 markets in parallel (timeout={TIMEOUT}s)...\n")
 
     results = {}
     with ThreadPoolExecutor(max_workers=4) as pool:
         futures = {
-            pool.submit(fetch_market, ctx, market, label): label
+            pool.submit(fetch_market, market, label): label
             for market, label in MARKETS
         }
         for future in as_completed(futures):
@@ -97,7 +100,6 @@ def main():
             print(f"{label:<6} {n:>7,}  {sample['code']} / {sample['last_price']} / vol={int(sample['volume']):,}")
 
     print(f"\nTotal snapshot rows: {total:,}")
-    ctx.close()
     print("Done.")
 
 

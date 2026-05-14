@@ -101,6 +101,7 @@ def connect_host(name, host, port, is_rsa):
     rsa_mode = is_rsa if is_rsa is not None else True
     ok, data, lat = try_connect(host, port, is_rsa=rsa_mode)
     if ok:
+        logger.debug("connect_host [%s] %s:%s OK (%.1fms RSA=%s)", name, host, port, lat, rsa_mode)
         return ok, data, lat
     if is_rsa is None:
         fallback = not rsa_mode

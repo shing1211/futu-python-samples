@@ -42,17 +42,10 @@ if __name__ == "__main__":
                 logger.info("Last bar: time=%s flow=%.2f", data[time_col].iloc[-1], data[flow_col].iloc[-1])
             logger.info("\n%s", data.tail(10).to_string())
 
-        # ── Daily capital flow ────────────────────────────────────────────
-        logger.info("\n=== get_capital_flow: DAY (%s) ===", code)
-        ret, data = ctx.get_capital_flow(code)
-        if ret != 0:
-            logger.error("get_capital_flow (day) failed: %s", data)
-        else:
-            logger.info("Daily flow (%d bars):", len(data))
-            logger.info("Columns: %s", list(data.columns))
-            for col in data.columns:
-                logger.info("  %-20s = %s", col, data[col].tolist())
-            logger.info("\n%s", data.tail(10).to_string())
+        # Note: get_capital_flow() has no period_type parameter — the only supported
+        # mode for this API is intraday (the market determines granularity, not a param).
+        # There is no separate "daily" call; removing the duplicate section that was
+        # misleadingly labeled "DAY" but returned identical intraday data.
 
         # ── Capital distribution ─────────────────────────────────────────
         logger.info("\n=== get_capital_distribution: %s ===", code)
