@@ -1,6 +1,6 @@
 # Futu Python Samples
 
-> **55 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **58 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
@@ -29,7 +29,7 @@ That's it. No API keys, no compile step, no boilerplate to write first.
 
 **Smart gateway selection.** The `connect.py` module probes all your configured OpenD hosts simultaneously, measures real TCP latency, and picks the fastest one. Both quote and trade contexts share the probe result — no redundant network calls.
 
-**A catalog, not a tutorial.** 55 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
+**A catalog, not a tutorial.** 58 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
 
 ---
 
@@ -213,7 +213,7 @@ All trade examples use the **SIMULATE** account only. No real orders are placed.
 ## Running the Full Suite
 
 ```bash
-# The proper runner — shows PASS/FAIL for all 55 examples
+# The proper runner — shows PASS/FAIL for all 58 examples
 python3 scripts/run_all.py
 
 # Smoke test (just checks for exceptions)

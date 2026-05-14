@@ -1,6 +1,6 @@
 # Architecture
 
-> Built on the [Futu OpenAPI Python SDK](https://openapi.futunn.com/futu-api-doc/). 57 standalone examples organized as a reference library, not a framework.
+> Built on the [Futu OpenAPI Python SDK](https://openapi.futunn.com/futu-api-doc/). 58 standalone examples organized as a reference library, not a framework.
 
 ## Overview
 
@@ -8,7 +8,7 @@ The repo has two distinct layers:
 
 | Layer | Contents |
 |-------|----------|
-| **SDK Examples** | 57 example scripts (`examples/00` – `examples/57`), each demonstrating one Futu API feature |
+| **SDK Examples** | 58 example scripts (`examples/00` – `examples/57`), each demonstrating one Futu API feature |
 | **Shared Infrastructure** | `examples/connect.py` — HA gateway selection, connection caching, env-var loading |
 
 ```
@@ -21,7 +21,7 @@ examples/connect.py          ← HA gateway, RSA config, connection cache, .env 
     └──► OpenSecTradeContext ← all trade examples (04, 05, 06, 11, 30, 32–35, 37–40)
     │
     ▼
-57 example scripts (examples/00_connect_ha/ → examples/57_vwap_benchmark/)
+58 example scripts (examples/00_connect_ha/ → examples/57_vwap_benchmark/)
   each: import connect → call SDK → log all response fields → try/finally ctx.close()
 ```
 
@@ -347,8 +347,6 @@ futu-python-samples/
 ├── examples/
 │   ├── connect.py               ← HA connection helper (shared by 00–57)
 │   ├── README.md                ← full index
-│   ├── .intro.md                ← quick reference for new examples
-│   │
 │   ├── 00_connect_ha/           ← standalone HA algorithm (reference)
 │   │
 │   ├── 01_snapshot/            ← get_market_snapshot

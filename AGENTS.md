@@ -2,7 +2,7 @@
 
 ## What This Project Is
 
-42 standalone examples for the Futu OpenAPI Python SDK. Every script fires real API calls against a live OpenD gateway — no mocks, no stubs.
+58 standalone examples for the Futu OpenAPI Python SDK. Every script fires real API calls against a live OpenD gateway — no mocks, no stubs.
 
 **Repo:** `https://github.com/shing1211/futu-python-samples`
 **SDK docs:** https://openapi.futunn.com/futu-api-doc/
@@ -183,7 +183,7 @@ main_type, sub_type, msg = content
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **futu-python-samples** (856 symbols, 1219 relationships, 30 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **futu-python-samples** (883 symbols, 1245 relationships, 30 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

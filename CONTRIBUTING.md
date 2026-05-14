@@ -191,7 +191,7 @@ for row in bid_levels.itertuples():
 # Run one example in isolation
 python3 examples/07_kline/main.py
 
-# Run all 42 through the full test suite
+# Run all 58 through the full test suite
 python3 scripts/run_all.py
 ```
 

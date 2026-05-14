@@ -1,6 +1,6 @@
 # Examples
 
-59 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
+58 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
