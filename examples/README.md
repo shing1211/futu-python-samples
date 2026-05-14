@@ -1,6 +1,6 @@
 # Examples
 
-87 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
+97 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -26,8 +26,8 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [45](./45_broker_handler/) | Broker Queue Push | `BrokerHandlerBase` — real-time push when broker queue changes. LV1 data permission required. |
 | [45b](./45b_ticker_handler/) | Ticker Push | `TickerHandlerBase` — every trade print with price, volume, direction, and millisecond timestamp |
 | [46](./46_curkline_handler/) | CurKline Push | `CurKlineHandlerBase` — live candle build-up as it forms, before the bar closes |
-| [47](./47_price_reminder_handler/) | Price Reminder Push | `PriceReminderHandlerBase` for server-pushed price alerts |
-| [48](./48_keepalive_handler/) | KeepAlive Push | `KeepAliveHandlerBase` for connection heartbeat monitoring |
+| [47](./47_price_reminder_handler/) | Price Reminder Push | `PriceReminderHandlerBase` — server-pushed alerts when your price targets are hit |
+| [48](./48_keepalive_handler/) | KeepAlive Push | `KeepAliveHandlerBase` — heartbeat monitoring between client and OpenD |
 | [54](./54_pair_trading/) | Pair Trading Signal | Rolling z-score spread between HK.00700 and HK.09988 via CurKlineHandler — statistical arbitrage signal in real time |
 | [56](./56_order_flow_imbalance/) | Order Flow Imbalance | ORDER_BOOK push accumulation — measures directional pressure as net bid vs ask volume delta over time |
 | [57](./57_vwap_benchmark/) | VWAP Benchmark | TICKER push stream → running VWAP, deviation in bps, simulated entry P&L — execution quality in real time |
@@ -113,7 +113,7 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 |---|------|----------------|
 | [83](./83_dividend_tracker/) | Dividend & Corporate Action Tracker | Upcoming dividends, ex-dates, splits, rights issues for watchlist |
 | [84](./84_vwap_analysis/) | VWAP Execution Analysis | Trade quality vs VWAP benchmark, slippage analysis, time-bucketed breakdown |
-| [85](./85_vol_skew/) | Options Volatility Skew | Implied vol surface across strikes/expiries with Newton-Raphson IV solver |
+| [85](./85_vol_skew/) | Options Volatility Skew | Implied vol surface across strikes/expiries with Newton-Raphson solver |
 
 ### Market Breadth & Alerts
 
@@ -122,19 +122,44 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [86](./86_market_breadth/) | Market Breadth Dashboard | Adv/Dec, McClellan Oscillator, sector participation across HK/US/SH/SZ |
 | [87](./87_watchlist_alerts/) | Smart Watchlist Alerts | Price targets, RSI, Bollinger Band break alerts with cooldown logic |
 
+### Risk Management (SIMULATE)
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [88](./88_sl_tp_engine/) | Stop-Loss / Take-Profit Engine | Dual SL/TP with partial exits and trailing activation |
+| [92](./92_monte_carlo/) | Monte Carlo Portfolio Simulator | 10K path simulation with VaR, percentiles, ASCII histogram |
+| [96](./96_margin_monitor/) | Margin Utilization Monitor | Real-time margin tracking, utilization bars, liquidation price |
+
+### Cross-Market & Signals
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [89](./89_gap_scanner/) | Gap Scanner | Overnight gap detection across all markets with volume confirmation |
+| [90](./90_ah_premium/) | AH Premium/Discount Tracker | A-share vs H-share price comparison with FX adjustment |
+| [91](./91_sector_rotation/) | Sector Rotation Scanner | RSI-based sector ranking for rotation signals |
+| [95](./95_52week_scanner/) | 52-Week High/Low Scanner | Proximity to yearly extremes with volume confirmation |
+| [97](./97_vwap_anchored/) | VWAP Anchored Trading Levels | Dynamic support/resistance with volume confirmation signals |
+
+### Options Strategies (SIMULATE)
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [93](./93_calendar_spread/) | Options Calendar Spread Builder | Neutral theta plays via vol differential across expiries |
+| [94](./94_earnings_analyzer/) | Earnings Surprise Analyzer | EPS surprise detection + post-earnings price action |
+
 ### Real-Time Feeds (Push Handlers)
 
 Push handlers receive streaming data from OpenD as events occur. Subscribe once, and the handler fires every time the data changes — no polling required.
 
 | # | Name | What you'll see |
 |---|------|----------------|
-| [02](./02_quote_push/) | All quote push handlers | Quote, orderbook, ticker, broker queue — all running simultaneously |
-| [05](./05_quote_trade/) | Quote + trade combined | Every push type in one script, with trade order/deal streams |
+| [02](./examples/02_quote_push/) | All quote push handlers | Quote, orderbook, ticker, broker queue — all running simultaneously |
+| [05](./examples/05_quote_trade/) | Quote + trade combined | Every push type in one script, with trade order/deal streams |
 | [14](./14_cur_kline/) | Live K-Line Stream | Subscribe to real-time candlestick updates as they print |
 | [39](./39_push_sysnotify/) | System Notifications | Login events, order fills, market alerts |
 | [40](./40_push_trade/) | Trade Push | Live order status and deal confirmations as they happen |
 | [45](./45_broker_handler/) | Broker Queue Push | `BrokerHandlerBase` for real-time broker depth changes (LV1 req.) |
-| [45b](./45b_ticker_handler/) | Ticker Push | `TickerHandlerBase` for every trade print with price, volume, direction |
+| [45b](./45b_ticker_handler/) | Ticker Push | `TickerHandlerBase` — every trade print with price, volume, direction |
 | [46](./46_curkline_handler/) | CurKline Push | `CurKlineHandlerBase` for live candle build-up before bar closes |
 | [47](./47_price_reminder_handler/) | Price Reminder Push | `PriceReminderHandlerBase` for server-pushed price alerts |
 | [48](./48_keepalive_handler/) | KeepAlive Push | `KeepAliveHandlerBase` for connection heartbeat monitoring |
@@ -145,45 +170,45 @@ All trade examples use the **SIMULATE** account only. No real orders are placed.
 
 | # | Name | What you'll see |
 |---|------|----------------|
-| [04](./04_macd_strategy/) | MACD strategy | Calculate MACD cross signals, place simulated orders |
-| [06](./06_stock_sell/) | Place and modify orders | Sell with smart order types |
-| [11](./11_accinfo/) | Account info + positions | Cash, margin, positions, P&L |
-| [32](./32_order_query/) | Order lifecycle | Query, modify, cancel orders and their fills |
-| [33](./33_trading_info/) | Trading limits | Max buy/sell quantity, margin ratios |
-| [34](./34_cancel_all/) | Cancel all open orders | Emergency cleanup |
-| [35](./35_cashflow/) | Cash flow history | Deposits, withdrawals, fees |
-| [37](./37_margin_ratio/) | Margin ratios | Margin utilization for leveraged positions |
-| [38](./38_order_fee/) | Order fees | Commission, platform fee, clear fees per order |
-| [49](./49_acc_cash_flow/) | Account cash flow | `get_acc_cash_flow` on trade context |
-| [50](./50_history_order_deal/) | Historical orders & deals | Closed-order pipeline and historical fills |
-| [51](./51_acc_list/) | Account list | All sub-accounts (REAL + SIMULATE) with types and statuses |
+| [04](./examples/04_macd_strategy/) | MACD strategy | Calculate MACD cross signals, place simulated orders |
+| [06](./examples/06_stock_sell/) | Place and modify orders | Sell with smart order types |
+| [11](./examples/11_accinfo/) | Account info + positions | Cash, margin, positions, Unrealized P&L, dry-run your buying power |
+| [32](./examples/32_order_query/) | Order lifecycle | Query, modify, cancel orders and their fills |
+| [33](./examples/33_trading_info/) | Trading limits | Max buy/sell quantity, margin ratios |
+| [34](./examples/34_cancel_all/) | Cancel all open orders | Emergency cleanup |
+| [35](./examples/35_cashflow/) | Cash flow history | Deposits, withdrawals, fees |
+| [37](./examples/37_margin_ratio/) | Margin ratios | Margin utilization for leveraged positions |
+| [38](./examples/38_order_fee/) | Order fees | Commission, platform fee, clear fees per order |
+| [49](./examples/49_acc_cash_flow/) | Account cash flow | `get_acc_cash_flow` on trade context |
+| [50](./examples/50_history_order_deal/) | Historical orders & deals | Closed-order pipeline and historical fill records |
+| [51](./examples/51_acc_list/) | Account list | All sub-accounts (REAL + SIMULATE) with types and statuses |
 
 ### Calendars & Reference Data
 
 | # | Name | What you'll see |
 |---|------|----------------|
-| [12](./12_trading_days/) | Trading days calendar | Which days each market is open |
-| [20](./20_ipo_list/) | IPO calendar | Upcoming and recent IPOs per market |
-| [21](./21_future_info/) | Futures specs | Contract size, tick size, trading hours |
-| [53](./53_option_expiration_cycle/) | Option expiration cycles | Full roll calendar grouped by WEEK/MONTH/QUARTER |
+| [12](./examples/12_trading_days/) | Trading days calendar | Which days each market is open |
+| [20](./examples/20_ipo_list/) | IPO calendar | Upcoming and recent IPOs per market |
+| [21](./examples/21_future_info/) | Futures specs | Contract size, tick size, trading hours |
+| [53](./examples/53_option_expiration_cycle/) | Option expiration cycles | Full roll calendar grouped by WEEK/MONTH/QUARTER |
 
 ### User Data & Administration
 
 | # | Name | What you'll see |
 |---|------|----------------|
-| [23](./23_price_reminder/) | Price alerts | Create, query, update, delete price reminders |
-| [24](./24_user_security/) | Watchlist groups | Create, rename, delete watchlist groups; add and remove stocks |
-| [30](./30_user_info/) | User info | Account list, user profile, broker firm and account type |
-| [31](./31_misc/) | Misc | Flag days, rehabilitation data, watchlist group membership |
+| [23](./examples/23_price_reminder/) | Price alerts | Create, query, update, delete price reminders |
+| [24](./examples/24_user_security/) | Watchlist groups | Create, rename, delete watchlist groups; add and remove stocks |
+| [30](./examples/30_user_info/) | User info | Account list, user profile, broker firm and account type |
+| [31](./examples/31_misc/) | Misc | Flag days, rehabilitation data, watchlist operations |
 
 ### Quota & Utility
 
 | # | Name | What you'll see |
 |---|------|----------------|
-| [15](./15_sub_list/) | Subscription list | Which stocks and what types you're subscribed to |
-| [25](./25_option_chain/) | Option chains | All option contracts for an underlying grouped by expiration date |
-| [26](./26_history_kl_quota/) | K-line quota | How many historical K-line API calls you've burned through today |
-| [36](./36_stock_basicinfo/) | Stock basic info | Name, lot size, board lot, security type for a market or code list |
-| [43](./43_subscribe_lifecycle/) | Subscribe lifecycle | Batch subscribe → query subscription → unsubscribe_all |
-| [58](./58_options_greeks/) | Options Greeks Dashboard | Black-Scholes delta, gamma, theta, vega, rho computed live |
-| [65](./65_vol_surface/) | Volatility Surface Builder | Moneyness × expiry IV matrix from option chains |
+| [15](./examples/15_sub_list/) | Subscription list | Which stocks and what types you're subscribed to |
+| [25](./examples/25_option_chain/) | Option chains | All option contracts for an underlying grouped by expiration date |
+| [26](./examples/26_history_kl_quota/) | K-line quota | How many historical K-line API calls you've burned through today |
+| [36](./examples/36_stock_basicinfo/) | Stock basic info | Name, lot size, board lot, security type for a market or code list |
+| [43](./examples/43_subscribe_lifecycle/) | Subscribe lifecycle | Batch subscribe → query subscription → unsubscribe_all |
+| [58](./examples/58_options_greeks/) | Options Greeks Dashboard | Black-Scholes delta, gamma, theta, vega, rho computed live |
+| [65](./examples/65_vol_surface/) | Volatility Surface Builder | Moneyness × expiry IV matrix from option chains |

@@ -21,25 +21,20 @@ All notable changes to this project are documented here.
 
 ### Fixed
 
-- `subscribe()` / `unsubscribe()` return tuple unpacking across all examples (SDK returns `(ret_code, None)`, not a bare int)
-- `get_broker_queue()` return value unpacking (SDK returns `(ret_code, (bid_df, ask_df))`, not `(ret, bid, ask)`)
-- `get_option_chain()` parameter ordering in example 52 (was using positional args mismatched with the API signature)
-- Thread safety in `44_multi_market_snapshot` — each thread now creates its own `OpenQuoteContext` instead of sharing one
-- Infinite retry loops in `06_stock_sell` — added max-attempt guard to `while True` patterns
-- `SysNotifyHandlerBase` content type handling — switched from `on_recv` (string, dict-typed) to `on_recv_rsp` (protobuf, tuple-typed) matching the documented SDK pattern
-- `connect.py` resource leak — `ctx.close()` moved to `finally` block in `try_connect()`
-- Column name `name` → `plate_name` in `13_plate` matching actual SDK return
-- `set_futu_debug_model(True)` removed from push examples (verbose debug output not appropriate for demo scripts)
-- `start=None` → `start=""` in `55_momentum_screener` for `request_history_kline()` compatibility
+- `subscribe()` / `unsubscribe()` return tuple unpacking across all examples
+- `get_broker_queue()` return value unpacking
+- `get_option_chain()` parameter ordering in example 52
+- Thread safety in `44_multi_market_snapshot`
+- Infinite retry loops in `06_stock_sell`
+- `SysNotifyHandlerBase` content type handling
+- `connect.py` resource leak — `ctx.close()` moved to `finally`
+- Column name `name` → `plate_name` in `13_plate`
+- `set_futu_debug_model(True)` removed from push examples
+- `start=None` → `start=""` in `55_momentum_screener`
 
 ### Documentation
 
-- `README.md` — quick-start guide, configuration reference, connection module docs, full examples index, RSA setup, test suite instructions
-- `ARCHITECTURE.md` — system architecture with Mermaid sequence diagrams for all key execution flows: HA connection, quote push, trade lifecycle, MACD strategy, stock screener
-- `CONTRIBUTING.md` — example creation template, code conventions, return type reference, pandas pitfall guide, testing instructions
-- `TROUBLESHOOTING.md` — connection problems, RSA errors, trade account issues, subscription quota, platform-specific guidance
-- `CHANGELOG.md` — this file
-- `AGENTS.md` — SDK quirks reference for AI coding tools
+- `README.md`, `ARCHITECTURE.md`, `CONTRIBUTING.md`, `TROUBLESHOOTING.md`, `CHANGELOG.md`, `AGENTS.md`
 
 ---
 
@@ -47,23 +42,22 @@ All notable changes to this project are documented here.
 
 ### Added
 
-- **10 new advanced examples** (58–67) extending into real-time analytics, risk monitoring, and algorithmic execution:
+- **10 new advanced examples** (58–67):
 
   | # | Example | Category |
   |---|---------|----------|
-  | 58 | Options Greeks Dashboard | Computation — Black-Scholes Greeks (delta/gamma/theta/vega/rho) in pure Python |
-  | 59 | Dark Pool / Block Trade Detector | Cross-referencing — TICKER + BROKER push for off-book trade detection |
-  | 60 | Cross-Market Arbitrage Monitor | Monitoring — HK.00700/US.TCEHY dual-listing spread tracking |
-  | 61 | TWAP Order Slicer | Execution — slice large orders over time using ORDER_BOOK pricing |
+  | 58 | Options Greeks Dashboard | Computation — Black-Scholes Greeks |
+  | 59 | Dark Pool / Block Trade Detector | Cross-referencing — TICKER + BROKER push |
+  | 60 | Cross-Market Arbitrage Monitor | Monitoring — dual-listing spread tracking |
+  | 61 | TWAP Order Slicer | Execution — slice large orders over time |
   | 62 | Portfolio Risk Monitor | Risk — 6 live risk metrics with threshold alerts |
-  | 63 | Earnings Volatility Screener | Screening — pre-earnings IV/HV ratio + post-earnings unusual activity |
-  | 64 | Backtesting Mini-Framework | Analysis — 3 built-in strategies (SMA, RSI, MACD) with Sharpe/drawdown |
-  | 65 | Volatility Surface Builder | Visualization — moneyness × expiry IV matrix from option chains |
-  | 66 | Multi-Leg Options Order | Execution — vertical call spread on SIMULATE with fill monitoring |
-  | 67 | Connection Health Monitor | Utility — watchdog polling latency, quota, subscriptions, market states |
+  | 63 | Earnings Volatility Screener | Screening — pre-earnings IV/HV ratio |
+  | 64 | Backtesting Mini-Framework | Analysis — SMA, RSI, MACD with Sharpe/drawdown |
+  | 65 | Volatility Surface Builder | Visualization — moneyness × expiry IV matrix |
+  | 66 | Multi-Leg Options Order | Execution — vertical call spread on SIMULATE |
+  | 67 | Connection Health Monitor | Utility — watchdog polling latency, quota |
 
-- `PLANS.md` — detailed implementation plans for all 10 examples covering SDK APIs, data flow, edge cases, acceptance criteria, and risk assessment
-- All 10 examples pass `python3 -m py_compile` and follow existing codebase conventions
+- `PLANS.md` — detailed implementation plans for all 10 examples
 
 ---
 
@@ -71,25 +65,20 @@ All notable changes to this project are documented here.
 
 ### Added
 
-- **10 new advanced examples** (68–77) covering execution strategies, push-handler analytics, and market microstructure:
+- **10 new advanced examples** (68–77):
 
   | # | Example | Category |
   |---|---------|----------|
   | 68 | Trailing Stop Execution | Execution — dynamic stop-loss with order replacement |
   | 69 | Bollinger Band Bounce | Execution — mean-reversion via pure-Python statistics |
   | 70 | Warrant Valuation Dashboard | Analytics — intrinsic/time value, BSM implied vol ranking |
-  | 71 | Market Regime Detector | Analytics — ADX + rolling vol (trending/ranging/breakout) |
+  | 71 | Market Regime Detector | Analytics — ADX + rolling vol |
   | 72 | Candlestick Pattern Scanner | Screening — 9 classic patterns with confidence scoring |
-  | 73 | Multi-Asset Correlation Tracker | Analytics — rolling Pearson matrix + spike detection |
+  | 73 | Multi-Asset Correlation Tracker | Analytics — rolling Pearson matrix |
   | 74 | Order Flow Imbalance Visualizer | Microstructure — real-time ASCII imbalance chart |
-  | 75 | Futures Term Structure & Roll Yield | Analytics — dynamic futures discovery, contango/backwardation |
+  | 75 | Futures Term Structure & Roll Yield | Analytics — dynamic futures discovery |
   | 76 | Kelly Criterion Position Sizer | Risk — optimal sizing with half/quarter-Kelly |
   | 77 | Iceberg Order Detector | Microstructure — heuristic hidden order detection |
-
-- Updated README.md with 83-example count, v1.2.0 section, and full execution strategies category
-- Updated examples/README.md with all 24 new entries in Advanced Execution Strategies section
-
-All examples pass `python3 -m py_compile`.
 
 ---
 
@@ -97,20 +86,15 @@ All examples pass `python3 -m py_compile`.
 
 ### Added
 
-- **5 new examples** (78–82) covering grid trading, pairs trading, multi-leg options, portfolio rebalancing, and unusual options scanning:
+- **5 new examples** (78–82):
 
   | # | Example | Category |
   |---|---------|----------|
-  | 78 | Grid Trading Bot | Execution — automated buy-low/sell-high within price range |
-  | 79 | Pairs Trading (Cointegration) | Execution — Engle-Granger stat-arb on HK.00700 vs US.TCEHY |
-  | 80 | Multi-Leg Options Strategy | Execution — straddle, strangle, iron condor on SIMULATE |
+  | 78 | Grid Trading Bot | Execution — automated buy-low/sell-high grid |
+  | 79 | Pairs Trading (Cointegration) | Execution — Engle-Granger stat-arb |
+  | 80 | Multi-Leg Options Strategy | Execution — straddle, strangle, iron condor |
   | 81 | Portfolio Rebalancing Bot | Risk — periodic target-allocation rebalancing |
-  | 82 | Unusual Options Activity Scanner | Screening — volume anomaly flagging across option chain |
-
-- Updated README.md with 83-example count, new Advanced Execution Strategies section listing all 25 examples (68–82)
-- Updated examples/README.md with all 5 new entries
-
-All examples pass `python3 -m py_compile`.
+  | 82 | Unusual Options Activity Scanner | Screening — volume anomaly flagging |
 
 ---
 
@@ -118,18 +102,36 @@ All examples pass `python3 -m py_compile`.
 
 ### Added
 
-- **5 new examples** (83–87) covering dividends, execution analysis, vol surface, breadth, and alerts:
+- **5 new examples** (83–87):
 
   | # | Example | Category |
   |---|---------|----------|
-  | 83 | Dividend & Corporate Action Tracker | Screening — upcoming dividends, ex-dates, splits, rights issues |
-  | 84 | VWAP Execution Analysis | Analysis — trade quality vs VWAP, slippage, time-bucketed breakdown |
-  | 85 | Options Volatility Skew Scanner | Screening — IV surface across strikes/expiries, Newton-Raphson solver |
-  | 86 | Market Breadth Dashboard | Analytics — Adv/Dec, McClellan Oscillator, sector participation |
-  | 87 | Smart Watchlist with Alerts | Monitoring — price targets, RSI, Bollinger Band break alerts |
+  | 83 | Dividend & Corporate Action Tracker | Screening — dividends, ex-dates, splits |
+  | 84 | VWAP Execution Analysis | Analysis — trade quality vs VWAP benchmark |
+  | 85 | Options Volatility Skew Scanner | Screening — IV surface, Newton-Raphson solver |
+  | 86 | Market Breadth Dashboard | Analytics — Adv/Dec, McClellan Oscillator |
+  | 87 | Smart Watchlist with Alerts | Monitoring — price/RSI/Bollinger alerts |
 
-- Updated README.md with 87-example count, new Screening & Volatility and Market Breadth & Alerts category sections
-- Updated examples/README.md with all 5 new entries in new categories
-- Updated ARCHITECTURE.md directory tree with all 87 example directories
+---
 
-All examples pass `python3 -m py_compile`.
+## [1.5.0] — 2026-05-14
+
+### Added
+
+- **10 new examples** (88–97):
+
+  | # | Example | Category |
+  |---|---------|----------|
+  | 88 | Stop-Loss / Take-Profit Engine | Risk — dual SL/TP with partial exits |
+  | 89 | Gap Scanner | Screening — overnight gap detection |
+  | 90 | AH Premium/Discount Tracker | Cross-Market — A-share vs H-share comparison |
+  | 91 | Sector Rotation Scanner | Screening — RSI-based sector ranking |
+  | 92 | Monte Carlo Portfolio Simulator | Risk Analysis — 10K path VaR simulation |
+  | 93 | Options Calendar Spread Builder | Options — neutral theta plays via vol differential |
+  | 94 | Earnings Surprise Analyzer | Event-Driven — EPS surprise + post-earnings activity |
+  | 95 | 52-Week High/Low Scanner | Screening — proximity to yearly extremes |
+  | 96 | Margin Utilization Monitor | Risk — real-time margin + liquidation price |
+  | 97 | VWAP Anchored Trading Levels | Execution — VWAP-based support/resistance signals |
+
+- Updated README.md, examples/README.md, ARCHITECTURE.md with full 97-example index
+- All examples pass `python3 -m py_compile`

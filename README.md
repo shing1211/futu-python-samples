@@ -1,20 +1,20 @@
 # Futu Python Samples
 
-> **83 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **97 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org/)
 [![SDK Version](https://img.shields.io/badge/SDK-10.5.6508-blue)](https://pypi.org/project/futu-api/)
-[![Changelog](https://img.shields.io/badge/changelog-v1.2.0-orange)](./CHANGELOG.md)
+[![Changelog](https://img.shields.io/badge/changelog-v1.5.0-orange)](./CHANGELOG.md)
 
 ---
 
-## What's New in v1.2.0
+## What's New in v1.5.0
 
-- **83 examples** covering the full Futu OpenAPI surface — plus grid trading, pairs trading (cointegration), multi-leg options strategies, portfolio rebalancing, and unusual options activity scanning
-- **5 new advanced examples (78–82)**: grid trading bot, pairs trading with cointegration, multi-leg options execution, portfolio rebalancing, unusual options scanner
-- Full v1.0.0 + v1.1.0 changelogs below
+- **97 examples** covering the full Futu OpenAPI surface — grid trading, pairs trading, Monte Carlo simulation, margin monitoring, gap scanning, sector rotation, calendar spreads, earnings analysis, AH premium tracking, VWAP signals
+- **10 new advanced examples (88–97)**: SL/TP engine, Monte Carlo, margin monitor, gap scanner, sector rotation, 52-week scanner, AH premium tracker, VWAP anchored trading, calendar spread builder, earnings surprise analyzer
+- Full v1.0.0 through v1.4.0 changelogs below
 
 [Full changelog →](./CHANGELOG.md)
 
@@ -50,7 +50,7 @@ That's it. No API keys, no compile step, no boilerplate to write first.
 
 **Smart gateway selection.** The `connect.py` module probes all your configured OpenD hosts simultaneously, measures real TCP latency, and picks the fastest one. Both quote and trade contexts share the probe result — no redundant network calls.
 
-**A catalog, not a tutorial.** 83 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
+**A catalog, not a tutorial.** 97 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
 
 ---
 
@@ -192,19 +192,49 @@ Browse by category or find the feature you need.
 
 - [68](./examples/68_trailing_stop/) — **Trailing Stop Execution** — dynamic stop-loss that follows price favorably
 - [69](./examples/69_bollinger_bounce/) — **Bollinger Band Bounce** — mean-reversion via pure-Python Bollinger Bands
-- [70](./examples/70_warrant_valuation/) — **Warrant Valuation Dashboard** — intrinsic value, time value, implied vol ranking
+- [70](./examples/70_warrant_valuation/) — **Warrant Valuation Dashboard** — intrinsic/time value, implied vol ranking
 - [71](./examples/71_market_regime/) — **Market Regime Detector** — ADX + rolling vol classification (trending/ranging/breakout)
 - [72](./examples/72_candlestick_scanner/) — **Candlestick Pattern Scanner** — 9 classic patterns with confidence scoring
 - [73](./examples/73_correlation_tracker/) — **Multi-Asset Correlation Tracker** — rolling Pearson matrix + spike detection
 - [74](./examples/74_orderflow_viz/) — **Order Flow Imbalance Visualizer** — real-time ASCII imbalance chart
 - [75](./examples/75_futures_term_structure/) — **Futures Term Structure & Roll Yield** — dynamic discovery, contango/backwardation
 - [76](./examples/76_kelly_sizer/) — **Kelly Criterion Position Sizer** — optimal sizing with half/quarter-Kelly
-- [77](./examples/77_iceberg_detector/) — **Iceberg Order Detector** — heuristic hidden order detection via order book dynamics
+- [77](./examples/77_iceberg_detector/) — **Iceberg Order Detector** — heuristic hidden order detection
 - [78](./examples/78_grid_trading/) — **Grid Trading Bot** — automated buy-low/sell-high within a price range
-- [79](./examples/79_pairs_trading/) — **Pairs Trading (Cointegration)** — Engle-Granger stat-arb, HK.00700 vs US.TCEHY
+- [79](./examples/79_pairs_trading/) — **Pairs Trading (Cointegration)** — Engle-Granger stat-arb on HK.00700 vs US.TCEHY
 - [80](./examples/80_multi_leg_options/) — **Multi-Leg Options Strategy** — straddle, strangle, iron condor execution
 - [81](./examples/81_portfolio_rebalance/) — **Portfolio Rebalancing Bot** — periodic target-allocation rebalancing
 - [82](./examples/82_unusual_options/) — **Unusual Options Activity Scanner** — volume anomaly flagging
+
+### Screening & Volatility
+
+- [83](./examples/83_dividend_tracker/) — **Dividend & Corporate Action Tracker** — upcoming dividends, ex-dates, splits, rights issues
+- [84](./examples/84_vwap_analysis/) — **VWAP Execution Analysis** — trade quality vs VWAP, slippage, time-bucketed breakdown
+- [85](./examples/85_vol_skew/) — **Options Volatility Skew** — IV surface across strikes/expiries, Newton-Raphson solver
+
+### Market Breadth & Alerts
+
+- [86](./examples/86_market_breadth/) — **Market Breadth Dashboard** — Adv/Dec, McClellan, sector participation across HK/US/SH/SZ
+- [87](./examples/87_watchlist_alerts/) — **Smart Watchlist Alerts** — price targets, RSI, Bollinger Band break alerts
+
+### Risk Management (SIMULATE)
+
+- [88](./examples/88_sl_tp_engine/) — **Stop-Loss / Take-Profit Engine** — dual SL/TP with partial exits and trailing
+- [92](./examples/92_monte_carlo/) — **Monte Carlo Portfolio Simulator** — 10K path simulation with VaR and percentiles
+- [96](./examples/96_margin_monitor/) — **Margin Utilization Monitor** — real-time margin tracking + liquidation price estimates
+
+### Cross-Market & Signals
+
+- [89](./examples/89_gap_scanner/) — **Gap Scanner** — overnight gap detection across all markets with volume confirmation
+- [90](./examples/90_ah_premium/) — **AH Premium/Discount Tracker** — A-share vs H-share price comparison in real time
+- [91](./examples/91_sector_rotation/) — **Sector Rotation Scanner** — RSI-based sector ranking for rotation signals
+- [95](./examples/95_52week_scanner/) — **52-Week High/Low Scanner** — proximity to yearly extremes with volume confirmation
+- [97](./examples/97_vwap_anchored/) — **VWAP Anchored Trading Levels** — dynamic support/resistance with volume signals
+
+### Options Strategies (SIMULATE)
+
+- [93](./examples/93_calendar_spread/) — **Options Calendar Spread Builder** — neutral theta plays via vol differential
+- [94](./examples/94_earnings_analyzer/) — **Earnings Surprise Analyzer** — EPS surprise detection + post-earnings activity
 
 ### Real-Time Feeds (Push Handlers)
 
@@ -238,10 +268,10 @@ All trade examples use the **SIMULATE** account only. No real orders are placed.
 - [50](./examples/50_history_order_deal/) — **Historical orders & deals** — closed-order pipeline and historical fill records
 - [51](./examples/51_acc_list/) — **Account list** — all sub-accounts (REAL + SIMULATE) with types and statuses
 
-### Calendars & Reference
+### Calendars & Reference Data
 
 - [12](./examples/12_trading_days/) — **Trading days calendar** — which days each market is open
-- [20](./examples/20_ipo_list/) — **IPO calendar** — upcoming and recent IPOs per market — issue price, listing date, status
+- [20](./examples/20_ipo_list/) — **IPO calendar** — upcoming and recent IPOs per market
 - [21](./examples/21_future_info/) — **Futures specs** — contract size, tick size, trading hours
 - [53](./examples/53_option_expiration_cycle/) — **Option expiration cycles** — full roll calendar grouped by WEEK/MONTH/QUARTER
 
@@ -257,17 +287,15 @@ All trade examples use the **SIMULATE** account only. No real orders are placed.
 - [15](./examples/15_sub_list/) — **Subscription list** — which stocks and what types you're subscribed to
 - [25](./examples/25_option_chain/) — **Option chains** — all option contracts for an underlying grouped by expiration date
 - [26](./examples/26_history_kl_quota/) — **K-line quota** — how many historical K-line API calls you've burned through today
-- [36](./examples/36_stock_basicinfo/) — **Stock basic info** — name, lot size, board lot, security type for a whole market or a specific list
-- [43](./examples/43_subscribe_lifecycle/) — **Subscribe lifecycle** — full cycle: batch subscribe → query subscription → unsubscribe; manage subscription quota
-- [58](./examples/58_options_greeks/) — **Options Greeks Dashboard** — Black-Scholes delta, gamma, theta, vega, rho computed live from option chain data
-- [65](./examples/65_vol_surface/) — **Volatility Surface Builder** — moneyness × expiry IV matrix from option chains
+- [36](./examples/36_stock_basicinfo/) — **Stock basic info** — name, lot size, board lot, security type
+- [43](./examples/43_subscribe_lifecycle/) — **Subscribe lifecycle** — batch subscribe → query subscription → unsubscribe_all
 
 ---
 
 ## Running the Full Suite
 
 ```bash
-# The proper runner — shows PASS/FAIL for all 83 examples
+# The proper runner — shows PASS/FAIL for all 97 examples
 python3 scripts/run_all.py
 
 # Smoke test (just checks for exceptions)
@@ -316,34 +344,22 @@ ctx = OpenQuoteContext(host="remote-gateway", port=11111)
 ├── TROUBLESHOOTING.md      ← common problems and fixes
 ├── examples/
 │   ├── connect.py          ← HA gateway helper (shared by all examples)
+│   ├── README.md           ← full 97-example index
 │   ├── 00_connect_ha/      ← standalone HA algorithm
 │   ├── 01_snapshot/        ← market snapshot
-│   ├── ...
-│   ├── 58_options_greeks/  ← options Greeks via Black-Scholes
-│   ├── 59_dark_pool_detector/
-│   ├── 60_cross_market_arb/
-│   ├── 61_twap_slicer/
-│   ├── 62_portfolio_risk/
-│   ├── 63_earnings_screener/
-│   ├── 64_backtesting/
-│   ├── 65_vol_surface/
-│   ├── 66_multi_leg_order/
-│   ├── 67_health_monitor/
-│   ├── 68_trailing_stop/   ← trailing stop-loss execution
-│   ├── 69_bollinger_bounce/ ← Bollinger Band mean reversion
-│   ├── 70_warrant_valuation/
-│   ├── 71_market_regime/   ← ADX + volatility regime detection
-│   ├── 72_candlestick_scanner/
-│   ├── 73_correlation_tracker/
-│   ├── 74_orderflow_viz/   ← real-time ASCII order flow chart
-│   ├── 75_futures_term_structure/
-│   ├── 76_kelly_sizer/     ← Kelly Criterion position sizing
-│   ├── 77_iceberg_detector/ ← iceberg order heuristic detection
-│   ├── 78_grid_trading/    ← automated grid buy-low/sell-high
-│   ├── 79_pairs_trading/   ← cointegration-based stat-arb
-│   ├── 80_multi_leg_options/ ← straddle/strangle/iron condor
-│   ├── 81_portfolio_rebalance/
-│   └── 82_unusual_options/ ← volume anomaly scanner
+│   │
+│   ├── ... (02–87)
+│   │
+│   ├── 88_trailing_stop/   ← dynamic trailing stop-loss
+│   ├── 89_gap_scanner/     ← overnight gap detection
+│   ├── 90_ah_premium/      ← A-share vs H-share premium tracking
+│   ├── 91_sector_rotation/ ← RSI-based sector ranking
+│   ├── 92_monte_carlo/     ← portfolio Monte Carlo simulation
+│   ├── 93_calendar_spread/ ← options calendar spread builder
+│   ├── 94_earnings_analyzer/ ← earnings surprise analysis
+│   ├── 95_52week_scanner/  ← 52-week extreme proximity scanner
+│   ├── 96_margin_monitor/  ← real-time margin utilization monitor
+│   └── 97_vwap_anchored/   ← VWAP-based support/resistance signals
 ├── scripts/
 │   └── run_all.py          ← automated test runner
 ```
