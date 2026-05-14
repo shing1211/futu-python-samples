@@ -47,7 +47,7 @@ if __name__ == "__main__":
             ("K_DAY (daily)", ft.SubType.K_DAY),
             ("K_30M", ft.SubType.K_30M),
         ]:
-            ret = ctx.subscribe(code, ktype)
+            ret, _ = ctx.subscribe(code, ktype)
             logger.info("subscribe ret=%d code=%s type=%s", ret, code, ktype_label)
 
         logger.info("Watching %s K-line pushes for 15 seconds...", code)

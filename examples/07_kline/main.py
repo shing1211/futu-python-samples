@@ -64,7 +64,7 @@ if __name__ == "__main__":
             logger.info("\nLast 5 bars:\n%s", hist_data.tail(5).to_string())
 
         # ── Different AuType ───────────────────────────────────────────
-        logger.info("\n=== request_history_kline: AuType comparison (bfq vs qfq) ===")
+        logger.info("\n=== request_history_kline: AuType comparison (hfq vs qfq) ===")
         for au_label, au_type in [("hfq (no adjustment)", ft.AuType.HFQ), ("qfq (adjusted)", ft.AuType.QFQ)]:
             ret, hist_data, _ = ctx.request_history_kline(code, start="2026-04-01", end="2026-05-12",
                                                   ktype=ft.KLType.K_DAY, autype=au_type)

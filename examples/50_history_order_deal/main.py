@@ -27,7 +27,11 @@ from connect import create_trade_context, get_demo_trade_password
 
 def main():
     trd_ctx = create_trade_context()
-    trd_ctx.unlock_trade(get_demo_trade_password())
+    ret = trd_ctx.unlock_trade(get_demo_trade_password())
+    if ret != 0:
+        print(f"unlock_trade failed: {ret}")
+        trd_ctx.close()
+        return
 
     # Try SIMULATE first (demo account), then REAL if nothing came back
     for env in ["SIMULATE", "REAL"]:

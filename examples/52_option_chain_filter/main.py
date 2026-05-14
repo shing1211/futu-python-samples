@@ -54,7 +54,7 @@ def main():
     filt.moneyness_max   = 1.3
     filt.delta_min       = 0.3   # delta > 0.3
 
-    ret, chain = ctx.get_option_chain(stock, exp_date, ft.OptionType.CALL, filt)
+    ret, chain = ctx.get_option_chain(stock, start=exp_date, end=exp_date, option_type=ft.OptionType.CALL, option_data_filter=filt)
     if ret != 0:
         print(f"  get_option_chain failed: {chain}")
     elif chain is None or (hasattr(chain, "empty") and chain.empty):

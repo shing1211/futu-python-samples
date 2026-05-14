@@ -29,7 +29,7 @@ if __name__ == "__main__":
         subtypes = [ft.SubType.QUOTE, ft.SubType.K_DAY, ft.SubType.ORDER_BOOK, ft.SubType.BROKER]
 
         logger.info("Subscribing to %s codes x %s subtypes...", len(codes), len(subtypes))
-        ret = ctx.subscribe(codes, subtypes)
+        ret, _ = ctx.subscribe(codes, subtypes)
         logger.info("subscribe ret=%d", ret)
 
         # ── Query active subscriptions ───────────────────────────────────
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
         # ── Unsubscribe specific subtype ───────────────────────────────────
         logger.info("\n=== unsubscribe: K_DAY from HK.00700 ===")
-        ret = ctx.unsubscribe(code_list=['HK.00700'], subtype_list=[ft.SubType.K_DAY])
+        ret, _ = ctx.unsubscribe(code_list=['HK.00700'], subtype_list=[ft.SubType.K_DAY])
         logger.info("unsubscribe ret=%d", ret)
 
         # ── Re-query ───────────────────────────────────────────────────────

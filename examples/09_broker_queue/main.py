@@ -29,12 +29,12 @@ if __name__ == "__main__":
     try:
         code = "HK.00700"
 
-        ret = ctx.subscribe(code, ft.SubType.BROKER)
+        ret, _ = ctx.subscribe(code, ft.SubType.BROKER)
         logger.info("subscribe ret=%d code=%s", ret, code)
 
         # ── get_broker_queue ─────────────────────────────────────────────
         logger.info("\n=== get_broker_queue: %s ===", code)
-        ret, bid_data, ask_data = ctx.get_broker_queue(code)
+        ret, (bid_data, ask_data) = ctx.get_broker_queue(code)
         if ret != 0:
             logger.error("get_broker_queue failed: bid_data=%s", bid_data)
         else:
@@ -59,7 +59,7 @@ if __name__ == "__main__":
         # ── Also try with HK.HSImain (index) ────────────────────────────
         code2 = "HK.HSImain"
         logger.info("\n=== get_broker_queue: %s ===", code2)
-        ret2 = ctx.subscribe(code2, ft.SubType.BROKER)
+        ret2, _ = ctx.subscribe(code2, ft.SubType.BROKER)
         logger.info("subscribe ret=%d", ret2)
         ret2, bid2, ask2 = ctx.get_broker_queue(code2)
         if ret2 != 0:

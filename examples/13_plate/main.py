@@ -37,7 +37,7 @@ if __name__ == "__main__":
                 logger.info("First 5 plates:")
                 for _, row in data.head(5).iterrows():
                     logger.info("  code=%s name=%s plate_type=%s",
-                                row.get("code"), row.get("name"), row.get("plate_type", type_label))
+                                row.get("code"), row.get("plate_name"), row.get("plate_type", type_label))
                 logger.info("\n%s", data.head(10).to_string())
 
         # ── Get stocks in a specific plate ─────────────────────────────

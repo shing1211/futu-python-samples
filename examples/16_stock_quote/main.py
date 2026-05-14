@@ -27,7 +27,7 @@ if __name__ == "__main__":
     try:
         codes = ["HK.00700", "HK.HSImain", "US.AAPL", "SH.600000", "SZ.000001"]
 
-        ret = ctx.subscribe(codes, [ft.SubType.QUOTE])
+        ret, _ = ctx.subscribe(codes, [ft.SubType.QUOTE])
         logger.info("subscribe ret=%d codes=%s", ret, codes)
 
         # ── get_stock_quote ───────────────────────────────────────────────
