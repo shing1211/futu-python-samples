@@ -1,6 +1,6 @@
 # Examples
 
-68 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
+83 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -46,7 +46,7 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [16](./16_stock_quote/) | Stock Quote | Last price, open, high, low, volume, turnover for a list of stocks |
 | [22](./22_market_state/) | Market State | Is the market pre-open, open, closed, or after-hours right now? |
 
-### Filtering & Screening
+### Filters & Screening
 
 | # | Name | What you'll see |
 |---|------|----------------|
@@ -62,52 +62,15 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [18](./18_referencestock/) | Reference Stocks | Warrant and bull-bear chain reference data — the underlying and its related instruments |
 | [28](./28_warrant/) | Warrant Data | All warrants for an underlying — issuer, implied volatility, premium, maturity |
 
-### Fundamentals & Flow
+### Capital & Fundamentals
 
 | # | Name | What you'll see |
 |---|------|----------------|
-| [19](./19_capital_flow/) | Capital Flow | Intraday and daily capital flow heatmap — where money is going in/out |
+| [19](./19_capital_flow/) | Capital Flow | Intraday and daily capital flow heatmap — where money is flowing in/out |
 | [42](./42_capital_distribution/) | Capital Distribution | Super/Big/Mid/Small fund flow breakdown per stock — institutional tier breakdown |
 | [29](./29_unusual/) | Unusual Activity | Unusual volume, price, technical and derivative signals — pick up early mover prints |
 | [27](./27_code_change/) | Code Changes | Stock rename, split, and code change history |
 | [41](./41_rehab/) | Rehabilitation Data | Ex-dividend, ex-rights, share consolidation dates — for adjusting historical prices |
-
-### Trading — SIMULATE Account
-
-> All trade examples are for the **SIMULATE account only**. No real orders are placed.
-
-| # | Name | What you'll see |
-|---|------|----------------|
-| [04](./04_macd_strategy/) | MACD Strategy | Calculate MACD cross signals from historical K-lines, place simulated buy/sell orders |
-| [06](./06_stock_sell/) | Stock Sell | Place simple and smart-order sell orders, modify quantity and price mid-flight |
-| [11](./11_accinfo/) | Account Info | Cash, margin, positions, Unrealized P&L, dry-run your buying power |
-| [32](./32_order_query/) | Order Query | Full order lifecycle — query open orders, fills, modify price/qty, cancel |
-| [33](./33_trading_info/) | Trading Info | Max buy/sell quantity, margin ratio, required margin per lot |
-| [34](./34_cancel_all/) | Cancel All Orders | Panic button — cancel every open order at once |
-| [35](./35_cashflow/) | Cash Flow | Deposits, withdrawals, fees, corporate actions — account cash movement history |
-| [37](./37_margin_ratio/) | Margin Ratio | Margin utilization for leveraged positions |
-| [38](./38_order_fee/) | Order Fees | Commission, platform fee, clear fees — real cost of every order |
-| [49](./49_acc_cash_flow/) | Account Cash Flow | Cash movement history via trade context API — deposits, withdrawals, fees |
-| [50](./50_history_order_deal/) | Historical Orders & Deals | Full closed-order pipeline and historical fill records |
-| [51](./51_acc_list/) | Account List | All sub-accounts under your user — REAL and SIMULATE, with types and statuses |
-
-### Calendars & Reference
-
-| # | Name | What you'll see |
-|---|------|----------------|
-| [12](./12_trading_days/) | Trading Days | Which days each market is open — useful for backtesting scheduling |
-| [20](./20_ipo_list/) | IPO Calendar | Upcoming and recent IPOs per market — issue price, listing date, status |
-| [21](./21_future_info/) | Futures Info | Contract spec sheet — tick size, contract multiplier, trading hours |
-| [53](./53_option_expiration_cycle/) | Option Expiration Cycles | Full roll calendar grouped by WEEK/MONTH/QUARTER cycle |
-
-### User Data & Alerts
-
-| # | Name | What you'll see |
-|---|------|----------------|
-| [23](./23_price_reminder/) | Price Alerts | Create price reminders, list active alerts, update trigger prices, delete alerts |
-| [24](./24_user_security/) | Watchlists | Create, rename, delete watchlist groups; add and remove stocks |
-| [30](./30_user_info/) | User Info | Account list, user profile, broker firm and account type |
-| [31](./31_misc/) | Misc | Flag days, rehabilitation data, watchlist group membership |
 
 ### Advanced Analytics & Algo Execution
 
@@ -124,12 +87,88 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [66](./66_multi_leg_order/) | Multi-Leg Options | Vertical call spread on SIMULATE — 2-leg fill monitoring |
 | [67](./67_health_monitor/) | Health Monitor | Watchdog — latency, subscription quota, market state polling |
 
-### Utilities
+### Advanced Execution Strategies
 
 | # | Name | What you'll see |
 |---|------|----------------|
-| [15](./15_sub_list/) | Subscription List | What you're subscribed to and at which push frequency |
-| [25](./25_option_chain/) | Option Chains | All option contracts for an underlying grouped by expiration date |
-| [26](./26_history_kl_quota/) | K-Line Quota | How many historical K-line API calls you've burned through today |
-| [36](./36_stock_basicinfo/) | Stock Basic Info | Name, lot size, board lot, security type for a whole market or a specific list |
-| [43](./43_subscribe_lifecycle/) | Subscribe Lifecycle | Full cycle: batch subscribe → query subscription → unsubscribe; manage subscription quota |
+| [68](./68_trailing_stop/) | Trailing Stop Execution | Dynamic stop-loss that follows price favorably with order replacement |
+| [69](./69_bollinger_bounce/) | Bollinger Band Bounce | Mean-reversion via pure-Python Bollinger Bands (statistics.pstdev) |
+| [70](./70_warrant_valuation/) | Warrant Valuation Dashboard | Intrinsic/time value, simplified implied vol, mispricing ranking |
+| [71](./71_market_regime/) | Market Regime Detector | ADX + rolling vol — classifies TRENDING / RANGING / BREAKOUT |
+| [72](./72_candlestick_scanner/) | Candlestick Pattern Scanner | 9 classic patterns with confidence scoring + trend confirmation |
+| [73](./73_correlation_tracker/) | Multi-Asset Correlation Tracker | Rolling Pearson matrix + spike detection across 10+ tickers |
+| [74](./74_orderflow_viz/) | Order Flow Imbalance Visualizer | Real-time ASCII imbalance bar chart using ORDER_BOOK push |
+| [75](./75_futures_term_structure/) | Futures Term Structure & Roll Yield | Dynamic futures discovery, contango/backwardation, ASCII chart |
+| [76](./76_kelly_sizer/) | Kelly Criterion Position Sizer | Optimal sizing with half/quarter-Kelly, ATR-based stop |
+| [77](./77_iceberg_detector/) | Iceberg Order Detector | Heuristic hidden order detection via order book dynamics |
+| [78](./78_grid_trading/) | Grid Trading Bot | Automated buy-low/sell-high within a defined price range |
+| [79](./79_pairs_trading/) | Pairs Trading (Cointegration) | Engle-Granger stat-arb — HK.00700 vs US.TCEHY |
+| [80](./80_multi_leg_options/) | Multi-Leg Options Strategy | Straddle, strangle, iron condor execution on SIMULATE |
+| [81](./81_portfolio_rebalance/) | Portfolio Rebalancing Bot | Periodic target-allocation rebalancing with live positions |
+| [82](./82_unusual_options/) | Unusual Options Activity Scanner | Volume anomaly flagging across full option chain |
+
+### Real-Time Feeds (Push Handlers)
+
+Push handlers receive streaming data from OpenD as events occur. Subscribe once, and the handler fires every time the data changes — no polling required.
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [02](./02_quote_push/) | All quote push handlers | Quote, orderbook, ticker, broker queue — all running simultaneously |
+| [05](./05_quote_trade/) | Quote + trade combined | Every push type in one script, with trade order/deal streams |
+| [14](./14_cur_kline/) | Live K-Line Stream | Subscribe to real-time candlestick updates as they print |
+| [39](./39_push_sysnotify/) | System Notifications | Login events, order fills, market alerts |
+| [40](./40_push_trade/) | Trade Push | Live order status and deal confirmations as they happen |
+| [45](./45_broker_handler/) | Broker Queue Push | `BrokerHandlerBase` for real-time broker depth changes (LV1 req.) |
+| [45b](./45b_ticker_handler/) | Ticker Push | `TickerHandlerBase` — every trade print with price, volume, direction |
+| [46](./46_curkline_handler/) | CurKline Push | `CurKlineHandlerBase` for live candle build-up before bar closes |
+| [47](./47_price_reminder_handler/) | Price Reminder Push | `PriceReminderHandlerBase` for server-pushed price alerts |
+| [48](./48_keepalive_handler/) | KeepAlive Push | `KeepAliveHandlerBase` for connection heartbeat monitoring |
+
+### Trading (SIMULATE Account)
+
+All trade examples use the **SIMULATE** account only. No real orders are placed.
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [04](./04_macd_strategy/) | MACD strategy | Calculate MACD cross signals, place simulated orders |
+| [06](./06_stock_sell/) | Place and modify orders | Sell with smart order types |
+| [11](./11_accinfo/) | Account info + positions | Cash, margin, positions, P&L |
+| [32](./32_order_query/) | Order lifecycle | Query, modify, cancel orders and their fills |
+| [33](./33_trading_info/) | Trading limits | Max buy/sell quantity, margin ratios |
+| [34](./34_cancel_all/) | Cancel all open orders | Emergency cleanup |
+| [35](./35_cashflow/) | Cash flow history | Deposits, withdrawals, fees |
+| [37](./37_margin_ratio/) | Margin ratios | Margin utilization for leveraged positions |
+| [38](./38_order_fee/) | Order fees | Commission, platform fee, clear fees per order |
+| [49](./49_acc_cash_flow/) | Account cash flow | `get_acc_cash_flow` on trade context |
+| [50](./50_history_order_deal/) | Historical orders & deals | Closed-order pipeline and historical fills |
+| [51](./51_acc_list/) | Account list | All sub-accounts (REAL + SIMULATE) with types and statuses |
+
+### Calendars & Reference Data
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [12](./12_trading_days/) | Trading days calendar | Which days each market is open |
+| [20](./20_ipo_list/) | IPO calendar | Upcoming and recent IPOs per market |
+| [21](./21_future_info/) | Futures specs | Contract size, tick size, trading hours |
+| [53](./53_option_expiration_cycle/) | Option expiration cycles | Full roll calendar grouped by WEEK/MONTH/QUARTER |
+
+### User Data & Administration
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [23](./23_price_reminder/) | Price alerts | Create, query, update, delete price reminders |
+| [24](./24_user_security/) | Watchlist groups | Create and manage stock watchlists |
+| [30](./30_user_info/) | User info | Account list, user profile, broker firm details |
+| [31](./31_misc/) | Misc | Flag days, rehabilitation data, watchlist operations |
+
+### Quota & Utility
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [15](./15_sub_list/) | Subscription list | Which stocks and what types you're subscribed to |
+| [25](./25_option_chain/) | Option chains | All option contracts for an underlying, grouped by expiration |
+| [26](./26_history_kl_quota/) | K-line quota | How many historical K-line API calls you've used today |
+| [36](./36_stock_basicinfo/) | Stock basic info | Name, lot size, board lot, security type for a market or code list |
+| [43](./43_subscribe_lifecycle/) | Subscribe lifecycle | Batch subscribe → quota query → unsubscribe_all |
+| [58](./58_options_greeks/) | Options Greeks Dashboard | Black-Scholes delta, gamma, theta, vega, rho computed live |
+| [65](./65_vol_surface/) | Volatility Surface Builder | Moneyness × expiry IV matrix from option chains |

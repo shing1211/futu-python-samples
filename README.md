@@ -1,18 +1,28 @@
 # Futu Python Samples
 
-> **68 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **83 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org/)
 [![SDK Version](https://img.shields.io/badge/SDK-10.5.6508-blue)](https://pypi.org/project/futu-api/)
-[![Changelog](https://img.shields.io/badge/changelog-v1.0.0-orange)](./CHANGELOG.md)
+[![Changelog](https://img.shields.io/badge/changelog-v1.2.0-orange)](./CHANGELOG.md)
+
+---
+
+## What's New in v1.2.0
+
+- **83 examples** covering the full Futu OpenAPI surface — plus grid trading, pairs trading (cointegration), multi-leg options strategies, portfolio rebalancing, and unusual options activity scanning
+- **5 new advanced examples (78–82)**: grid trading bot, pairs trading with cointegration, multi-leg options execution, portfolio rebalancing, unusual options scanner
+- Full v1.0.0 + v1.1.0 changelogs below
+
+[Full changelog →](./CHANGELOG.md)
 
 ---
 
 ## What's New in v1.0.0
 
-- **68 examples** covering the full Futu OpenAPI surface — snapshots, K-lines, options, warrants, MACD strategy, trade lifecycle, push handlers, and advanced real-time analytics (pair trading, VWAP, order flow imbalance, options Greeks, backtesting, TWAP execution)
+- **58 examples** covering the full Futu OpenAPI surface — snapshots, K-lines, options, warrants, MACD strategy, trade lifecycle, push handlers, and advanced real-time analytics (pair trading, VWAP, order flow imbalance, options Greeks, backtesting, TWAP execution)
 - **HA gateway selection** — `connect.py` probes all hosts in parallel, picks the fastest, handles RSA auto-fallback
 - **Full SDK quirk documentation** — see [AGENTS.md](./AGENTS.md) for verified return types that differ from the official docs
 
@@ -40,7 +50,7 @@ That's it. No API keys, no compile step, no boilerplate to write first.
 
 **Smart gateway selection.** The `connect.py` module probes all your configured OpenD hosts simultaneously, measures real TCP latency, and picks the fastest one. Both quote and trade contexts share the probe result — no redundant network calls.
 
-**A catalog, not a tutorial.** 58 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
+**A catalog, not a tutorial.** 83 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
 
 ---
 
@@ -142,28 +152,28 @@ Browse by category or find the feature you need.
 - [09](./examples/09_broker_queue/) — **Broker queue depth** — who's on the bid/ask, how deep
 - [10](./examples/10_orderbook/) — **10-level order book** — full bid/ask ladder with volume at each level
 - [16](./examples/16_stock_quote/) — **Stock quotes** — last price, volume, turnover, bid/ask for a list of stocks
-- [22](./examples/22_market_state/) — **Market state** — is the market pre-open, open, after-hours, or closed?
+- [22](./examples/22_market_state/) — **Market state** — is the market pre-open, open, closed, or after-hours right now?
 - [44](./examples/44_multi_market_snapshot/) — **Multi-market snapshot** — all four markets fetched concurrently via threading
 
 ### Filters & Screens
 
-- [03](./examples/03_filter/) — **Stock screener** — filter by price, PE, market cap, turnover, and 20+ criteria
-- [52](./examples/52_option_chain_filter/) — **Option chain filter** — slice chains by delta, IV, moneyness, open interest using `OptionDataFilter`
+- [03](./examples/03_filter/) — **Stock screener** — 20+ filter criteria — price, PE, market cap, turnover, industry, flag day, and more
+- [52](./examples/52_option_chain_filter/) — **Option chain filter** — slice option chains by delta, IV, moneyness, open interest using `OptionDataFilter`
 
-### Sectors & Classifications
+### Sectors, Plates & References
 
-- [13](./examples/13_plate/) — **Sector/industry plates** — list all plates, get all stocks in a plate
-- [17](./examples/17_owner_plate/) — **Owner plates** — which plate does a stock belong to
-- [18](./examples/18_referencestock/) — **Reference stocks** — warrant and bull-bear chain reference data
-- [28](./examples/28_warrant/) — **Warrant data** — all warrants for an underlying, with issuer and implied volatility
+- [13](./examples/13_plate/) — **Sector plates** — all plates (sectors/industries) in a market, and every stock belonging to a plate
+- [17](./examples/17_owner_plate/) — **Owner plates** — which plate owns a given stock — useful for sector rotation
+- [18](./examples/18_referencestock/) — **Reference stocks** — warrant and bull-bear chain reference data — the underlying and its related instruments
+- [28](./examples/28_warrant/) — **Warrant data** — all warrants for an underlying — issuer, implied volatility, premium, maturity
 
 ### Capital & Fundamentals
 
 - [19](./examples/19_capital_flow/) — **Capital flow** — where money is flowing in/out, intraday and daily heatmap
-- [42](./examples/42_capital_distribution/) — **Capital distribution** — Super/Big/Mid/Small fund flow breakdown per stock
-- [29](./examples/29_unusual/) — **Unusual activity** — unusual volume, price, technical and derivative signals
-- [27](./examples/27_code_change/) — **Code changes** — stock rename/split/reorganisations
-- [41](./examples/41_rehab/) — **Rehabilitation data** — ex-dividend, ex-rights, share consolidation dates
+- [42](./examples/42_capital_distribution/) — **Capital distribution** — Super/Big/Mid/Small fund flow breakdown per stock — institutional tier breakdown
+- [29](./examples/29_unusual/) — **Unusual activity** — unusual volume, price, technical and derivative signals — pick up early mover prints
+- [27](./examples/27_code_change/) — **Code changes** — stock rename, split, and code change history
+- [41](./examples/41_rehab/) — **Rehabilitation data** — ex-dividend, ex-rights, share consolidation dates — for adjusting historical prices
 
 ### Advanced Analytics & Algo Execution
 
@@ -178,6 +188,24 @@ Browse by category or find the feature you need.
 - [66](./examples/66_multi_leg_order/) — **Multi-Leg Options Order** — vertical call spread on SIMULATE with fill monitoring
 - [67](./examples/67_health_monitor/) — **Connection Health Monitor** — watchdog polling latency, subscription quota, market states
 
+### Advanced Execution Strategies
+
+- [68](./examples/68_trailing_stop/) — **Trailing Stop Execution** — dynamic stop-loss that follows price favorably
+- [69](./examples/69_bollinger_bounce/) — **Bollinger Band Bounce** — mean-reversion via pure-Python Bollinger Bands
+- [70](./examples/70_warrant_valuation/) — **Warrant Valuation Dashboard** — intrinsic value, time value, implied vol ranking
+- [71](./examples/71_market_regime/) — **Market Regime Detector** — ADX + rolling vol classification (trending/ranging/breakout)
+- [72](./examples/72_candlestick_scanner/) — **Candlestick Pattern Scanner** — 9 classic patterns with confidence scoring
+- [73](./examples/73_correlation_tracker/) — **Multi-Asset Correlation Tracker** — rolling Pearson matrix + spike detection
+- [74](./examples/74_orderflow_viz/) — **Order Flow Imbalance Visualizer** — real-time ASCII imbalance chart
+- [75](./examples/75_futures_term_structure/) — **Futures Term Structure & Roll Yield** — dynamic discovery, contango/backwardation
+- [76](./examples/76_kelly_sizer/) — **Kelly Criterion Position Sizer** — optimal sizing with half/quarter-Kelly
+- [77](./examples/77_iceberg_detector/) — **Iceberg Order Detector** — heuristic hidden order detection via order book dynamics
+- [78](./examples/78_grid_trading/) — **Grid Trading Bot** — automated buy-low/sell-high within a price range
+- [79](./examples/79_pairs_trading/) — **Pairs Trading (Cointegration)** — Engle-Granger stat-arb, HK.00700 vs US.TCEHY
+- [80](./examples/80_multi_leg_options/) — **Multi-Leg Options Strategy** — straddle, strangle, iron condor execution
+- [81](./examples/81_portfolio_rebalance/) — **Portfolio Rebalancing Bot** — periodic target-allocation rebalancing
+- [82](./examples/82_unusual_options/) — **Unusual Options Activity Scanner** — volume anomaly flagging
+
 ### Real-Time Feeds (Push Handlers)
 
 Push handlers receive streaming data from OpenD as events occur. Subscribe once, and the handler fires every time the data changes — no polling required.
@@ -187,7 +215,7 @@ Push handlers receive streaming data from OpenD as events occur. Subscribe once,
 - [14](./examples/14_cur_kline/) — **Live K-line stream** — subscribe to real-time candlestick updates
 - [39](./examples/39_push_sysnotify/) — **System notifications** — login events, order fills, market alerts
 - [40](./examples/40_push_trade/) — **Trade push** — live order status and deal confirmations as they happen
-- [45](./examples/45_broker_handler/) — **Broker queue push** — `BrokerHandlerBase` for real-time broker depth changes
+- [45](./examples/45_broker_handler/) — **Broker queue push** — `BrokerHandlerBase` for real-time broker depth changes. LV1 data permission required.
 - [45b](./examples/45b_ticker_handler/) — **Ticker push** — `TickerHandlerBase` for every trade print with price, volume, direction
 - [46](./examples/46_curkline_handler/) — **CurKline push** — `CurKlineHandlerBase` for live candle build-up before bar closes
 - [47](./examples/47_price_reminder_handler/) — **Price reminder push** — `PriceReminderHandlerBase` for server-pushed price alerts
@@ -199,45 +227,47 @@ All trade examples use the **SIMULATE** account only. No real orders are placed.
 
 - [04](./examples/04_macd_strategy/) — **MACD strategy** — calculate MACD cross signals, place simulated orders
 - [06](./examples/06_stock_sell/) — **Place and modify orders** — sell with smart order types
-- [11](./examples/11_accinfo/) — **Account info + positions** — cash, margin, positions, P&L
+- [11](./examples/11_accinfo/) — **Account info + positions** — cash, margin, positions, Unrealized P&L, dry-run your buying power
 - [32](./examples/32_order_query/) — **Order lifecycle** — query, modify, cancel orders and their fills
 - [33](./examples/33_trading_info/) — **Trading limits** — max buy/sell quantity, margin ratios
 - [34](./examples/34_cancel_all/) — **Cancel all open orders** — emergency cleanup
-- [35](./examples/35_cashflow/) — **Cash flow history** — deposits, withdrawals, fees
+- [35](./examples/35_cashflow/) — **Cash flow** — deposits, withdrawals, fees, corporate actions — account cash movement history
 - [37](./examples/37_margin_ratio/) — **Margin ratios** — margin utilization for leveraged positions
-- [38](./examples/38_order_fee/) — **Order fees** — commission, platform fee, clear fees per order
+- [38](./examples/38_order_fee/) — **Order fees** — commission, platform fee, clear fees — real cost of every order
 - [49](./examples/49_acc_cash_flow/) — **Account cash flow** — `get_acc_cash_flow` on trade context (SIMULATE may be blocked by platform)
-- [50](./examples/50_history_order_deal/) — **Historical orders & deals** — closed-order pipeline and historical fills
+- [50](./examples/50_history_order_deal/) — **Historical orders & deals** — closed-order pipeline and historical fill records
 - [51](./examples/51_acc_list/) — **Account list** — all sub-accounts (REAL + SIMULATE) with types and statuses
 
-### Calendar & Reference Data
+### Calendars & Reference
 
 - [12](./examples/12_trading_days/) — **Trading days calendar** — which days each market is open
-- [20](./examples/20_ipo_list/) — **IPO calendar** — upcoming and recent IPOs per market
+- [20](./examples/20_ipo_list/) — **IPO calendar** — upcoming and recent IPOs per market — issue price, listing date, status
 - [21](./examples/21_future_info/) — **Futures specs** — contract size, tick size, trading hours
 - [53](./examples/53_option_expiration_cycle/) — **Option expiration cycles** — full roll calendar grouped by WEEK/MONTH/QUARTER
 
-### User Data & Administration
+### User Data & Alerts
 
 - [23](./examples/23_price_reminder/) — **Price alerts** — create, query, update, delete price reminders
-- [24](./examples/24_user_security/) — **Watchlist groups** — create and manage stock watchlists
-- [30](./examples/30_user_info/) — **User info** — account list, user profile, broker firm details
-- [31](./examples/31_misc/) — **Holding changes** — flag days, rehab data, watchlist operations
+- [24](./examples/24_user_security/) — **Watchlist groups** — create, rename, delete watchlist groups; add and remove stocks
+- [30](./examples/30_user_info/) — **User info** — account list, user profile, broker firm and account type
+- [31](./examples/31_misc/) — **Misc** — flag days, rehabilitation data, watchlist group membership
 
-### Quota & Utility
+### Utilities
 
 - [15](./examples/15_sub_list/) — **Subscription list** — which stocks and what types you're subscribed to
-- [25](./examples/25_option_chain/) — **Option chains** — all options for an underlying, grouped by expiration
-- [26](./examples/26_history_kl_quota/) — **K-line quota** — how many historical K-line API calls you've used today
-- [36](./examples/36_stock_basicinfo/) — **Stock basic info** — name, lot size, board lot, security type for a market or code list
-- [43](./examples/43_subscribe_lifecycle/) — **Subscribe lifecycle** — batch subscribe → quota query → unsubscribe_all
+- [25](./examples/25_option_chain/) — **Option chains** — all option contracts for an underlying grouped by expiration date
+- [26](./examples/26_history_kl_quota/) — **K-line quota** — how many historical K-line API calls you've burned through today
+- [36](./examples/36_stock_basicinfo/) — **Stock basic info** — name, lot size, board lot, security type for a whole market or a specific list
+- [43](./examples/43_subscribe_lifecycle/) — **Subscribe lifecycle** — full cycle: batch subscribe → query subscription → unsubscribe; manage subscription quota
+- [58](./examples/58_options_greeks/) — **Options Greeks Dashboard** — Black-Scholes delta, gamma, theta, vega, rho computed live from option chain data
+- [65](./examples/65_vol_surface/) — **Volatility Surface Builder** — moneyness × expiry IV matrix from option chains
 
 ---
 
 ## Running the Full Suite
 
 ```bash
-# The proper runner — shows PASS/FAIL for all 68 examples
+# The proper runner — shows PASS/FAIL for all 83 examples
 python3 scripts/run_all.py
 
 # Smoke test (just checks for exceptions)
@@ -287,7 +317,33 @@ ctx = OpenQuoteContext(host="remote-gateway", port=11111)
 ├── examples/
 │   ├── connect.py          ← HA gateway helper (shared by all examples)
 │   ├── 00_connect_ha/      ← standalone HA algorithm
-│   ├── 01_snapshot/ … 67_health_monitor/  ← 68 examples
+│   ├── 01_snapshot/        ← market snapshot
+│   ├── ...
+│   ├── 58_options_greeks/  ← options Greeks via Black-Scholes
+│   ├── 59_dark_pool_detector/
+│   ├── 60_cross_market_arb/
+│   ├── 61_twap_slicer/
+│   ├── 62_portfolio_risk/
+│   ├── 63_earnings_screener/
+│   ├── 64_backtesting/
+│   ├── 65_vol_surface/
+│   ├── 66_multi_leg_order/
+│   ├── 67_health_monitor/
+│   ├── 68_trailing_stop/   ← trailing stop-loss execution
+│   ├── 69_bollinger_bounce/ ← Bollinger Band mean reversion
+│   ├── 70_warrant_valuation/
+│   ├── 71_market_regime/   ← ADX + volatility regime detection
+│   ├── 72_candlestick_scanner/
+│   ├── 73_correlation_tracker/
+│   ├── 74_orderflow_viz/   ← real-time ASCII order flow chart
+│   ├── 75_futures_term_structure/
+│   ├── 76_kelly_sizer/     ← Kelly Criterion position sizing
+│   ├── 77_iceberg_detector/ ← iceberg order heuristic detection
+│   ├── 78_grid_trading/    ← automated grid buy-low/sell-high
+│   ├── 79_pairs_trading/   ← cointegration-based stat-arb
+│   ├── 80_multi_leg_options/ ← straddle/strangle/iron condor
+│   ├── 81_portfolio_rebalance/
+│   └── 82_unusual_options/ ← volume anomaly scanner
 ├── scripts/
 │   └── run_all.py          ← automated test runner
 ```
