@@ -41,6 +41,8 @@ All notable changes to this project are documented here.
 - `CHANGELOG.md` — this file
 - `AGENTS.md` — SDK quirks reference for AI coding tools
 
+---
+
 ## [1.1.0] — 2026-05-14
 
 ### Added
@@ -61,4 +63,73 @@ All notable changes to this project are documented here.
   | 67 | Connection Health Monitor | Utility — watchdog polling latency, quota, subscriptions, market states |
 
 - `PLANS.md` — detailed implementation plans for all 10 examples covering SDK APIs, data flow, edge cases, acceptance criteria, and risk assessment
-- Examples 58, 60, 61, 62, 63, 64, 65, 66, 67, 59 all compile and pass syntax verification
+- All 10 examples pass `python3 -m py_compile` and follow existing codebase conventions
+
+---
+
+## [1.2.0] — 2026-05-14
+
+### Added
+
+- **10 new advanced examples** (68–77) covering execution strategies, push-handler analytics, and market microstructure:
+
+  | # | Example | Category |
+  |---|---------|----------|
+  | 68 | Trailing Stop Execution | Execution — dynamic stop-loss with order replacement |
+  | 69 | Bollinger Band Bounce | Execution — mean-reversion via pure-Python statistics |
+  | 70 | Warrant Valuation Dashboard | Analytics — intrinsic/time value, BSM implied vol ranking |
+  | 71 | Market Regime Detector | Analytics — ADX + rolling vol (trending/ranging/breakout) |
+  | 72 | Candlestick Pattern Scanner | Screening — 9 classic patterns with confidence scoring |
+  | 73 | Multi-Asset Correlation Tracker | Analytics — rolling Pearson matrix + spike detection |
+  | 74 | Order Flow Imbalance Visualizer | Microstructure — real-time ASCII imbalance chart |
+  | 75 | Futures Term Structure & Roll Yield | Analytics — dynamic futures discovery, contango/backwardation |
+  | 76 | Kelly Criterion Position Sizer | Risk — optimal sizing with half/quarter-Kelly |
+  | 77 | Iceberg Order Detector | Microstructure — heuristic hidden order detection |
+
+- Updated README.md with 83-example count, v1.2.0 section, and full execution strategies category
+- Updated examples/README.md with all 24 new entries in Advanced Execution Strategies section
+
+All examples pass `python3 -m py_compile`.
+
+---
+
+## [1.3.0] — 2026-05-14
+
+### Added
+
+- **5 new examples** (78–82) covering grid trading, pairs trading, multi-leg options, portfolio rebalancing, and unusual options scanning:
+
+  | # | Example | Category |
+  |---|---------|----------|
+  | 78 | Grid Trading Bot | Execution — automated buy-low/sell-high within price range |
+  | 79 | Pairs Trading (Cointegration) | Execution — Engle-Granger stat-arb on HK.00700 vs US.TCEHY |
+  | 80 | Multi-Leg Options Strategy | Execution — straddle, strangle, iron condor on SIMULATE |
+  | 81 | Portfolio Rebalancing Bot | Risk — periodic target-allocation rebalancing |
+  | 82 | Unusual Options Activity Scanner | Screening — volume anomaly flagging across option chain |
+
+- Updated README.md with 83-example count, new Advanced Execution Strategies section listing all 25 examples (68–82)
+- Updated examples/README.md with all 5 new entries
+
+All examples pass `python3 -m py_compile`.
+
+---
+
+## [1.4.0] — 2026-05-14
+
+### Added
+
+- **5 new examples** (83–87) covering dividends, execution analysis, vol surface, breadth, and alerts:
+
+  | # | Example | Category |
+  |---|---------|----------|
+  | 83 | Dividend & Corporate Action Tracker | Screening — upcoming dividends, ex-dates, splits, rights issues |
+  | 84 | VWAP Execution Analysis | Analysis — trade quality vs VWAP, slippage, time-bucketed breakdown |
+  | 85 | Options Volatility Skew Scanner | Screening — IV surface across strikes/expiries, Newton-Raphson solver |
+  | 86 | Market Breadth Dashboard | Analytics — Adv/Dec, McClellan Oscillator, sector participation |
+  | 87 | Smart Watchlist with Alerts | Monitoring — price targets, RSI, Bollinger Band break alerts |
+
+- Updated README.md with 87-example count, new Screening & Volatility and Market Breadth & Alerts category sections
+- Updated examples/README.md with all 5 new entries in new categories
+- Updated ARCHITECTURE.md directory tree with all 87 example directories
+
+All examples pass `python3 -m py_compile`.
