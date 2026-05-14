@@ -1,6 +1,6 @@
 # Architecture
 
-> Built on the [Futu OpenAPI Python SDK](https://openapi.futunn.com/futu-api-doc/). 87 standalone examples organized as a reference library, not a framework.
+> Built on the [Futu OpenAPI Python SDK](https://openapi.futunn.com/futu-api-doc/). 97 standalone examples organized as a reference library, not a framework.
 
 ## Overview
 
@@ -8,7 +8,7 @@ The repo has two distinct layers:
 
 | Layer | Contents |
 |-------|----------|
-| **SDK Examples** | 87 example scripts (`examples/00` – `examples/87`), each demonstrating one Futu API feature |
+| **SDK Examples** | 97 example scripts (`examples/00` – `examples/97`), each demonstrating one Futu API feature |
 | **Shared Infrastructure** | `examples/connect.py` — HA gateway selection, connection caching, env-var loading |
 
 ```
@@ -17,11 +17,11 @@ futu-api (external SDK)
     ▼
 examples/connect.py          ← HA gateway, RSA config, connection cache, .env loading
     │
-    ├──► OpenQuoteContext    ← all quote examples (01–41 + 42–57 + 58–87)
-    └──► OpenSecTradeContext ← all trade examples (04, 05, 06, 11, 30, 32–35, 37–40, 61, 62, 64, 66, 68, 69, 70, 76, 78, 79, 80, 81)
+    ├──► OpenQuoteContext    ← all quote examples (01–47 + 58–97)
+    └──► OpenSecTradeContext ← all trade examples (04, 05, 06, 11, 32–35, 37–40, 54, 57, 61, 62, 64, 66, 68–70, 76, 78, 79, 80, 81)
     │
     ▼
-87 example scripts (examples/00_connect_ha/ → examples/87_watchlist_alerts/)
+97 example scripts (examples/00_connect_ha/ → examples/97_vwap_anchored/)
   each: import connect → call SDK → log all response fields → try/finally ctx.close()
 ```
 
@@ -445,7 +445,17 @@ futu-python-samples/
 │   ├── 84_vwap_analysis/            ← execution quality vs VWAP benchmark
 │   ├── 85_vol_skew/                 ← IV skew surface, Newton-Raphson solver
 │   ├── 86_market_breadth/           ← Adv/Dec, McClellan, sector participation
-│   └── 87_watchlist_alerts/         ← price/RSI/Bollinger alerts
+│   ├── 87_watchlist_alerts/         ← price/RSI/Bollinger alerts
+│   ├── 88_sl_tp_engine/            ← dynamic trailing stop-loss
+│   ├── 89_gap_scanner/             ← overnight gap detection
+│   ├── 90_ah_premium/              ← A-share vs H-share premium tracking
+│   ├── 91_sector_rotation/         ← RSI-based sector ranking
+│   ├── 92_monte_carlo/             ← portfolio Monte Carlo simulation
+│   ├── 93_calendar_spread/         ← options calendar spread builder
+│   ├── 94_earnings_analyzer/       ← earnings surprise analysis
+│   ├── 95_52week_scanner/          ← 52-week extreme proximity scanner
+│   ├── 96_margin_monitor/          ← real-time margin utilization monitor
+│   └── 97_vwap_anchored/           ← VWAP-based support/resistance signals
 │
 ├── scripts/
 │   ├── run_all.py                ← run all examples with PASS/FAIL report

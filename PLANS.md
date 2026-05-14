@@ -1,6 +1,8 @@
 # Implementation Plans — Advanced Examples
 
-10 proposed examples extending the 58 existing ones. Each plan specifies SDK APIs used, data flow, edge cases, and acceptance criteria.
+**All 10 plans have been implemented.** See [examples/README.md](examples/README.md) for the full 97-example index.
+
+Plans archive retained below for reference.
 
 ---
 

@@ -210,5 +210,3 @@ All trade examples use the **SIMULATE** account only. No real orders are placed.
 | [26](./examples/26_history_kl_quota/) | K-line quota | How many historical K-line API calls you've burned through today |
 | [36](./examples/36_stock_basicinfo/) | Stock basic info | Name, lot size, board lot, security type for a market or code list |
 | [43](./examples/43_subscribe_lifecycle/) | Subscribe lifecycle | Batch subscribe → query subscription → unsubscribe_all |
-| [58](./examples/58_options_greeks/) | Options Greeks Dashboard | Black-Scholes delta, gamma, theta, vega, rho computed live |
-| [65](./examples/65_vol_surface/) | Volatility Surface Builder | Moneyness × expiry IV matrix from option chains |
