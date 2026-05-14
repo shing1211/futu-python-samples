@@ -23,11 +23,15 @@ TRADE_EXAMPLES = {
     "32_order_query", "33_trading_info", "34_cancel_all",
     "35_cashflow", "37_margin_ratio", "38_order_fee",
     "39_push_sysnotify", "40_push_trade",
+    "61_twap_slicer", "66_multi_leg_order",
 }
 
 # Examples that open a blocking push loop — run with a short timeout
 # and don't treat non-zero as failure (they need user/security setup)
-PUSH_EXAMPLES = {"02_quote_push", "05_quote_trade", "39_push_sysnotify", "40_push_trade"}
+PUSH_EXAMPLES = {
+    "02_quote_push", "05_quote_trade", "39_push_sysnotify",
+    "40_push_trade", "59_dark_pool_detector",
+}
 
 # Examples that need more time due to large API calls / multiple markets
 SLOW_EXAMPLES = {"01_snapshot": 400}  # fetches 21k+ stocks across 4 markets
@@ -119,7 +123,8 @@ def main():
 
     # Collect examples in order
     example_dirs = sorted(
-        (d for d in EXAMPLES_DIR.iterdir() if d.is_dir() and d.name.startswith(("0", "1", "2", "3", "4"))),
+        (d for d in EXAMPLES_DIR.iterdir()
+         if d.is_dir() and d.name.startswith(("0", "1", "2", "3", "4", "5", "6"))),
         key=lambda d: d.name,
     )
 

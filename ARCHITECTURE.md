@@ -407,7 +407,18 @@ futu-python-samples/
 │   ├── 54_pair_trading/
 │   ├── 55_momentum_screener/
 │   ├── 56_order_flow_imbalance/
-│   └── 57_vwap_benchmark/
+│   ├── 57_vwap_benchmark/
+│   │
+│   ├── 58_options_greeks/           ← Black-Scholes Greeks dashboard
+│   ├── 59_dark_pool_detector/       ← TICKER+BROKER cross-reference
+│   ├── 60_cross_market_arb/         ← HK/US dual-listing spread
+│   ├── 61_twap_slicer/              ← algorithmic order execution
+│   ├── 62_portfolio_risk/           ← risk metric monitoring
+│   ├── 63_earnings_screener/        ← IV/HV + unusual activity
+│   ├── 64_backtesting/              ← SMA/RSI/MACD backtest framework
+│   ├── 65_vol_surface/              ← volatility surface matrix
+│   ├── 66_multi_leg_order/          ← vertical call spread
+│   └── 67_health_monitor/           ← connection watchdog
 │
 └── scripts/
     ├── run_all.py                ← run all examples with PASS/FAIL report

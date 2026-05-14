@@ -1,6 +1,6 @@
 # Examples
 
-58 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
+68 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -108,6 +108,21 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [24](./24_user_security/) | Watchlists | Create, rename, delete watchlist groups; add and remove stocks |
 | [30](./30_user_info/) | User Info | Account list, user profile, broker firm and account type |
 | [31](./31_misc/) | Misc | Flag days, rehabilitation data, watchlist group membership |
+
+### Advanced Analytics & Algo Execution
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [58](./58_options_greeks/) | Options Greeks | Live delta/gamma/theta/vega/rho from option chain data — pure Python Black-Scholes |
+| [59](./59_dark_pool_detector/) | Dark Pool Detector | Cross-reference TICKER + BROKER push to flag off-book trades |
+| [60](./60_cross_market_arb/) | Cross-Market Arb | HK.00700 vs US.TCEHY spread tracking — live dual-market quote monitoring |
+| [61](./61_twap_slicer/) | TWAP Slicer | Slice large orders over time using ORDER_BOOK pricing (SIMULATE) |
+| [62](./62_portfolio_risk/) | Portfolio Risk | 6 live risk metrics — concentration, leverage, margin, P&L alerts |
+| [63](./63_earnings_screener/) | Earnings Screener | Pre-earnings IV/HV ratio + post-earnings unusual activity |
+| [64](./64_backtesting/) | Backtesting | SMA/RSI/MACD strategies with Sharpe, drawdown, win rate |
+| [65](./65_vol_surface/) | Vol Surface | Moneyness × expiry IV matrix from option chains |
+| [66](./66_multi_leg_order/) | Multi-Leg Options | Vertical call spread on SIMULATE — 2-leg fill monitoring |
+| [67](./67_health_monitor/) | Health Monitor | Watchdog — latency, subscription quota, market state polling |
 
 ### Utilities
 

@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
         # ── Unsubscribe all ────────────────────────────────────────────────
         logger.info("\n=== unsubscribe_all ===")
-        ret = ctx.unsubscribe_all()
+        ret, _ = ctx.unsubscribe_all()
         logger.info("unsubscribe_all ret=%d", ret)
 
         # ── Final check ───────────────────────────────────────────────────

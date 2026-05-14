@@ -21,16 +21,14 @@ logger = logging.getLogger(__name__)
 
 
 class MySysNotify(SysNotifyHandlerBase):
-    def on_recv(self, rsp_str):
-        ret, data = super().on_recv(rsp_str)
-        if ret == 0:
-            logger.info("[SysNotify] type=%s subtype=%s msg=%s", data.get("type"), data.get("sub_type"), data.get("msg"))
-            # Log all available fields
-            for k, v in data.items():
-                logger.debug("  %s: %s", k, v)
-            return ret, data
-        logger.error("[SysNotify] error: %s", data)
-        return ret, data
+    def on_recv_rsp(self, rsp_pb):
+        ret_code, content = super().on_recv_rsp(rsp_pb)
+        if ret_code == 0:
+            main_type, sub_type, msg = content
+            logger.info("[SysNotify] type=%s subtype=%s msg=%s", main_type, sub_type, msg)
+            return ret_code, content
+        logger.error("[SysNotify] error: %s", content)
+        return ret_code, content
 
 
 if __name__ == "__main__":

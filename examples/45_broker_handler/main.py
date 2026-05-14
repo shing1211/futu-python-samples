@@ -32,17 +32,10 @@ def print_broker_queue(data, side_label):
     print(f"  {'Broker ID':>10} {'Price':>12} {'Queue Pos':>10} {'Vol':>12}")
     print(f"  {'-'*10} {'-'*12} {'-'*10} {'-'*12}")
     for _, row in data.iterrows():
-        # Columns vary by market; fall back to positional access
-        if "broker_id" in row:
-            bid = row["broker_id"]
-            price = row.get("price", row.iloc[1])
-            queue_pos = row.get("queue_pos", row.iloc[2])
-            vol = row.get("vol", row.iloc[3])
-        else:
-            bid = row.iloc[0]
-            price = row.iloc[1]
-            queue_pos = row.iloc[2]
-            vol = row.iloc[3]
+        bid = row.get("broker_id", row.iloc[0])
+        price = row.get("price", row.get(row.index[1] if len(row) > 1 else "", 0))
+        queue_pos = row.get("queue_pos", row.get(row.index[2] if len(row) > 2 else "", 0))
+        vol = row.get("vol", row.get(row.index[3] if len(row) > 3 else "", 0))
         print(f"  {str(bid):>10} {float(price):>12.4f} {int(queue_pos):>10} {int(vol):>12,}")
 
 

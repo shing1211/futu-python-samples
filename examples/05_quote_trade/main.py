@@ -17,80 +17,80 @@ Run with SIMULATE account and place test orders to see trade pushes.
 """
 import logging
 from time import sleep
-from futu import *
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+import futu as ft
 from connect import create_quote_context, create_trade_context, get_demo_trade_password
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
-class StockQuoteTest(StockQuoteHandlerBase):
+class StockQuoteTest(ft.StockQuoteHandlerBase):
     def on_recv_rsp(self, rsp_pb):
         ret_code, content = super().on_recv_rsp(rsp_pb)
-        if ret_code != RET_OK:
-            return RET_ERROR, content
+        if ret_code != ft.RET_OK:
+            return ft.RET_ERROR, content
         logger.info("[Quote] %s", content)
-        return RET_OK, content
+        return ft.RET_OK, content
 
 
-class CurKlineTest(CurKlineHandlerBase):
+class CurKlineTest(ft.CurKlineHandlerBase):
     def on_recv_rsp(self, rsp_pb):
         ret_code, content = super().on_recv_rsp(rsp_pb)
-        if ret_code != RET_OK:
+        if ret_code != ft.RET_OK:
             logger.warning("CurKline error: %s", content)
-            return RET_OK, content
+            return ft.RET_OK, content
         for k in content:
             logger.info("[Kline] code=%s time=%s O=%.2f H=%.2f L=%.2f C=%.2f vol=%d",
                         k.code, k.time_key, k.open, k.high, k.low, k.close, k.volume)
-        return RET_OK, content
+        return ft.RET_OK, content
 
 
-class RTDataTest(RTDataHandlerBase):
+class RTDataTest(ft.RTDataHandlerBase):
     def on_recv_rsp(self, rsp_pb):
         ret_code, content = super().on_recv_rsp(rsp_pb)
-        if ret_code != RET_OK:
+        if ret_code != ft.RET_OK:
             logger.error("RTData error: %s", content)
-            return RET_ERROR, content
+            return ft.RET_ERROR, content
         logger.info("[RTData] %s", content)
-        return RET_OK, content
+        return ft.RET_OK, content
 
 
-class TickerTest(TickerHandlerBase):
+class TickerTest(ft.TickerHandlerBase):
     def on_recv_rsp(self, rsp_pb):
         ret_code, content = super().on_recv_rsp(rsp_pb)
-        if ret_code != RET_OK:
+        if ret_code != ft.RET_OK:
             logger.error("Ticker error: %s", content)
-            return RET_ERROR, content
+            return ft.RET_ERROR, content
         logger.info("[Ticker] %s", content)
-        return RET_OK, content
+        return ft.RET_OK, content
 
 
-class OrderBookTest(OrderBookHandlerBase):
+class OrderBookTest(ft.OrderBookHandlerBase):
     def on_recv_rsp(self, rsp_pb):
         ret_code, content = super().on_recv_rsp(rsp_pb)
-        if ret_code != RET_OK:
+        if ret_code != ft.RET_OK:
             logger.error("OrderBook error: %s", content)
-            return RET_ERROR, content
+            return ft.RET_ERROR, content
         logger.info("[OrderBook] code=%s Bid[0]=%.2f Ask[0]=%.2f", content.get("code"), content.get("Bid", [[0]])[0][0], content.get("Ask", [[0]])[0][0])
-        return RET_OK, content
+        return ft.RET_OK, content
 
 
-class BrokerTest(BrokerHandlerBase):
+class BrokerTest(ft.BrokerHandlerBase):
     def on_recv_rsp(self, rsp_pb):
         ret_code, stock_code, contents = super().on_recv_rsp(rsp_pb)
-        if ret_code == RET_OK:
+        if ret_code == ft.RET_OK:
             logger.info("[Broker] code=%s bid_count=%d ask_count=%d", stock_code,
                         len(contents[0]) if contents[0] else 0, len(contents[1]) if contents[1] else 0)
         return ret_code
 
 
-class SysNotifyTest(SysNotifyHandlerBase):
+class SysNotifyTest(ft.SysNotifyHandlerBase):
     def on_recv_rsp(self, rsp_pb):
         ret_code, content = super().on_recv_rsp(rsp_pb)
-        if ret_code == RET_OK:
+        if ret_code == ft.RET_OK:
             main_type, sub_type, msg = content
             logger.info("[SysNotify] type=%s subtype=%s msg=%s", main_type, sub_type, msg)
         else:
@@ -98,18 +98,18 @@ class SysNotifyTest(SysNotifyHandlerBase):
         return ret_code, content
 
 
-class TradeOrderTest(TradeOrderHandlerBase):
+class TradeOrderTest(ft.TradeOrderHandlerBase):
     def on_recv(self, rsp_str):
         ret, content = super().on_recv(rsp_str)
-        if ret == RET_OK:
+        if ret == ft.RET_OK:
             logger.info("[TradeOrder] %s", content)
         return ret, content
 
 
-class TradeDealTest(TradeDealHandlerBase):
+class TradeDealTest(ft.TradeDealHandlerBase):
     def on_recv(self, rsp_str):
         ret, content = super().on_recv(rsp_str)
-        if ret == RET_OK:
+        if ret == ft.RET_OK:
             logger.info("[TradeDeal] %s", content)
         return ret, content
 
@@ -118,7 +118,7 @@ def main():
     logger.info("=== Full Quote+Trade Push Demo ===")
 
     quote_ctx = create_quote_context()
-    trd_ctx = create_trade_context(filter_trdmarket=TrdMarket.HK)
+    trd_ctx = create_trade_context(filter_trdmarket=ft.TrdMarket.HK)
 
     try:
         # Quote push handlers
@@ -140,13 +140,13 @@ def main():
 
         # Subscribe: HK.00700 for most types; HK.HSImain for index
         subtype_list = [
-            SubType.QUOTE,
-            SubType.ORDER_BOOK,
-            SubType.TICKER,
-            SubType.K_DAY,
-            SubType.K_30M,
-            SubType.RT_DATA,
-            SubType.BROKER,
+            ft.SubType.QUOTE,
+            ft.SubType.ORDER_BOOK,
+            ft.SubType.TICKER,
+            ft.SubType.K_DAY,
+            ft.SubType.K_30M,
+            ft.SubType.RT_DATA,
+            ft.SubType.BROKER,
         ]
         sub_codes = ['HK.00700', 'HK.HSImain']
         ret, _ = quote_ctx.subscribe(sub_codes, subtype_list)
@@ -163,5 +163,4 @@ def main():
 
 
 if __name__ == "__main__":
-    set_futu_debug_model(True)
     main()

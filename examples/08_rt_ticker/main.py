@@ -46,16 +46,21 @@ if __name__ == "__main__":
             for col in data.columns:
                 logger.info("  %-20s = %s", col, data[col].tolist())
             if not data.empty:
+                cols = data.columns
                 logger.info("\nFirst bar: time=%s O=%.2f H=%.2f L=%.2f C=%.2f vol=%d",
-                            data['time'].iloc[0] if 'time' in data.columns else '?',
-                            data['open'].iloc[0], data['high'].iloc[0],
-                            data['low'].iloc[0], data['close'].iloc[0],
-                            data['volume'].iloc[0])
+                            data['time'].iloc[0] if 'time' in cols else '?',
+                            data['open'].iloc[0] if 'open' in cols else 0,
+                            data['high'].iloc[0] if 'high' in cols else 0,
+                            data['low'].iloc[0] if 'low' in cols else 0,
+                            data['close'].iloc[0] if 'close' in cols else 0,
+                            data['volume'].iloc[0] if 'volume' in cols else 0)
                 logger.info("Last bar:  time=%s O=%.2f H=%.2f L=%.2f C=%.2f vol=%d",
-                            data['time'].iloc[-1] if 'time' in data.columns else '?',
-                            data['open'].iloc[-1], data['high'].iloc[-1],
-                            data['low'].iloc[-1], data['close'].iloc[-1],
-                            data['volume'].iloc[-1])
+                            data['time'].iloc[-1] if 'time' in cols else '?',
+                            data['open'].iloc[-1] if 'open' in cols else 0,
+                            data['high'].iloc[-1] if 'high' in cols else 0,
+                            data['low'].iloc[-1] if 'low' in cols else 0,
+                            data['close'].iloc[-1] if 'close' in cols else 0,
+                            data['volume'].iloc[-1] if 'volume' in cols else 0)
 
     finally:
         ctx.close()

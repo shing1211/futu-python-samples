@@ -4,7 +4,7 @@
 Demonstrates:
   - set_price_reminder: add/delete price alert conditions
   - get_price_reminder: list all active alerts for a stock
-  - PriceReminderOp: ADD, DEL
+   - SetPriceReminderOp: ADD, DEL
   - PriceReminderType: PRICE_UP, PRICE_DOWN, etc.
   - PriceReminderFreq: ONCE, ALWAYS
   - All returned fields logged

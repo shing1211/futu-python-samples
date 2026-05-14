@@ -86,8 +86,8 @@ def fetch_closes(ctx, code: str, subtype: ft.SubType, max_count: int = 300):
     while len(closes) < max_count:
         ret, data, page_key = ctx.request_history_kline(
             code=code,
-            start=None,
-            end=None,
+            start="",
+            end="",
             ktype=subtype,
             autype=ft.AuType.QFQ,
             max_count=min(800, max_count - len(closes)),

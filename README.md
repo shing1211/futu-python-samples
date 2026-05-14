@@ -1,11 +1,22 @@
 # Futu Python Samples
 
-> **58 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **68 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org/)
 [![SDK Version](https://img.shields.io/badge/SDK-10.5.6508-blue)](https://pypi.org/project/futu-api/)
+[![Changelog](https://img.shields.io/badge/changelog-v1.0.0-orange)](./CHANGELOG.md)
+
+---
+
+## What's New in v1.0.0
+
+- **68 examples** covering the full Futu OpenAPI surface — snapshots, K-lines, options, warrants, MACD strategy, trade lifecycle, push handlers, and advanced real-time analytics (pair trading, VWAP, order flow imbalance, options Greeks, backtesting, TWAP execution)
+- **HA gateway selection** — `connect.py` probes all hosts in parallel, picks the fastest, handles RSA auto-fallback
+- **Full SDK quirk documentation** — see [AGENTS.md](./AGENTS.md) for verified return types that differ from the official docs
+
+[Full changelog →](./CHANGELOG.md)
 
 ---
 
@@ -154,6 +165,19 @@ Browse by category or find the feature you need.
 - [27](./examples/27_code_change/) — **Code changes** — stock rename/split/reorganisations
 - [41](./examples/41_rehab/) — **Rehabilitation data** — ex-dividend, ex-rights, share consolidation dates
 
+### Advanced Analytics & Algo Execution
+
+- [58](./examples/58_options_greeks/) — **Options Greeks Dashboard** — Black-Scholes delta, gamma, theta, vega, rho computed live from option chain data
+- [59](./examples/59_dark_pool_detector/) — **Dark Pool / Block Trade Detector** — cross-reference ticker prints vs broker queue for off-book execution signals
+- [60](./examples/60_cross_market_arb/) — **Cross-Market Arbitrage Spread** — monitor HK.00700 vs US.TCEHY spread in real time
+- [61](./examples/61_twap_slicer/) — **TWAP Order Slicer** — algorithmic execution: slice large orders over time using order book pricing
+- [62](./examples/62_portfolio_risk/) — **Portfolio Risk Monitor** — 6 live risk metrics (concentration, leverage, margin, P&L) with threshold alerts
+- [63](./examples/63_earnings_screener/) — **Earnings Volatility Screener** — pre-earnings IV/HV ratio, post-earnings unusual activity detection
+- [64](./examples/64_backtesting/) — **Backtesting Framework** — SMA/RSI/MACD strategies with Sharpe ratio, drawdown, win rate
+- [65](./examples/65_vol_surface/) — **Volatility Surface Builder** — moneyness × expiry IV matrix from option chains
+- [66](./examples/66_multi_leg_order/) — **Multi-Leg Options Order** — vertical call spread on SIMULATE with fill monitoring
+- [67](./examples/67_health_monitor/) — **Connection Health Monitor** — watchdog polling latency, subscription quota, market states
+
 ### Real-Time Feeds (Push Handlers)
 
 Push handlers receive streaming data from OpenD as events occur. Subscribe once, and the handler fires every time the data changes — no polling required.
@@ -213,7 +237,7 @@ All trade examples use the **SIMULATE** account only. No real orders are placed.
 ## Running the Full Suite
 
 ```bash
-# The proper runner — shows PASS/FAIL for all 58 examples
+# The proper runner — shows PASS/FAIL for all 68 examples
 python3 scripts/run_all.py
 
 # Smoke test (just checks for exceptions)
@@ -222,7 +246,7 @@ bash scripts/test_all.sh
 
 How `run_all.py` classifies results:
 
-- Push examples (`02`, `05`, `39`, `40`, `45`, `45b`, `46`, `47`, `48`) — 8s timeout, non-zero exit is expected
+- Push examples (`02`, `05`, `39`, `40`, `45`, `45b`, `46`, `47`, `48`, `59`) — 8s timeout, non-zero exit is expected
 - `01_snapshot` — 400s timeout, fetches 21,000+ stocks across 4 markets
 - `44_multi_market_snapshot` — 30s timeout, parallel multi-market fetch
 - Trade examples that hit a locked password — reported as **PASS** with "trade locked" note (gateway cooldown, not a bug)
@@ -249,6 +273,35 @@ ctx = OpenQuoteContext(host="remote-gateway", port=11111)
 
 - **Docs** — https://openapi.futunn.com/futu-api-doc/
 - **PyPI** — https://pypi.org/project/futu-api/
+
+---
+
+## Project Layout
+
+```
+├── .env.example            ← configuration template (copy to .env)
+├── CHANGELOG.md            ← release notes
+├── ARCHITECTURE.md         ← system design, schematics
+├── CONTRIBUTING.md         ← how to add examples
+├── TROUBLESHOOTING.md      ← common problems and fixes
+├── examples/
+│   ├── connect.py          ← HA gateway helper (shared by all examples)
+│   ├── 00_connect_ha/      ← standalone HA algorithm
+│   ├── 01_snapshot/ … 67_health_monitor/  ← 68 examples
+├── scripts/
+│   └── run_all.py          ← automated test runner
+```
+
+## See Also
+
+| Document | What it covers |
+|----------|---------------|
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | System design, sequence diagrams, execution flows, directory structure |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Adding examples, code conventions, return type reference, testing |
+| [PLANS.md](./PLANS.md) | Detailed implementation plans for advanced examples |
+| [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | Gateway issues, RSA errors, trade lockout, subscription quota, pandas pitfalls |
+| [CHANGELOG.md](./CHANGELOG.md) | Version history and release notes |
+| [AGENTS.md](./AGENTS.md) | SDK quirks reference for AI coding tools |
 
 ---
 

@@ -36,11 +36,11 @@ def simple_sell(quote_ctx, trade_ctx, stock_code, trade_price, volume,
     logger.info("simple_sell: code=%s price=%.2f volume=%d", stock_code, trade_price, volume)
 
     lot_size = 0
-    while True:
+    for attempt in range(5):
         sleep(1)
         ret, data = quote_ctx.get_market_snapshot([stock_code])
         if ret != ft.RET_OK:
-            logger.warning("get_market_snapshot failed (retrying): %s", data)
+            logger.warning("get_market_snapshot failed (attempt %d/5): %s", attempt + 1, data)
             continue
 
         lot_size = data.iloc[0]['lot_size']
@@ -50,6 +50,9 @@ def simple_sell(quote_ctx, trade_ctx, stock_code, trade_price, volume,
             return None
 
         break
+    else:
+        logger.error("get_market_snapshot failed after 5 attempts")
+        return None
 
     qty = int(volume // lot_size) * lot_size
     if qty == 0:
@@ -89,16 +92,19 @@ def smart_sell(quote_ctx, trade_ctx, stock_code, volume,
     logger.info("smart_sell: code=%s volume=%d", stock_code, volume)
 
     lot_size = 0
-    while True:
+    for attempt in range(5):
         ret, data = quote_ctx.get_market_snapshot([stock_code])
         lot_size = data.iloc[0]['lot_size'] if ret == ft.RET_OK else 0
         if ret != ft.RET_OK:
-            logger.warning("get_market_snapshot failed (retrying): %s", data)
+            logger.warning("get_market_snapshot failed (attempt %d/5): %s", attempt + 1, data)
             continue
         if lot_size <= 0:
             logger.error("Invalid lot_size=%d for %s", lot_size, stock_code)
             return None
         break
+    else:
+        logger.error("get_market_snapshot failed after 5 attempts")
+        return None
 
     qty = int(volume // lot_size) * lot_size
     if qty == 0:

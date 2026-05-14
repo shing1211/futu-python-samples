@@ -133,10 +133,10 @@ def try_connect(host, port, is_rsa: bool):
     """Attempt one connection with given RSA setting. Returns (ok, data_or_error, latency_ms)."""
     configure_rsa(enable=is_rsa)
     t0 = time.time()
+    ctx = None
     try:
         ctx = OpenQuoteContext(host=host, port=port)
         ret, data = ctx.get_global_state()
-        ctx.close()
         latency = (time.time() - t0) * 1000
         logger.debug("try_connect %s:%s RSA=%s -> OK (%.1fms)", host, port, is_rsa, latency)
         return ret == RET_OK, data, latency
@@ -144,6 +144,9 @@ def try_connect(host, port, is_rsa: bool):
         latency = (time.time() - t0) * 1000
         logger.debug("try_connect %s:%s RSA=%s -> FAIL: %s", host, port, is_rsa, e)
         return False, str(e), latency
+    finally:
+        if ctx is not None:
+            ctx.close()
 
 
 def connect_opend(is_rsa: bool | None = None):

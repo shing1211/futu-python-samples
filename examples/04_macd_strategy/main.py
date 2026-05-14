@@ -50,6 +50,7 @@ class MACD:
 
         pwd = get_demo_trade_password()
         if self.trade_env == ft.TrdEnv.REAL:
+            logger.warning("Unlocking with SIMULATE password in REAL mode! Set FUTU_TRADE_PWD to your REAL password.")
             ret_code, ret_data = trade_ctx.unlock_trade(pwd)
             if ret_code != ft.RET_OK:
                 raise RuntimeError(f"unlock_trade failed: {ret_data}")
