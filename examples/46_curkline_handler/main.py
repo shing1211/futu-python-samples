@@ -53,23 +53,24 @@ class MyCurKlineHandler(ft.CurKlineHandlerBase):
 
 def main():
     ctx = create_quote_context()
-    ctx.set_handler(MyCurKlineHandler())
-
-    stock = "HK.00700"
-    # Subscribe to daily K-line push (K_DAY = current day's candle)
-    ret, _ = ctx.subscribe(stock, ft.SubType.K_DAY)
-    if ret != 0:
-        print(f"Subscribe failed: {ret}")
+    try:
+        ctx.set_handler(MyCurKlineHandler())
+    
+        stock = "HK.00700"
+        # Subscribe to daily K-line push (K_DAY = current day's candle)
+        ret, _ = ctx.subscribe(stock, ft.SubType.K_DAY)
+        if ret != 0:
+            print(f"Subscribe failed: {ret}")
+            return
+    
+        print(f"Subscribed to {stock} K_DAY push (today's live candle).")
+        print("Each push = one updated candle as it forms.\n")
+    
+        print("Waiting 20s for candle updates (press Ctrl+C to exit)...\n")
+        time.sleep(20)
+    
+    finally:
         ctx.close()
-        return
-
-    print(f"Subscribed to {stock} K_DAY push (today's live candle).")
-    print("Each push = one updated candle as it forms.\n")
-
-    print("Waiting 20s for candle updates (press Ctrl+C to exit)...\n")
-    time.sleep(20)
-
-    ctx.close()
     print("\nDone.")
 
 

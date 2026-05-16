@@ -15,6 +15,7 @@ SDK: OpenQuoteContext.get_option_chain()
 """
 
 import sys
+import math
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -42,7 +43,7 @@ def compute_hv(closes: list[float], period: int = 20) -> float:
     log_returns = []
     for i in range(1, period + 1):
         if closes[-i - 1] != 0:
-            log_returns.append(__import__("math").log(closes[-i] / closes[-i - 1]))
+            log_returns.append(math.log(closes[-i] / closes[-i - 1]))
     if not log_returns:
         return 0.0
     mean_r = sum(log_returns) / len(log_returns)

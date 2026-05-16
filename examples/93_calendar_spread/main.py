@@ -12,6 +12,7 @@ import os
 import logging
 import argparse
 import math
+from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -131,8 +132,8 @@ def find_calendar_opportunities(quote_ctx, stock, spot):
         # Parse expiry
         days_to_exp = 30
         try:
-            exp_date = __import__("datetime").datetime.strptime(expiry_str, "%Y-%m-%d")
-            days_to_exp = max(1, (exp_date - __import__("datetime").datetime.now()).days)
+            exp_date = datetime.strptime(expiry_str, "%Y-%m-%d")
+            days_to_exp = max(1, (exp_date - datetime.now()).days)
         except (ValueError, TypeError):
             pass
 

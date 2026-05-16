@@ -41,29 +41,31 @@ def print_broker_queue(data, side_label):
 
 def main():
     ctx = create_quote_context()
-
-    stocks = ["HK.00700", "HK.09988"]
-
-    for stock in stocks:
-        print(f"=== {stock} ===")
-        ret, data = ctx.get_broker_queue(stock)
-        if ret != 0:
-            print(f"  get_broker_queue returned {ret}: {data}")
-            print("  (BROKER push requires LV1 data permission — this account has LV2)")
-            print("  See BrokerHandlerBase for the push-based alternative.")
-        else:
-            # data is (bid_df, ask_df) tuple
-            if isinstance(data, tuple) and len(data) == 2:
-                print_broker_queue(data[0], "BID")
-                print_broker_queue(data[1], "ASK")
-            elif isinstance(data, dict):
-                print_broker_queue(data.get("bid"), "BID")
-                print_broker_queue(data.get("ask"), "ASK")
+    try:
+    
+        stocks = ["HK.00700", "HK.09988"]
+    
+        for stock in stocks:
+            print(f"=== {stock} ===")
+            ret, data = ctx.get_broker_queue(stock)
+            if ret != 0:
+                print(f"  get_broker_queue returned {ret}: {data}")
+                print("  (BROKER push requires LV1 data permission — this account has LV2)")
+                print("  See BrokerHandlerBase for the push-based alternative.")
             else:
-                print(f"  {data}")
-        print()
-
-    ctx.close()
+                # data is (bid_df, ask_df) tuple
+                if isinstance(data, tuple) and len(data) == 2:
+                    print_broker_queue(data[0], "BID")
+                    print_broker_queue(data[1], "ASK")
+                elif isinstance(data, dict):
+                    print_broker_queue(data.get("bid"), "BID")
+                    print_broker_queue(data.get("ask"), "ASK")
+                else:
+                    print(f"  {data}")
+            print()
+    
+    finally:
+        ctx.close()
     print("Done.")
 
 

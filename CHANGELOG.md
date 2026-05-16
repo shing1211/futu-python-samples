@@ -4,6 +4,28 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.6.0] — 2026-05-16
+
+### Added
+
+- **Health monitoring + auto-failover** (`examples/connect.py`): background daemon thread pings the active gateway every 15s via `get_global_state()`. On N consecutive failures, automatically fails over to the next-best host. Configurable via `health_monitor=True` kwarg on `create_quote_context()` / `create_trade_context()`.
+- **Retry with fallback chain**: `connect_opend()` now tries every reachable host (not just the fastest) before raising, with configurable exponential backoff (`retry_count`, `backoff_base` params).
+- **Lifecycle hooks**: new `ConnectionHooks` dataclass with `on_connect`, `on_failover`, `on_disconnect`, `on_heartbeat` callbacks. Pass via `hooks=` kwarg.
+- **New example 98 (`ha_diagnostics`)**: interactive HA diagnostic tool that shows ranked host list, real-time heartbeats, failover detection, and connection statistics.
+- **Example 00 updated**: now demonstrates health monitoring with 3 heartbeat samples after connecting.
+
+### Changed
+
+- `connect_opend()` now returns 3-tuple `(info_dict, actual_rsa, ranked_hosts)` instead of 2-tuple — internal change, no caller impact.
+- `clear_connection_cache()` now also stops the health monitor thread.
+- `connect.py` now imports `threading` and `dataclasses` (stdlib, no new dependencies).
+
+### Fixed
+
+- Previous single-host-failure-only fallback now tries all ranked hosts before raising.
+
+---
+
 ## [1.0.0] — 2026-05-14
 
 ### Added

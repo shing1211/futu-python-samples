@@ -36,25 +36,26 @@ class MyKeepAliveHandler(ft.KeepAliveHandlerBase):
 
 def main():
     ctx = create_quote_context()
-    ctx.set_handler(MyKeepAliveHandler())
-
-    stock = "HK.00700"
-
-    # Subscribe to quotes so OpenD has a reason to keep the channel active
-    ret, _ = ctx.subscribe(stock, ft.SubType.QUOTE)
-    if ret != 0:
-        print(f"Subscribe failed: {ret}")
+    try:
+        ctx.set_handler(MyKeepAliveHandler())
+    
+        stock = "HK.00700"
+    
+        # Subscribe to quotes so OpenD has a reason to keep the channel active
+        ret, _ = ctx.subscribe(stock, ft.SubType.QUOTE)
+        if ret != 0:
+            print(f"Subscribe failed: {ret}")
+            return
+    
+        print(f"Connected to {stock} with keep-alive monitoring active.\n")
+        print("Waiting 60s for keep-alive heartbeats (normally every ~30s)...\n")
+    
+        # Keep-alive packets arrive roughly every 30s from OpenD
+        # We wait 60s to see at least one heartbeat
+        time.sleep(60)
+    
+    finally:
         ctx.close()
-        return
-
-    print(f"Connected to {stock} with keep-alive monitoring active.\n")
-    print("Waiting 60s for keep-alive heartbeats (normally every ~30s)...\n")
-
-    # Keep-alive packets arrive roughly every 30s from OpenD
-    # We wait 60s to see at least one heartbeat
-    time.sleep(60)
-
-    ctx.close()
     print("\nDone.")
 
 

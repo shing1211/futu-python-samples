@@ -166,23 +166,24 @@ def main():
     ktype   = ft.SubType.K_60M
 
     ctx = create_quote_context()
-    ctx.set_handler(PairKlineHandler(stock_a, stock_b))
-
-    print(f"Pair: {stock_a} vs {stock_b}")
-    print(f"Streaming {ktype} candles and computing rolling z-score.\n")
-    print(f"  β = hedge ratio   z = (A - β·B - α) / σ_resid\n")
-
-    for stock in [stock_a, stock_b]:
-        ret, _ = ctx.subscribe(stock, ktype)
-        if ret != 0:
-            print(f"  Subscribe {stock} failed: {ret}")
-            ctx.close()
-            return
-
-    print("Waiting 60s for first z-score (needs 60 candles for OLS window)...\n")
-    time.sleep(60)
-
-    ctx.close()
+    try:
+        ctx.set_handler(PairKlineHandler(stock_a, stock_b))
+    
+        print(f"Pair: {stock_a} vs {stock_b}")
+        print(f"Streaming {ktype} candles and computing rolling z-score.\n")
+        print(f"  β = hedge ratio   z = (A - β·B - α) / σ_resid\n")
+    
+        for stock in [stock_a, stock_b]:
+            ret, _ = ctx.subscribe(stock, ktype)
+            if ret != 0:
+                print(f"  Subscribe {stock} failed: {ret}")
+                return
+    
+        print("Waiting 60s for first z-score (needs 60 candles for OLS window)...\n")
+        time.sleep(60)
+    
+    finally:
+        ctx.close()
     print("\nDone.")
 
 

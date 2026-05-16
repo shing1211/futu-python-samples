@@ -293,8 +293,7 @@ def _place_order(trd_ctx, code, side, qty, price, remark):
 
 
 def _close_all(trd_ctx):
-    """Cancel all and close any remaining."""
-    trd_ctx.cancel_all_order(cancel_all_orders=True, trd_env=TRD_ENV)
+    """Record exit state — actual cleanup handled by finally block below."""
 
 
 if __name__ == "__main__":

@@ -48,22 +48,23 @@ class MyTickerHandler(ft.TickerHandlerBase):
 
 def main():
     ctx = create_quote_context()
-    ctx.set_handler(MyTickerHandler())
-
-    stock = "HK.00700"
-    print(f"Subscribing to {stock} TICKER stream...\n")
-    print("Format: timestamp | code | direction | price | volume | type\n")
-
-    ret, _ = ctx.subscribe(stock, ft.SubType.TICKER)
-    if ret != 0:
-        print(f"Subscribe failed: {ret}")
+    try:
+        ctx.set_handler(MyTickerHandler())
+    
+        stock = "HK.00700"
+        print(f"Subscribing to {stock} TICKER stream...\n")
+        print("Format: timestamp | code | direction | price | volume | type\n")
+    
+        ret, _ = ctx.subscribe(stock, ft.SubType.TICKER)
+        if ret != 0:
+            print(f"Subscribe failed: {ret}")
+            return
+    
+        print("Waiting 15s for ticker prints (press Ctrl+C to exit)...\n")
+        time.sleep(15)
+    
+    finally:
         ctx.close()
-        return
-
-    print("Waiting 15s for ticker prints (press Ctrl+C to exit)...\n")
-    time.sleep(15)
-
-    ctx.close()
     print("\nDone.")
 
 

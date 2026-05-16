@@ -177,7 +177,6 @@ def main():
     ret, _ = ctx.subscribe(stock, ft.SubType.TICKER)
     if ret != 0:
         print(f"Subscribe failed: {ret}")
-        ctx.close()
         return
 
     print("Collecting ticks...\n")
@@ -195,6 +194,8 @@ def main():
                 last_report = time.time()
     except KeyboardInterrupt:
         pass
+    finally:
+        ctx.close()
 
     print("\n" + "=" * 70)
     print("FINAL SUMMARY")
@@ -221,7 +222,6 @@ def main():
             pnl = ((last - entry) / entry * 10_000)
             print(f"  P&L vs entry : {pnl:+.1f}bps ({pnl/100:.2f}%)")
 
-    ctx.close()
     print("\nDone.")
 
 

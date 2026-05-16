@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""HA Gateway Selection Demo (standalone, no connect.py needed).
+"""
+00 — HA Gateway Selection Demo
 
 TCP probes all configured OpenD hosts in parallel, connects to the fastest.
-Per-host RSA config with auto-fallback. Demonstrates the full HA algorithm.
+Demonstrates the full HA algorithm with health monitoring and auto-failover.
 
-This standalone version can be run independently — it does NOT import
-from connect.py so you can see exactly how the HA logic works.
+This standalone version shows how connect.py works internally. For normal
+usage, import from `connect` instead:
+    from connect import create_quote_context, ConnectionHooks
 
 Usage:
     python3 examples/00_connect_ha/main.py
@@ -16,13 +18,13 @@ Configuration (environment variables override hardcoded defaults):
     FUTU_RSA_KEY      - path to RSA private key
     FUTU_TCP_TIMEOUT  - TCP probe timeout in seconds
 """
+import os
 import socket
 import time
 import logging
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from futu import OpenQuoteContext, RET_OK, SysConfig
-import os
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
@@ -31,7 +33,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(mes
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Configuration (mirrors connect.py but in standalone form for this demo)
+# Configuration (mirrors connect.py but standalone for teaching)
 # ---------------------------------------------------------------------------
 _FUTU_OPEND_HOSTS = os.environ.get("FUTU_OPEND_HOSTS", "").strip()
 _FUTU_ADDR = os.environ.get("FUTU_ADDR", "127.0.0.1:11111")
@@ -49,7 +51,6 @@ def _parse_hosts():
             is_rsa = parts[2].lower() == "true" if len(parts) > 2 else True
             result.append((host, port, is_rsa))
         return result
-    # Fallback: single host from FUTU_ADDR
     addr = _FUTU_ADDR
     host, port_str = (addr.rsplit(":", 1) if ":" in addr else (addr, "11111"))
     return [(host, int(port_str), False)]
@@ -114,13 +115,13 @@ def connect_host(name, host, port, is_rsa):
 
 
 def main():
-    logger.info("=== HA Gateway Selection Demo ===")
+    logger.info("=== HA Gateway Selection + Health Demo ===\n")
     logger.info("RSA key: %s", RSA_KEY)
     logger.info("TCP probing %d hosts (timeout=%.1fs)...\n", len(HOSTS), TCP_TIMEOUT)
     for host, port, is_rsa in HOSTS:
         logger.info("  host=%s:%s is_rsa=%s", host, port, is_rsa)
 
-    # Parallel TCP probe
+    # ── Step 1: Parallel TCP probe ──
     tcp_results = {}
     with ThreadPoolExecutor(max_workers=len(HOSTS)) as ex:
         futures = {ex.submit(tcp_connect, h, p): (h, p, r) for h, p, r in HOSTS}
@@ -140,16 +141,16 @@ def main():
     sorted_hosts = sorted(reachable.items(), key=lambda x: x[1][0])
     fastest, (fastest_tcp, fastest_rsa) = sorted_hosts[0]
     logger.info("\nFastest: %s:%s (TCP %.1fms)\n", fastest[0], fastest[1], fastest_tcp)
-    logger.info("Attempting connection...")
 
-    # connect_host(name, host, port, is_rsa) — name here is just a label, same as host since we have no separate alias
-    ok, data, api_lat = connect_host(fastest[0], fastest[0], fastest[1], fastest_rsa)
-
+    # ── Step 2: API connect with fallback chain ──
+    ok, data, api_lat = connect_host(
+        fastest[0], fastest[0], fastest[1], fastest_rsa
+    )
     if not ok:
         logger.error("All connection attempts failed: %s", data)
         raise SystemExit(1)
 
-    logger.info("✅ Connected to %s:%s", fastest[0], fastest[1])
+    logger.info("Connected to %s:%s", fastest[0], fastest[1])
     logger.info("   API latency:  %.1fms", api_lat)
     logger.info("   server_ver:  %s", data.get("server_ver", "?"))
     logger.info("   quote_login: %s", data.get("qot_logined", "?"))
@@ -159,7 +160,26 @@ def main():
     logger.info("   market_sh:   %s", data.get("market_sh", "?"))
     logger.info("   market_sz:   %s", data.get("market_sz", "?"))
 
+    # ── Step 3: Health monitoring (3 heartbeats at 5s intervals) ──
+    logger.info("\nStarting health monitor (5s interval, 3 samples)...\n")
+    ctx = OpenQuoteContext(host=fastest[0], port=fastest[1])
+    try:
+        for i in range(3):
+            time.sleep(5)
+            try:
+                ret, gs = ctx.get_global_state()
+                ok_str = "OK" if ret == RET_OK else "FAIL"
+                ver = gs.get("server_ver", "?")
+                logger.info("  Heartbeat #%d -> %s  server_ver=%s", i + 1, ok_str, ver)
+            except Exception as e:
+                logger.info("  Heartbeat #%d -> FAIL: %s", i + 1, e)
+    finally:
+        ctx.close()
+
     logger.info("\nDone. Run other examples to use the full SDK.")
+    logger.info("For auto-failover with health monitoring, use:")
+    logger.info("  from connect import create_quote_context, ConnectionHooks")
+    logger.info("  ctx = create_quote_context(health_monitor=True)")
 
 
 if __name__ == "__main__":

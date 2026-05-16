@@ -172,7 +172,6 @@ def main():
     ret, _ = ctx.subscribe(stock, ft.SubType.ORDER_BOOK)
     if ret != 0:
         print(f"Subscribe failed: {ret}")
-        ctx.close()
         return
 
     print("Collecting order flow... (press Ctrl+C to stop early)\n")
@@ -187,11 +186,12 @@ def main():
                 last_report = time.time()
     except KeyboardInterrupt:
         pass
+    finally:
+        ctx.close()
 
     print("\n" + "=" * 50)
     print("FINAL SUMMARY")
     print("=" * 50)
     accumulator.mini_report()
 
-    ctx.close()
     print("\nDone.")

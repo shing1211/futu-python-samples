@@ -50,50 +50,51 @@ class MyPriceReminderHandler(ft.PriceReminderHandlerBase):
 
 def main():
     ctx = create_quote_context()
-    ctx.set_handler(MyPriceReminderHandler())
-
-    stock = "HK.00700"
-
-    # Set a price reminder with an unrealistic value so it won't fire during demo
-    # Returns (ret_code, key) -- key is the server-assigned reminder ID
-    ret, reminder_key = ctx.set_price_reminder(
-        code=stock,
-        op=ft.SetPriceReminderOp.ADD,
-        key=0,                                           # 0 = ADD with auto ID assignment
-        reminder_type=ft.PriceReminderType.PRICE_UP,     # fire when price crosses above value
-        reminder_freq=ft.PriceReminderFreq.ONCE,         # fire once
-        value=888888.0,                                  # unrealistic -- won't trigger in demo
-        note=f"Test push alert for {stock}",
-    )
-    if ret != 0:
-        print(f"set_price_reminder failed: ret={ret}, msg={reminder_key}")
+    try:
+        ctx.set_handler(MyPriceReminderHandler())
+    
+        stock = "HK.00700"
+    
+        # Set a price reminder with an unrealistic value so it won't fire during demo
+        # Returns (ret_code, key) -- key is the server-assigned reminder ID
+        ret, reminder_key = ctx.set_price_reminder(
+            code=stock,
+            op=ft.SetPriceReminderOp.ADD,
+            key=0,                                           # 0 = ADD with auto ID assignment
+            reminder_type=ft.PriceReminderType.PRICE_UP,     # fire when price crosses above value
+            reminder_freq=ft.PriceReminderFreq.ONCE,         # fire once
+            value=888888.0,                                  # unrealistic -- won't trigger in demo
+            note=f"Test push alert for {stock}",
+        )
+        if ret != 0:
+            print(f"set_price_reminder failed: ret={ret}, msg={reminder_key}")
+            return
+    
+        print(f"Created price reminder key={reminder_key} on {stock}.")
+        print("PriceReminderHandlerBase is listening for trigger events.\n")
+        print("(To test: modify the reminder value to something realistic, then wait.)\n")
+    
+        # Query active reminders to confirm creation
+        ret, reminders = ctx.get_price_reminder(stock)
+        if ret == 0 and reminders is not None and not reminders.empty:
+            print("Active reminders:")
+            for _, r in reminders.iterrows():
+                print(f"  key={r.get('key')} | {r.get('code')} | "
+                      f"value={r.get('value')} | {str(r.get('note', ''))[:40]}")
+    
+        print("\nWaiting 10s -- listening for reminder push events...\n")
+        time.sleep(10)
+    
+        # Clean up -- delete the test reminder
+        ret, _ = ctx.set_price_reminder(
+            code=stock,
+            op=ft.SetPriceReminderOp.DEL,
+            key=reminder_key,
+        )
+        print(f"\nCleaned up test reminder (key={reminder_key}) -> ret={ret}")
+    
+    finally:
         ctx.close()
-        return
-
-    print(f"Created price reminder key={reminder_key} on {stock}.")
-    print("PriceReminderHandlerBase is listening for trigger events.\n")
-    print("(To test: modify the reminder value to something realistic, then wait.)\n")
-
-    # Query active reminders to confirm creation
-    ret, reminders = ctx.get_price_reminder(stock)
-    if ret == 0 and reminders is not None and not reminders.empty:
-        print("Active reminders:")
-        for _, r in reminders.iterrows():
-            print(f"  key={r.get('key')} | {r.get('code')} | "
-                  f"value={r.get('value')} | {str(r.get('note', ''))[:40]}")
-
-    print("\nWaiting 10s -- listening for reminder push events...\n")
-    time.sleep(10)
-
-    # Clean up -- delete the test reminder
-    ret, _ = ctx.set_price_reminder(
-        code=stock,
-        op=ft.SetPriceReminderOp.DEL,
-        key=reminder_key,
-    )
-    print(f"\nCleaned up test reminder (key={reminder_key}) -> ret={ret}")
-
-    ctx.close()
     print("Done.")
 
 

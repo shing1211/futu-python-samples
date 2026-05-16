@@ -27,50 +27,51 @@ from connect import create_trade_context, get_demo_trade_password
 
 def main():
     trd_ctx = create_trade_context()
-    ret = trd_ctx.unlock_trade(get_demo_trade_password())
-    if ret != 0:
-        print(f"unlock_trade failed: {ret}")
+    try:
+        ret = trd_ctx.unlock_trade(get_demo_trade_password())
+        if ret != 0:
+            print(f"unlock_trade failed: {ret}")
+            return
+    
+        # Try SIMULATE first (demo account), then REAL if nothing came back
+        for env in ["SIMULATE", "REAL"]:
+            print(f"=== HISTORICAL ORDERS (env={env}) ===\n")
+            ret, orders = trd_ctx.history_order_list_query(
+                start="",       # empty = earliest available
+                end="",
+                trd_env=env,
+            )
+            if ret != 0:
+                print(f"  history_order_list_query failed: {orders}\n")
+            elif orders is None or (hasattr(orders, "empty") and orders.empty):
+                print("  (no historical orders)\n")
+            else:
+                print(f"  Columns: {list(orders.columns)}")
+                show_cols = ["code", "order_id", "order_type", "side", "price",
+                             "qty", "status", "create_time"]
+                available = [c for c in show_cols if c in orders.columns]
+                print(orders[available].head(20).to_string(index=False))
+                print(f"\n  Total: {len(orders)} orders\n")
+    
+            print(f"=== HISTORICAL DEALS (env={env}) ===\n")
+            ret, deals = trd_ctx.history_deal_list_query(
+                start="",
+                end="",
+                trd_env=env,
+            )
+            if ret != 0:
+                print(f"  history_deal_list_query failed: {deals}\n")
+            elif deals is None or (hasattr(deals, "empty") and deals.empty):
+                print("  (no historical deals)\n")
+            else:
+                print(f"  Columns: {list(deals.columns)}")
+                show_cols = ["code", "deal_id", "order_id", "side", "price", "qty", "create_time"]
+                available = [c for c in show_cols if c in deals.columns]
+                print(deals[available].head(20).to_string(index=False))
+                print(f"\n  Total: {len(deals)} deals\n")
+    
+    finally:
         trd_ctx.close()
-        return
-
-    # Try SIMULATE first (demo account), then REAL if nothing came back
-    for env in ["SIMULATE", "REAL"]:
-        print(f"=== HISTORICAL ORDERS (env={env}) ===\n")
-        ret, orders = trd_ctx.history_order_list_query(
-            start="",       # empty = earliest available
-            end="",
-            trd_env=env,
-        )
-        if ret != 0:
-            print(f"  history_order_list_query failed: {orders}\n")
-        elif orders is None or (hasattr(orders, "empty") and orders.empty):
-            print("  (no historical orders)\n")
-        else:
-            print(f"  Columns: {list(orders.columns)}")
-            show_cols = ["code", "order_id", "order_type", "side", "price",
-                         "qty", "status", "create_time"]
-            available = [c for c in show_cols if c in orders.columns]
-            print(orders[available].head(20).to_string(index=False))
-            print(f"\n  Total: {len(orders)} orders\n")
-
-        print(f"=== HISTORICAL DEALS (env={env}) ===\n")
-        ret, deals = trd_ctx.history_deal_list_query(
-            start="",
-            end="",
-            trd_env=env,
-        )
-        if ret != 0:
-            print(f"  history_deal_list_query failed: {deals}\n")
-        elif deals is None or (hasattr(deals, "empty") and deals.empty):
-            print("  (no historical deals)\n")
-        else:
-            print(f"  Columns: {list(deals.columns)}")
-            show_cols = ["code", "deal_id", "order_id", "side", "price", "qty", "create_time"]
-            available = [c for c in show_cols if c in deals.columns]
-            print(deals[available].head(20).to_string(index=False))
-            print(f"\n  Total: {len(deals)} deals\n")
-
-    trd_ctx.close()
     print("Done.")
 
 

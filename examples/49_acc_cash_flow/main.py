@@ -21,44 +21,43 @@ from connect import create_trade_context, get_demo_trade_password
 
 def main():
     trd_ctx = create_trade_context()
-    ret = trd_ctx.unlock_trade(get_demo_trade_password())
-    if ret != 0:
-        print(f"unlock_trade failed: {ret}")
+    try:
+        ret = trd_ctx.unlock_trade(get_demo_trade_password())
+        if ret != 0:
+            print(f"unlock_trade failed: {ret}")
+            return
+    
+        print("Fetching account cash flow...\n")
+    
+        # clearing_date is the settlement date; empty = all
+        # cashflow_direction: 'N/A', 'IN', 'OUT'
+        # Try REAL first; if locked try SIMULATE
+        for env in ["REAL", "SIMULATE"]:
+            print(f"Trying trd_env={env}...")
+            ret, data = trd_ctx.get_acc_cash_flow(
+                clearing_date="",
+                trd_env=env,
+                start="",
+                end="",
+            )
+            if ret == 0:
+                print(f"  success with {env}!")
+                break
+            print(f"  {env} returned {ret}: {data}")
+        if ret != 0:
+            print(f"get_acc_cash_flow returned {ret}: {data}")
+            print("(This API may not be available for your account type.)")
+            return
+    
+        if data is None or (hasattr(data, "empty") and data.empty):
+            print("No cash flow records returned.")
+            return
+    
+        print(f"Columns: {list(data.columns)}\n")
+        print(data.to_string(index=False))
+    
+    finally:
         trd_ctx.close()
-        return
-
-    print("Fetching account cash flow...\n")
-
-    # clearing_date is the settlement date; empty = all
-    # cashflow_direction: 'N/A', 'IN', 'OUT'
-    # Try REAL first; if locked try SIMULATE
-    for env in ["REAL", "SIMULATE"]:
-        print(f"Trying trd_env={env}...")
-        ret, data = trd_ctx.get_acc_cash_flow(
-            clearing_date="",
-            trd_env=env,
-            start="",
-            end="",
-        )
-        if ret == 0:
-            print(f"  success with {env}!")
-            break
-        print(f"  {env} returned {ret}: {data}")
-    if ret != 0:
-        print(f"get_acc_cash_flow returned {ret}: {data}")
-        print("(This API may not be available for your account type.)")
-        trd_ctx.close()
-        return
-
-    if data is None or (hasattr(data, "empty") and data.empty):
-        print("No cash flow records returned.")
-        trd_ctx.close()
-        return
-
-    print(f"Columns: {list(data.columns)}\n")
-    print(data.to_string(index=False))
-
-    trd_ctx.close()
     print("\nDone.")
 
 

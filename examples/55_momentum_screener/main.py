@@ -122,63 +122,65 @@ def main():
     ]
 
     ctx = create_quote_context()
-
-    # Timeframe configs
-    TIMEFRAMES = [
-        ("Daily",   ft.SubType.K_DAY,  14),
-        ("60M",     ft.SubType.K_60M,  14),
-        ("15M",     ft.SubType.K_15M,  10),
-    ]
-
-    print(f"Fetching multi-timeframe data for {len(stocks)} stocks...\n")
-
-    results = {}
-    for stock in stocks:
-        tf_data = {}
-        for label, subtype, rsi_period in TIMEFRAMES:
-            data = analyze_timeframe(ctx, stock, subtype)
-            tf_data[label] = data
-
-        rsi_d  = tf_data.get("Daily", {}).get("rsi", 50)
-        rsi_60 = tf_data.get("60M",   {}).get("rsi", 50)
-        rsi_15 = tf_data.get("15M",   {}).get("rsi", 50)
-        macd_d = tf_data.get("Daily", {}).get("macd", 0)
-        n_d    = tf_data.get("Daily", {}).get("n",    0)
-        n_60   = tf_data.get("60M",   {}).get("n",    0)
-        n_15   = tf_data.get("15M",   {}).get("n",    0)
-
-        # Signal logic
-        buy_score  = sum(1 for r in [rsi_d, rsi_60, rsi_15] if r < 40)
-        sell_score = sum(1 for r in [rsi_d, rsi_60, rsi_15] if r > 60)
-        triple_buy  = buy_score  >= 3 and macd_d > 0
-        triple_sell = sell_score >= 3 and macd_d < 0
-        double_buy  = buy_score  >= 2
-        double_sell = sell_score >= 2
-
-        if triple_buy:
-            badge = "⬤ TRIPLE BUY"
-        elif triple_sell:
-            badge = "○ TRIPLE SELL"
-        elif double_buy:
-            badge = "◐ DOUBLE BUY"
-        elif double_sell:
-            badge = "◑ DOUBLE SELL"
-        elif buy_score >= 1:
-            badge = "◐  WATCH"
-        elif sell_score >= 1:
-            badge = "◑  WATCH"
-        else:
-            badge = "●  neutral"
-
-        results[stock] = {
-            "rsi_d": rsi_d, "rsi_60": rsi_60, "rsi_15": rsi_15,
-            "macd_d": macd_d,
-            "badge": badge,
-            "conviction": buy_score if buy_score >= 2 else -sell_score if sell_score >= 2 else 0,
-            "n_d": n_d, "n_60": n_60, "n_15": n_15,
-        }
-
-    ctx.close()
+    try:
+    
+        # Timeframe configs
+        TIMEFRAMES = [
+            ("Daily",   ft.SubType.K_DAY,  14),
+            ("60M",     ft.SubType.K_60M,  14),
+            ("15M",     ft.SubType.K_15M,  10),
+        ]
+    
+        print(f"Fetching multi-timeframe data for {len(stocks)} stocks...\n")
+    
+        results = {}
+        for stock in stocks:
+            tf_data = {}
+            for label, subtype, rsi_period in TIMEFRAMES:
+                data = analyze_timeframe(ctx, stock, subtype)
+                tf_data[label] = data
+    
+            rsi_d  = tf_data.get("Daily", {}).get("rsi", 50)
+            rsi_60 = tf_data.get("60M",   {}).get("rsi", 50)
+            rsi_15 = tf_data.get("15M",   {}).get("rsi", 50)
+            macd_d = tf_data.get("Daily", {}).get("macd", 0)
+            n_d    = tf_data.get("Daily", {}).get("n",    0)
+            n_60   = tf_data.get("60M",   {}).get("n",    0)
+            n_15   = tf_data.get("15M",   {}).get("n",    0)
+    
+            # Signal logic
+            buy_score  = sum(1 for r in [rsi_d, rsi_60, rsi_15] if r < 40)
+            sell_score = sum(1 for r in [rsi_d, rsi_60, rsi_15] if r > 60)
+            triple_buy  = buy_score  >= 3 and macd_d > 0
+            triple_sell = sell_score >= 3 and macd_d < 0
+            double_buy  = buy_score  >= 2
+            double_sell = sell_score >= 2
+    
+            if triple_buy:
+                badge = "⬤ TRIPLE BUY"
+            elif triple_sell:
+                badge = "○ TRIPLE SELL"
+            elif double_buy:
+                badge = "◐ DOUBLE BUY"
+            elif double_sell:
+                badge = "◑ DOUBLE SELL"
+            elif buy_score >= 1:
+                badge = "◐  WATCH"
+            elif sell_score >= 1:
+                badge = "◑  WATCH"
+            else:
+                badge = "●  neutral"
+    
+            results[stock] = {
+                "rsi_d": rsi_d, "rsi_60": rsi_60, "rsi_15": rsi_15,
+                "macd_d": macd_d,
+                "badge": badge,
+                "conviction": buy_score if buy_score >= 2 else -sell_score if sell_score >= 2 else 0,
+                "n_d": n_d, "n_60": n_60, "n_15": n_15,
+            }
+    
+    finally:
+        ctx.close()
 
     # ── Print ──────────────────────────────────────────────────────────────
 

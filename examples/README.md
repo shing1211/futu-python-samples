@@ -1,6 +1,6 @@
 # Examples
 
-97 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
+98 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -13,6 +13,7 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | # | Name | What you'll see |
 |---|------|----------------|
 | [00](./00_connect_ha/) | HA Gateway | TCP probe all your hosts, pick the fastest, handle RSA. Start here to confirm your setup is solid. |
+| [98](./98_ha_diagnostics/) | HA Diagnostics | Health monitoring with auto-failover, lifecycle hooks, and real-time connection statistics. Kill your primary gateway to trigger failover. |
 
 ### Live Market Feeds
 

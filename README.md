@@ -1,14 +1,21 @@
 # Futu Python Samples
 
-> **97 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **98 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org/)
 [![SDK Version](https://img.shields.io/badge/SDK-10.5.6508-blue)](https://pypi.org/project/futu-api/)
-[![Changelog](https://img.shields.io/badge/changelog-v1.5.0-orange)](./CHANGELOG.md)
+[![Changelog](https://img.shields.io/badge/changelog-v1.6.0-orange)](./CHANGELOG.md)
 
 ---
+
+## What's New in v1.6.0
+
+- **HA health monitoring + auto-failover** — `connect.py` now runs a background daemon thread that pings the active gateway every 15s, automatically fails over to the next-best host on N consecutive failures, and fires lifecycle hooks (`on_connect`, `on_failover`, `on_disconnect`, `on_heartbeat`)
+- **Retry with fallback chain** — if the fastest host fails API connect, tries every other reachable host before raising, with configurable exponential backoff
+- **New example 98 (`ha_diagnostics`)** — interactive HA diagnostic tool with real-time heartbeat display, failover detection, and connection statistics
+- All existing examples unchanged — 100% backward compatible
 
 ## What's New in v1.5.0
 
@@ -50,7 +57,7 @@ That's it. No API keys, no compile step, no boilerplate to write first.
 
 **Smart gateway selection.** The `connect.py` module probes all your configured OpenD hosts simultaneously, measures real TCP latency, and picks the fastest one. Both quote and trade contexts share the probe result — no redundant network calls.
 
-**A catalog, not a tutorial.** 97 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
+**A catalog, not a tutorial.** 98 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
 
 ---
 
@@ -136,7 +143,7 @@ What `connect.py` does for you:
 
 ---
 
-## Examples (97 total)
+## Examples (98 total)
 
 Full categorized index → [examples/README.md](examples/README.md)
 
@@ -144,7 +151,7 @@ Full categorized index → [examples/README.md](examples/README.md)
 
 | Category | Examples |
 |----------|----------|
-| **Connectivity & Core** | 00, 01 |
+| **Connectivity & Core** | 00, 01, 98 |
 | **Market Data** | 07, 08, 09, 10, 14, 16, 22, 44 |
 | **Filters & Screens** | 03, 52 |
 | **Sectors, Plates & References** | 13, 17, 18, 28 |
@@ -167,7 +174,7 @@ Full categorized index → [examples/README.md](examples/README.md)
 ## Running the Full Suite
 
 ```bash
-# The proper runner — shows PASS/FAIL for all 97 examples
+# The proper runner — shows PASS/FAIL for all 98 examples
 python3 scripts/run_all.py
 
 # Smoke test (just checks for exceptions)
@@ -216,7 +223,7 @@ ctx = OpenQuoteContext(host="remote-gateway", port=11111)
 ├── TROUBLESHOOTING.md      ← common problems and fixes
 ├── examples/
 │   ├── connect.py          ← HA gateway helper (shared by all examples)
-│   ├── README.md           ← full 97-example index
+│   ├── README.md           ← full 98-example index
 │   ├── 00_connect_ha/      ← standalone HA algorithm
 │   ├── 01_snapshot/        ← market snapshot
 │   │
@@ -231,7 +238,8 @@ ctx = OpenQuoteContext(host="remote-gateway", port=11111)
 │   ├── 94_earnings_analyzer/ ← earnings surprise analysis
 │   ├── 95_52week_scanner/  ← 52-week extreme proximity scanner
 │   ├── 96_margin_monitor/  ← real-time margin utilization monitor
-│   └── 97_vwap_anchored/   ← VWAP-based support/resistance signals
+│   ├── 97_vwap_anchored/   ← VWAP-based support/resistance signals
+│   └── 98_ha_diagnostics/  ← HA health + failover diagnostics
 ├── scripts/
 │   └── run_all.py          ← automated test runner
 ```
