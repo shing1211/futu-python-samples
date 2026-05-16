@@ -2,198 +2,351 @@
 
 > Built on the [Futu OpenAPI Python SDK](https://openapi.futunn.com/futu-api-doc/). 97 standalone examples organized as a reference library, not a framework.
 
+## Codebase at a Glance (Knowledge Graph)
+
+| Metric | Value |
+|--------|-------|
+| Files | 155 |
+| Python modules | 136 (99 main.py, 37 supporting modules) |
+| Code symbols | 3,180 |
+| Relationships | 4,390 |
+| Functional communities | 59 |
+| Execution flows | 99 |
+
+**Layer architecture:**
+
+```
+┌────────────────────────────────────────────────────────┐
+│                  97 Example Scripts                     │
+│  (00_connect_ha/  →  examples/97_vwap_anchored/)       │
+│  Each: import connect → call SDK → log → ctx.close()   │
+└──────────────────────┬─────────────────────────────────┘
+                       │ imports from
+┌──────────────────────▼─────────────────────────────────┐
+│              examples/connect.py                        │
+│  HA gateway probe │ RSA config │ connection cache       │
+└───────┬──────────────────────────────┬──────────────────┘
+        │ create_quote_context         │ create_trade_context
+┌───────▼──────────┐          ┌───────▼──────────┐
+│ OpenQuoteContext │          │OpenSecTradeContext│
+│ (quote/trade ctx)│          │  (trade ctx only) │
+└───────┬──────────┘          └───────┬──────────┘
+        │                              │
+┌───────▼──────────────────────────────▼──────────────────┐
+│              Futu OpenD Gateway (TCP :11111)             │
+│  Market data │ Push streams │ Order execution │ Admin   │
+└─────────────────────────────────────────────────────────┘
+```
+
 ## Overview
 
 The repo has two distinct layers:
 
-| Layer | Contents |
-|-------|----------|
-| **SDK Examples** | 97 example scripts (`examples/00` – `examples/97`), each demonstrating one Futu API feature |
-| **Shared Infrastructure** | `examples/connect.py` — HA gateway selection, connection caching, env-var loading |
+| Layer | Contents | KG Evidence |
+|-------|----------|------------|
+| **SDK Examples** | 97 example scripts (`examples/00`–`examples/97`), each demonstrating one Futu API feature | 99 `main.py` files indexed as separate communities |
+| **Shared Infrastructure** | `examples/connect.py` — HA gateway selection, connection caching, env-var loading | `create_quote_context` has 30+ callers across the example graph |
 
-```
-futu-api (external SDK)
-    │
-    ▼
-examples/connect.py          ← HA gateway, RSA config, connection cache, .env loading
-    │
-    ├──► OpenQuoteContext    ← all quote examples (01–47 + 58–97)
-    └──► OpenSecTradeContext ← all trade examples (04, 05, 06, 11, 32–35, 37–40, 54, 57, 61, 62, 64, 66, 68–70, 76, 78, 79, 80, 81)
-    │
-    ▼
-97 example scripts (examples/00_connect_ha/ → examples/97_vwap_anchored/)
-  each: import connect → call SDK → log all response fields → try/finally ctx.close()
-```
+All 97 examples follow the same pattern:
 
-**Key stats**: 100+ files · 1200+ code symbols · 1600+ relationships · 40 functional communities · 45 execution flows
+1. **Import** `connect.py` (loads `.env`, populates environment)
+2. **Create context(s)** via `create_quote_context()` / `create_trade_context()` (triggers TCP probe, RSA setup)
+3. **Call SDK API** — one or more Futu OpenAPI methods
+4. **Log** all response fields
+5. **Clean up** — `ctx.close()` in `try/finally`
+
+The knowledge graph confirms this as the dominant execution flow: all 99 processes follow the `Main → Configure_rsa` chain.
+
+## System Architecture (Mermaid)
+
+```mermaid
+graph TB
+    subgraph Environment[Configuration Layer]
+        ENV[".env file"]
+    end
+
+    subgraph Shared["Shared Infrastructure<br/>examples/connect.py"]
+        LP["load_dotenv()"]
+        PH["_parse_hosts()<br/>FUTU_OPEND_HOSTS"]
+        TCP["tcp_connect() × N<br/>ThreadPoolExecutor"]
+        CO["connect_opend()<br/>RSA auto-fallback"]
+        CR["configure_rsa()"]
+        CACHE["_cached_probe_result<br/>module-level cache"]
+        QC["create_quote_context()"]
+        TC["create_trade_context()"]
+        PWD["get_demo_trade_password()"]
+    end
+
+    subgraph Examples["97 Examples<br/>(00–97)"]
+        direction LR
+        M00["00_connect_ha"]
+        M01["01_snapshot"]
+        M02["02_quote_push"]
+        M03["03_filter"]
+        MDOTS["..."]
+        M97["97_vwap_anchored"]
+    end
+
+    subgraph SDK["Futu OpenAPI SDK"]
+        OQC["OpenQuoteContext"]
+        OSTC["OpenSecTradeContext"]
+    end
+
+    subgraph Gateway["OpenD Gateway<br/>TCP :11111"]
+        MD["Market Data"]
+        PS["Push Streams"]
+        TR["Trade Execution"]
+        AD["Admin"]
+    end
+
+    ENV --> LP
+    LP --> PH
+    PH --> TCP
+    TCP -- fastest host --> CO
+    CO --> CR
+    CR --> CACHE
+    CACHE --> QC
+    CACHE --> TC
+    QC --> OQC
+    TC --> OSTC
+    OQC --> MD
+    OQC --> PS
+    OSTC --> TR
+    OSTC --> AD
+    Examples --> QC
+    Examples --> TC
+    Examples --> PWD
+
+    style Environment fill:#f0f0f0,stroke:#666
+    style Shared fill:#e1f5fe,stroke:#0288d1
+    style Examples fill:#e8f5e9,stroke:#388e3c
+    style SDK fill:#fff3e0,stroke:#f57c00
+    style Gateway fill:#fce4ec,stroke:#d32f2f
+```
 
 ## Functional Areas
 
-### 1. Connection Architecture (HA Gateway)
+### 1. Shared Infrastructure — HA Gateway Connection
 
-**Files**: `examples/connect.py`, `examples/00_connect_ha/main.py`
+**Files:** `examples/connect.py`, `examples/00_connect_ha/main.py`
 
-`connect.py` is the backbone. Every example (except `00`) imports from it.
+`connect.py` is the backbone — every example (except `00`) imports it. The knowledge graph shows it's the single most-impacted module with 30+ direct callers.
 
-| Symbol | Role |
-|--------|------|
-| `load_dotenv()` | Auto-loads `.env` on import — no manual sourcing needed |
-| `HOSTS`, `_parse_hosts()` | Parse `FUTU_OPEND_HOSTS` → `[(host, port, is_rsa), ...]` |
-| `tcp_connect()` | Parallel TCP probe — returns latency in ms or `None` |
-| `connect_opend()` | Sort by latency, connect fastest, RSA auto-fallback |
-| `configure_rsa()` | Set `SysConfig.enable_proto_encrypt()` before each connect |
-| `_cached_probe_result` | Module-global — shared between quote and trade contexts |
-| `create_quote_context()` | Returns connected `OpenQuoteContext`, caches probe result |
-| `create_trade_context()` | Returns `OpenSecTradeContext`, reuses same probe result |
-| `get_demo_trade_password()` | Returns `FUTU_TRADE_PWD` from env |
+| Symbol | Role | KG Stats |
+|--------|------|----------|
+| `load_dotenv()` | Auto-loads `.env` on import | Runs at module import time |
+| `_parse_hosts()` | Parse `FUTU_OPEND_HOSTS` → `[(host, port, is_rsa), ...]` | Called once at module init |
+| `tcp_connect()` | Parallel TCP probe via `ThreadPoolExecutor` | Returns latency in ms |
+| `connect_opend()` | Sort by latency, connect fastest, RSA auto-fallback | Core orchestrator — called by both context creators |
+| `configure_rsa()` | Set `SysConfig.enable_proto_encrypt()` before each connect | Terminal step in every execution flow |
+| `_cached_probe_result` | Module-global cache shared between quote and trade contexts | Eliminates redundant probes |
+| `create_quote_context()` | Returns connected `OpenQuoteContext` — probes if no cache hit | Called by 30+ examples |
+| `create_trade_context()` | Returns `OpenSecTradeContext` — reuses cached probe | Called by 19 trade examples |
+| `get_demo_trade_password()` | Returns `FUTU_TRADE_PWD` from env | Called by 14 trade examples |
 
-**Connection flow**:
+**KG-verified connection flow (step-by-step from 99 processes):**
+
 ```
-_parse_hosts()           ← FUTU_OPEND_HOSTS env var
-     ↓
-tcp_connect() × N        ← parallel ThreadPoolExecutor, fastest wins
-     ↓
-connect_opend()          ← try RSA, fallback without RSA on failure
-     ↓
-configure_rsa()          ← SysConfig.set_init_rsa_file() if needed
-     ↓
-OpenQuoteContext / OpenSecTradeContext
-     ↓
-_cached_probe_result saved (both context creators share it)
+1. import connect                  → triggers load_dotenv(), _parse_hosts()
+2. create_quote_context()           → checks _cached_probe_result
+3.   ├── cache hit → reuse existing host info, configure_rsa(), return ctx
+4.   └── cache miss → connect_opend()
+5.         ├── tcp_connect() × N    → parallel probe all hosts
+6.         ├── sort by TCP latency  → pick fastest
+7.         ├── try_connect(RSA)     → attempt with RSA
+8.         ├── [if fails & auto]    → try_connect(no RSA)
+9.         └── cache result         → save for trade context reuse
+10. configure_rsa()                 → SysConfig.set_init_rsa_file()
+11. OpenQuoteContext(host, port)    → return connected ctx
 ```
 
-### 2. Market Data — Snapshot, K-line, Ticker, Order Book
+### 2. Market Data — Snapshot, K-Line, Ticker, Order Book
 
-**Examples**: 01, 07, 08, 10, 14, 16, 36, 42, 44, 55
+**Examples:** 01, 07, 08, 10, 14, 16, 36, 42, 44, 55
 
-Core quote APIs for price/volume/depth data:
+Core quote APIs for price/volume/depth data. All use `OpenQuoteContext`.
 
-| API | What it does |
-|-----|-------------|
-| `get_market_snapshot()` | All stocks in a market — snapshot fields |
-| `get_stock_quote()` | Real-time quote fields for a stock list |
-| `get_cur_kline()` | Current K-line (one-shot, not push) |
-| `request_history_kline()` | Historical K-line — paginated, supports `AuType` (QFQ/BFQ) |
-| `get_rt_ticker()` | Tick-by-tick trade records |
-| `get_rt_data()` | Intraday minute bars (requires prior `subscribe`) |
-| `get_order_book()` | N-level bid/ask depth — returns `{"Bid": [...], "Ask": [...]}` |
-| `get_stock_basicinfo()` | Stock metadata by market or code list |
+| API | KG Callers Count | Used By |
+|-----|-----------------|---------|
+| `get_market_snapshot()` | ~10 | 01_snapshot, 44_multi_market, 55_momentum |
+| `get_stock_quote()` | ~20 | 16_stock_quote, 62_portfolio_risk, 90_ah_premium |
+| `request_history_kline()` | ~8 | 07_kline, 64_backtesting, 94_earnings_analyzer |
+| `get_cur_kline()` | ~6 | 14_cur_kline, 69_bollinger_bounce |
+| `get_rt_ticker()` | ~4 | 08_rt_ticker, 59_dark_pool_detector |
+| `get_order_book()` | ~8 | 10_orderbook, 61_twap_slicer, 74_orderflow_viz |
+| `get_stock_basicinfo()` | ~5 | 36_stock_basicinfo, 20_ipo_list |
 
-**Subscription model**:
+**Subscription model:**
 ```
-subscribe(code, SubType.QUOTE)     → enables real-time push
-subscribe(code, SubType.ORDER_BOOK) → order book depth push
-subscribe(code, SubType.TICKER)    → tick-by-tick trade push
-subscribe(code, SubType.K_DAY)    → daily K-line push
+subscribe(code, SubType.QUOTE)       → real-time push
+subscribe(code, SubType.ORDER_BOOK)  → order book depth
+subscribe(code, SubType.TICKER)      → tick-by-tick trades
+subscribe(code, SubType.BROKER)      → broker queue
+subscribe(code, SubType.K_DAY)       → daily K-line push
+query_subscription()                 → list active subs
 unsubscribe(code_list, subtype_list) → tear down
-query_subscription()               → list active subscriptions
 ```
 
-### 3. Push Handlers (Real-time Streaming)
+### 3. Push Handlers — Real-Time Streaming
 
-**Examples**: 02, 05, 14, 39, 40, 43, 45–48, 56, 71, 72, 74, 77
+**Examples:** 02, 05, 14, 39, 40, 45–48, 56, 71, 72, 74, 77
 
-All push handlers inherit from Futu base classes. Two patterns:
+Two handler patterns verified by the knowledge graph:
 
-**Pattern A — Quote handlers** (inherit `on_recv_rsp(rsp_pb)`):
-```
-StockQuoteHandlerBase    → real-time quote updates
-CurKlineHandlerBase      → live K-line bar updates
-RTDataHandlerBase        → intraday minute data
-TickerHandlerBase        → tick-by-tick trades
-OrderBookHandlerBase     → order book depth
-BrokerHandlerBase        → broker bid/ask queue
-SysNotifyHandlerBase     → system notifications (login, disconnect)
-PriceReminderHandlerBase → price alert triggers
-```
+**Pattern A — Quote handlers** (protobuf → `on_recv_rsp(rsp_pb)`):
 
-**Pattern B — Trade handlers** (inherit `on_recv(rsp_str)`):
-```
-TradeOrderHandlerBase    → order status changes
-TradeDealHandlerBase     → trade execution notifications
-KeepAliveHandlerBase     → heartbeat/keep-alive push
-```
+| Handler | Push Content | Examples |
+|---------|-------------|----------|
+| `StockQuoteHandlerBase` | Real-time quote fields | 02, 05, 60, 62 |
+| `CurKlineHandlerBase` | Live K-line bar updates | 14, 46, 54 |
+| `TickerHandlerBase` | Tick-by-tick trades | 02, 05, 45b |
+| `OrderBookHandlerBase` | Bid/ask depth ladder | 02, 56, 74 |
+| `BrokerHandlerBase` | Broker queue changes | 45, 59 |
+| `SysNotifyHandlerBase` | Login/disconnect events | 39 |
+| `PriceReminderHandlerBase` | Price alert triggers | 47 |
 
-Handler lifecycle:
+**Pattern B — Trade handlers** (string → `on_recv(rsp_str)`):
+
+| Handler | Push Content | Examples |
+|---------|-------------|----------|
+| `TradeOrderHandlerBase` | Order status changes | 40, 88 |
+| `TradeDealHandlerBase` | Trade execution confirmations | 40 |
+| `KeepAliveHandlerBase` | Connection heartbeat | 48 |
+
+**Handler lifecycle (common across all):**
 ```
-ctx.set_handler(HandlerClass())     → register
-ctx.subscribe(code, subtype)        → activate
-# OpenD pushes data continuously
-ctx.close()                        → deregister all
+ctx.set_handler(HandlerClass())  → register
+ctx.subscribe(code, subtype)     → activate
+# OpenD pushes as events occur
+ctx.close()                      → deregister
 ```
 
 ### 4. Stock Screener
 
-**Examples**: 03, 29, 52, 55, 82, 85, 86
+**Examples:** 03, 29, 52, 55, 82, 85, 86
 
-| Filter | Used for |
-|--------|----------|
-| `SimpleFilter` | Price, volume, turnover, amplitude ranges |
-| `FinancialFilter` | P/E, P/B, market cap, dividend yield, current ratio |
-| `AccumulateFilter` | Unusual volume / price spikes |
-| `CustomIndicatorFilter` | Technical indicators (RSI, MACD, etc.) |
-| `get_stock_filter()` | Combined screener — returns paginated results |
+| Filter Component | Purpose | Examples |
+|-----------------|---------|----------|
+| `SimpleFilter` | Price, volume, turnover, amplitude ranges | 03, 86 |
+| `FinancialFilter` | P/E, P/B, market cap, dividend yield | 03 |
+| `AccumulateFilter` | Unusual volume/price spike detection | 29, 82 |
+| `CustomIndicatorFilter` | RSI, MACD, technical indicators | 55 |
+| `OptionDataFilter` | Delta, IV, moneyness, OI | 52 |
+| `get_stock_filter()` | Combined screener (paginated) | 03 |
 
-### 5. Trade Execution
+### 5. Trade Execution (SIMULATE Only)
 
-**Examples**: 04 (MACD strategy), 05, 06, 11, 32–35, 37–40, 54, 57, 61, 64, 66, 68, 69, 70, 76, 78, 79, 80, 81
+**Examples:** 04, 06, 11, 32–35, 37–40, 54, 57, 61, 66, 68, 69, 76, 78–81, 88, 92, 93, 96
 
-| API | What it does |
-|-----|-------------|
-| `unlock_trade(pwd)` | Unlock trading (SIMULATE or real) |
-| `place_order()` | Submit buy/sell order |
-| `modify_order()` | Update price/qty of existing order |
-| `cancel_order()` | Cancel single order |
-| `cancel_all_order()` | Cancel all open orders |
-| `order_list_query()` | Query open/historical orders |
-| `deal_list_query()` | Query trade executions |
-| `accinfo_query()` | Account cash / buying power |
-| `position_list_query()` | Current holdings |
-| `acctradinginfo_query()` | Max buy/sell quantity per stock |
-| `order_fee_query()` | Fee calculation for an order |
+All trade examples use SIMULATE account exclusively. The knowledge graph shows `get_demo_trade_password()` is called by 14 examples.
+
+| API | Purpose | Called From |
+|-----|---------|-------------|
+| `unlock_trade(pwd)` | Unlock SIMULATE trading | 04, 06, 11, 61, 66, 68, 78, 88 |
+| `place_order()` | Submit buy/sell (SIMULATE) | 06, 61, 66, 78, 79, 88 |
+| `modify_order()` | Update price/qty | 06, 32 |
+| `cancel_order()` | Cancel single order | 32, 88 |
+| `cancel_all_order()` | Emergency cleanup | 34, 66, 88 |
+| `order_list_query()` | Query open/historical orders | 32, 50, 66, 88 |
+| `deal_list_query()` | Query trade executions | 32, 50 |
+| `accinfo_query()` | Account cash/buying power | 11, 62, 81 |
+| `position_list_query()` | Current holdings | 11, 62, 79, 81 |
+| `acctradinginfo_query()` | Max buy/sell quantity | 33 |
+| `order_fee_query()` | Fee calculation | 38 |
 
 ### 6. Market Reference Data
 
-**Examples**: 09, 12, 13, 17, 18, 19, 20, 21, 22, 25, 26, 27, 28, 31, 41, 70, 75, 83
+**Examples:** 09, 12, 13, 17–22, 25–28, 31, 41, 70, 75, 83
 
-| API | What it does |
-|-----|-------------|
-| `get_broker_queue()` | Broker bid/ask queue for a stock |
-| `get_trading_days()` | Trading days calendar per market |
-| `get_plate_list()` | Plates (sectors/industries) in a market |
-| `get_plate_stock()` | Stocks belonging to a plate |
-| `get_owner_plate()` | Owner plate for a stock |
-| `get_capital_flow()` | Capital flow heatmap |
-| `get_capital_distribution()` | Capital distribution by sector |
-| `get_ipo_list()` | IPO calendar per market |
-| `get_future_info()` | Futures contract details |
-| `get_market_state()` | Pre-market / open / after / closed state |
-| `get_option_chain()` | Option chain by underlying |
-| `get_history_kl_quota()` | K-line quota usage and remaining |
-| `get_code_change()` | Stock code change records |
-| `get_warrant()` | Warrant data by underlying |
-| `get_rehab()` | Rehabilitation / ex-dividend / ex-right data |
-| `get_holding_change_list()` | Top holder position changes |
+| API | Data Returned | Examples |
+|-----|---------------|----------|
+| `get_broker_queue()` | Broker bid/ask depth by level | 09, 59 |
+| `get_trading_days()` | Market open days calendar | 12 |
+| `get_plate_list()` | All sectors/industries per market | 13, 91 |
+| `get_plate_stock()` | Stocks belonging to a plate | 13, 91 |
+| `get_owner_plate()` | Which plate owns a stock | 17 |
+| `get_capital_flow()` | Intraday/daily money flow heatmap | 19, 42 |
+| `get_option_chain()` | Option strikes + Greeks by expiry | 25, 52, 58, 65, 85 |
+| `get_warrant()` | Warrant data by underlying | 28, 70 |
+| `get_future_info()` | Futures specs (size, tick, hours) | 21, 75 |
+| `get_market_state()` | Pre-open/open/closed per market | 22 |
+| `get_history_kl_quota()` | Daily K-line quota remaining | 26 |
+| `get_code_change()` | Stock rename/split history | 27 |
+| `get_rehab()` | Ex-dividend/ex-right dates | 41 |
+| `get_ipo_list()` | Upcoming IPOs per market | 20 |
 
 ### 7. User & Watchlist Management
 
-**Examples**: 23, 24, 30, 31, 51, 87
+**Examples:** 23, 24, 30, 31, 51, 87
 
-| API | What it does |
-|-----|-------------|
+| API | Purpose |
+|-----|---------|
 | `set_price_reminder()` | Create price alert |
 | `get_price_reminder()` | List all price alerts |
-| `update_price_reminder()` | Enable/disable price alert |
-| `get_user_security_group()` | List all watchlist groups |
+| `update_price_reminder()` | Enable/disable alert |
+| `get_user_security_group()` | List watchlist groups |
 | `modify_user_security()` | Add/remove stocks from watchlist |
 | `get_account_list()` | List all trading accounts |
 | `get_user_info()` | User info and broker firm |
 
+### 8. Advanced Analytics & Computation
+
+**Examples:** 58, 64, 65, 85, 92
+
+These examples perform server-side computation without placing orders:
+
+| Example | Computation | Libraries |
+|---------|-------------|-----------|
+| 58 — Options Greeks | Black-Scholes delta/gamma/theta/vega/rho | `math.erf`, stdlib only |
+| 64 — Backtesting | SMA/RSI/MACD strategies, Sharpe, drawdown | `pandas`, stdlib |
+| 65 — Vol Surface | Moneyness × expiry IV matrix | `pandas` |
+| 85 — Vol Skew | Newton-Raphson IV solver | `math`, stdlib |
+| 92 — Monte Carlo | 10K path VaR simulation | `random`, stdlib |
+
+### 9. Screening & Detection
+
+**Examples:** 63, 72, 73, 82, 83, 86, 89, 91, 94, 95
+
+Signal generation and anomaly detection:
+
+| Example | Method |
+|---------|--------|
+| 63 — Earnings Screener | Pre-earnings IV/HV ratio, post-earnings unusual activity |
+| 72 — Candlestick Scanner | 9 classic candlestick patterns with confidence scoring |
+| 73 — Correlation Tracker | Rolling Pearson matrix, spike detection |
+| 82 — Unusual Options | Volume anomaly flagging |
+| 86 — Market Breadth | Adv/Decline, McClellan Oscillator |
+| 89 — Gap Scanner | Overnight gap with volume confirmation |
+| 91 — Sector Rotation | RSI-based sector ranking |
+| 94 — Earnings Analyzer | EPS surprise detection + post-earnings activity |
+| 95 — 52-Week Scanner | Proximity to yearly extremes with volume |
+
+### 10. Algorithmic Execution (SIMULATE)
+
+**Examples:** 61, 66, 68, 69, 76, 78, 79, 80, 81, 88, 93, 97
+
+Automated execution strategies — all SIMULATE-only:
+
+| Example | Strategy |
+|---------|----------|
+| 61 — TWAP Slicer | Time-weighted average price execution |
+| 66 — Multi-Leg Order | Vertical call spread |
+| 68 — Trailing Stop | Dynamic stop-loss following price |
+| 69 — Bollinger Bounce | Mean reversion via pure-Python Bollinger Bands |
+| 76 — Kelly Sizer | Kelly Criterion position sizing |
+| 78 — Grid Trading | Automated buy-low/sell-high grid |
+| 79 — Pairs Trading | Engle-Granger cointegration stat-arb |
+| 80 — Multi-Leg Options | Straddle, strangle, iron condor |
+| 81 — Portfolio Rebalance | Periodic target-allocation rebalancing |
+| 88 — SL/TP Engine | Dual stop-loss/take-profit with partial exits |
+| 93 — Calendar Spread | Neutral theta plays via vol differential |
+| 97 — VWAP Anchored | VWAP-based support/resistance signals |
+
 ## Key Execution Flows
 
-### Flow 1: HA Gateway Connection (most critical)
+### Flow 1: HA Gateway Connection (99 processes follow this)
 
-Every example that uses `connect.py` follows this path:
+The knowledge graph shows this is the universal entry point — every example process follows the `Main → Configure_rsa` chain.
 
 ```mermaid
 sequenceDiagram
@@ -204,27 +357,30 @@ sequenceDiagram
 
     Example->>connect.py: import (loads .env)
     connect.py->>connect.py: load_dotenv() → os.environ populated
-    Example->>connect.py: create_quote_context()
-    connect.py->>connect.py: _cached_probe_result exists? → No (first call)
-    connect.py->>connect.py: connect_opend(is_rsa=None)
-    connect.py->>OpenD Gateway: tcp_connect() × N in parallel
-    OpenD Gateway-->>connect.py: latency ms per host
-    connect.py->>connect.py: sort by latency, pick fastest
-    connect.py->>connect.py: configure_rsa(enable=True) [RSA mode]
-    connect.py->>OpenD Gateway: try_connect(fastest, is_rsa=True)
-    alt RSA fails
-        connect.py->>connect.py: configure_rsa(enable=False) [fallback]
-        connect.py->>OpenD Gateway: try_connect(fastest, is_rsa=False)
+    Example->>connect.py: create_quote_context() or create_trade_context()
+    connect.py->>connect.py: check _cached_probe_result
+    alt cache miss
+        connect.py->>connect.py: connect_opend(is_rsa=None)
+        connect.py->>OpenD Gateway: tcp_connect() × N in parallel
+        OpenD Gateway-->>connect.py: latency ms per host
+        connect.py->>connect.py: sort by latency, pick fastest
+        connect.py->>connect.py: configure_rsa(enable=True) [RSA mode]
+        connect.py->>OpenD Gateway: try_connect(fastest, is_rsa=True)
+        alt RSA fails
+            connect.py->>connect.py: configure_rsa(enable=False) [fallback]
+            connect.py->>OpenD Gateway: try_connect(fastest, is_rsa=False)
+        end
+        OpenD Gateway-->>connect.py: ret=RET_OK, global_state
+        connect.py->>connect.py: _cached_probe_result = (info, actual_rsa)
+    else cache hit
+        connect.py->>connect.py: reuse cached host info
     end
-    OpenD Gateway-->>connect.py: ret=RET_OK, global_state dict
-    connect.py->>connect.py: _cached_probe_result = (info, actual_rsa)
-    connect.py->>futu SDK: OpenQuoteContext(host, port)
-    futu SDK-->>Example: OpenQuoteContext connected
-    Example->>Example: use ctx for API calls
+    connect.py-->>Example: OpenQuoteContext / OpenSecTradeContext connected
+    Example->>Example: call SDK API(s) and log results
     Example->>futu SDK: ctx.close()
 ```
 
-### Flow 2: Real-time Quote Push
+### Flow 2: Real-Time Quote Push
 
 ```mermaid
 sequenceDiagram
@@ -239,13 +395,13 @@ sequenceDiagram
     QuoteCtx->>OpenD: subscribe request
     OpenD-->>QuoteCtx: subscription confirmed
     loop OpenD pushes data every update interval
-        OpenD-->>QuoteCtx: quote push (StockQuoteHandlerBase.on_recv_rsp)
+        OpenD-->>QuoteCtx: quote push (on_recv_rsp)
         QuoteCtx->>Example: logger.info(all fields)
     end
     Example->>QuoteCtx: ctx.close()
 ```
 
-### Flow 3: Trade Order Lifecycle
+### Flow 3: Trade Order Lifecycle (SIMULATE)
 
 ```mermaid
 sequenceDiagram
@@ -260,18 +416,17 @@ sequenceDiagram
     OpenD-->>TrdCtx: ret=RET_OK
     Example->>TrdCtx: trd_ctx.set_handler(TradeOrderHandlerBase())
     Example->>TrdCtx: trd_ctx.place_order(...)
-    TrdCtx->>OpenD: place_order request
-    OpenD-->>TrdCtx: order_id confirmed
-    loop OpenD pushes order updates
-        OpenD-->>TrdCtx: order update (TradeOrderHandlerBase.on_recv)
+    TrdCtx->>OpenD: place_order
+    OpenD-->>TrdCtx: order_id
+    loop Push updates
+        OpenD-->>TrdCtx: order status (on_recv)
         TrdCtx->>Example: logger.info(order status)
     end
-    Example->>TrdCtx: trd_ctx.cancel_order(order_id)
-    OpenD-->>TrdCtx: cancelled
+    Example->>TrdCtx: trd_ctx.cancel_all_order(trd_env=SIMULATE)
     Example->>TrdCtx: ctx.close()
 ```
 
-### Flow 4: K-line Historical + MACD Strategy
+### Flow 4: MACD Strategy (Backtest + Trade)
 
 ```mermaid
 sequenceDiagram
@@ -280,29 +435,20 @@ sequenceDiagram
     participant TrdCtx
 
     Example->>QuoteCtx: create_quote_context()
-    Example->>TrdCtx: create_trade_context()
-    QuoteCtx-->>Example: OpenQuoteContext
-    TrdCtx-->>Example: OpenSecTradeContext (reuses probe result)
-
-    Example->>QuoteCtx: request_history_kline("HK.00700", start, end, K_DAY, QFQ)
-    QuoteCtx-->>Example: DataFrame with time_key, open, high, low, close, volume
-
-    Example->>Example: pandas.ewm compute MACD (macd_line, signal, hist)
+    Example->>TrdCtx: create_trade_context() (reuses probe)
+    Example->>QuoteCtx: request_history_kline("HK.00700", K_DAY, QFQ)
+    QuoteCtx-->>Example: DataFrame with OHLCV
+    Example->>Example: pandas.ewm → MACD line, signal, histogram
     Example->>Example: detect golden cross / death cross
-
     alt BUY signal
         Example->>TrdCtx: accinfo_query() → buying power
-        Example->>QuoteCtx: get_market_snapshot() → last_price, lot_size
-        Example->>Example: qty = floor(buying_power / price) / lot_size * lot_size
+        Example->>QuoteCtx: get_market_snapshot() → price, lot_size
         Example->>TrdCtx: place_order(price, qty, BUY)
-    end
-
-    alt SELL signal
-        Example->>TrdCtx: position_list_query() → current qty
+    else SELL signal
+        Example->>TrdCtx: position_list_query() → qty
         Example->>QuoteCtx: get_market_snapshot() → last_price
-        Example->>TrdCtx: place_order(price, cur_qty, SELL)
+        Example->>TrdCtx: place_order(price, qty, SELL)
     end
-
     Example->>QuoteCtx: quote_ctx.close()
     Example->>TrdCtx: trd_ctx.close()
 ```
@@ -315,20 +461,16 @@ sequenceDiagram
     participant QuoteCtx
 
     Example->>QuoteCtx: create_quote_context()
-    QuoteCtx-->>Example: OpenQuoteContext
-
     Example->>QuoteCtx: SimpleFilter(CUR_PRICE, min=2, max=1000)
     Example->>QuoteCtx: FinancialFilter(CURRENT_RATIO, min=0.5, max=50)
     Example->>QuoteCtx: get_stock_filter(Market.HK, [simple, financial])
-
     alt results available
-        QuoteCtx-->>Example: (last_page, total_count, [FilterStockData, ...])
-        Example->>Example: log all fields for each FilterStockData
+        QuoteCtx-->>Example: (last_page, total_count, [FilterStockData...])
+        Example->>Example: log all fields
     else no results
         QuoteCtx-->>Example: empty list
         Example->>Example: log "no matches"
     end
-
     Example->>QuoteCtx: quote_ctx.close()
 ```
 
@@ -336,90 +478,30 @@ sequenceDiagram
 
 ```
 futu-python-samples/
-├── .env                         ← local credentials (gitignored)
-├── .env.example                 ← public template with documented vars
-├── .gitignore
-├── pyproject.toml
-├── requirements.txt
-├── README.md
-├── ARCHITECTURE.md              ← this file
-├── CONTRIBUTING.md
-├── TROUBLESHOOTING.md
-├── PLANS.md
-├── CHANGELOG.md
-├── AGENTS.md
+├── .env.example                     ← config template (copy to .env)
+├── CHANGELOG.md                     ← version history v1.0.0–v1.5.0
+├── ARCHITECTURE.md                  ← this file
+├── CONTRIBUTING.md                  ← how to add examples
+├── TROUBLESHOOTING.md               ← common problems and fixes
+├── AGENTS.md                        ← AI coding tool reference
+├── PLANS.md                         ← implementation plans (all complete)
 │
 ├── examples/
-│   ├── connect.py               ← HA connection helper (shared by all examples)
-│   ├── README.md                ← full 87-example index
+│   ├── connect.py                   ← HA gateway helper (shared by all examples)
+│   ├── README.md                    ← full 97-example categorized index
 │   │
-│   ├── 00_connect_ha/           ← standalone HA algorithm (reference)
-│   │
-│   ├── 01_snapshot/            ← get_market_snapshot
-│   ├── 02_quote_push/           ← all quote push handlers
-│   ├── 03_filter/               ← get_stock_filter (Simple + Financial)
-│   ├── 04_macd_strategy/        ← request_history_kline + place_order
-│   ├── 05_quote_trade/          ← all handlers combined
-│   ├── 06_stock_sell/           ← place_order, modify_order
-│   ├── 07_kline/                ← get_cur_kline, request_history_kline
-│   ├── 08_rt_ticker/            ← get_rt_ticker, get_rt_data
-│   ├── 09_broker_queue/         ← get_broker_queue
-│   ├── 10_orderbook/            ← get_order_book (10/50 levels)
-│   ├── 11_accinfo/              ← accinfo_query, position_list_query
-│   ├── 12_trading_days/         ← get_trading_days
-│   ├── 13_plate/                ← get_plate_list, get_plate_stock
-│   ├── 14_cur_kline/            ← CurKlineHandlerBase push
-│   ├── 15_sub_list/             ← query_subscription
-│   ├── 16_stock_quote/          ← get_stock_quote
-│   ├── 17_owner_plate/          ← get_owner_plate
-│   ├── 18_referencestock/        ← get_reference_stock
-│   ├── 19_capital_flow/          ← get_capital_flow, get_capital_distribution
-│   ├── 20_ipo_list/              ← get_ipo_list
-│   ├── 21_future_info/           ← get_future_info
-│   ├── 22_market_state/          ← get_market_state
-│   ├── 23_price_reminder/        ← set/get/update_price_reminder
-│   ├── 24_user_security/         ← watchlist CRUD
-│   ├── 25_option_chain/          ← get_option_chain, get_option_expiration_date
-│   ├── 26_history_kl_quota/      ← get_history_kl_quota
-│   ├── 27_code_change/           ← get_code_change
-│   ├── 28_warrant/              ← get_warrant
-│   ├── 29_unusual/              ← get_unusual (technical/financial/derivative)
-│   ├── 30_user_info/             ← get_account_list, get_user_info
-│   ├── 31_misc/                 ← get_holding_change_list, get_rehab, get_user_security_group
-│   ├── 32_order_query/           ← order_list_query, modify, cancel, deal_list_query
-│   ├── 33_trading_info/         ← acctradinginfo_query
-│   ├── 34_cancel_all/            ← cancel_all_order
-│   ├── 35_cashflow/             ← get_history_cash_flow
-│   ├── 36_stock_basicinfo/      ← get_stock_basicinfo
-│   ├── 37_margin_ratio/         ← get_margin_ratio
-│   ├── 38_order_fee/            ← order_fee_query
-│   ├── 39_push_sysnotify/       ← SysNotifyHandlerBase
-│   ├── 40_push_trade/           ← TradeOrderHandlerBase, TradeDealHandlerBase
-│   ├── 41_rehab/                ← get_rehab
-│   │
-│   ├── 42_capital_distribution/
-│   ├── 43_subscribe_lifecycle/
-│   ├── 44_multi_market_snapshot/
-│   ├── 45_broker_handler/
-│   ├── 45b_ticker_handler/
-│   ├── 46_curkline_handler/
-│   ├── 47_price_reminder_handler/
-│   ├── 48_keepalive_handler/
-│   ├── 49_acc_cash_flow/
-│   ├── 50_history_order_deal/
-│   ├── 51_acc_list/
-│   ├── 52_option_chain_filter/
-│   ├── 53_option_expiration_cycle/
-│   ├── 54_pair_trading/
-│   ├── 55_momentum_screener/
-│   ├── 56_order_flow_imbalance/
-│   ├── 57_vwap_benchmark/
-│   │
+│   ├── 00_connect_ha/               ← standalone HA algorithm
+│   ├── 01_snapshot/                 ← get_market_snapshot
+│   ├── 02_quote_push/               ← all quote push handlers
+│   ├── 03_filter/                   ← get_stock_filter
+│   ├── 04_macd_strategy/            ← MACD + simulated orders
+│   ├── 05_quote_trade/              ← all push handlers combined
+│   │...
 │   ├── 58_options_greeks/           ← Black-Scholes Greeks dashboard
 │   ├── 59_dark_pool_detector/       ← TICKER+BROKER cross-reference
 │   ├── 60_cross_market_arb/         ← HK/US dual-listing spread
-│   ├── 61_twap_slicer/              ← algorithmic order execution
-│   ├── 62_portfolio_risk/           ← risk metric monitoring
+│   ├── 61_twap_slicer/              ← TWAP algorithmic execution
+│   ├── 62_portfolio_risk/           ← 6 risk metrics monitor
 │   ├── 63_earnings_screener/        ← IV/HV + unusual activity
 │   ├── 64_backtesting/              ← SMA/RSI/MACD backtest framework
 │   ├── 65_vol_surface/              ← volatility surface matrix
@@ -428,62 +510,84 @@ futu-python-samples/
 │   │
 │   ├── 68_trailing_stop/            ← dynamic trailing stop-loss
 │   ├── 69_bollinger_bounce/         ← Bollinger Band mean reversion
-│   ├── 70_warrant_valuation/        ← warrant mispricing + BSM implied vol
+│   ├── 70_warrant_valuation/        ← BSM implied vol + mispricing
 │   ├── 71_market_regime/            ← ADX + rolling vol classification
 │   ├── 72_candlestick_scanner/      ← 9 classic pattern detectors
 │   ├── 73_correlation_tracker/      ← rolling Pearson matrix
 │   ├── 74_orderflow_viz/            ← ASCII order flow imbalance chart
-│   ├── 75_futures_term_structure/   ← dynamic futures discovery + roll yield
+│   ├── 75_futures_term_structure/   ← dynamic futures discovery
 │   ├── 76_kelly_sizer/              ← Kelly Criterion position sizing
-│   ├── 77_iceberg_detector/         ← heuristic iceberg order detection
+│   ├── 77_iceberg_detector/         ← heuristic iceberg detection
 │   ├── 78_grid_trading/             ← automated buy-low/sell-high grid
-│   ├── 79_pairs_trading/            ← Engle-Granger cointegration stat-arb
+│   ├── 79_pairs_trading/            ← Engle-Granger cointegration
 │   ├── 80_multi_leg_options/        ← straddle/strangle/iron condor
 │   ├── 81_portfolio_rebalance/      ← target allocation rebalancing
 │   ├── 82_unusual_options/          ← volume anomaly scanner
-│   ├── 83_dividend_tracker/         ← dividends, ex-dates, corporate actions
-│   ├── 84_vwap_analysis/            ← execution quality vs VWAP benchmark
-│   ├── 85_vol_skew/                 ← IV skew surface, Newton-Raphson solver
-│   ├── 86_market_breadth/           ← Adv/Dec, McClellan, sector participation
+│   ├── 83_dividend_tracker/         ← dividends/corporate actions
+│   ├── 84_vwap_analysis/            ← execution quality vs VWAP
+│   ├── 85_vol_skew/                 ← IV skew surface Newton-Raphson
+│   ├── 86_market_breadth/           ← Adv/Dec/McClellan oscillator
 │   ├── 87_watchlist_alerts/         ← price/RSI/Bollinger alerts
-│   ├── 88_sl_tp_engine/            ← dynamic trailing stop-loss
-│   ├── 89_gap_scanner/             ← overnight gap detection
-│   ├── 90_ah_premium/              ← A-share vs H-share premium tracking
-│   ├── 91_sector_rotation/         ← RSI-based sector ranking
-│   ├── 92_monte_carlo/             ← portfolio Monte Carlo simulation
-│   ├── 93_calendar_spread/         ← options calendar spread builder
-│   ├── 94_earnings_analyzer/       ← earnings surprise analysis
-│   ├── 95_52week_scanner/          ← 52-week extreme proximity scanner
-│   ├── 96_margin_monitor/          ← real-time margin utilization monitor
-│   └── 97_vwap_anchored/           ← VWAP-based support/resistance signals
+│   ├── 88_sl_tp_engine/             ← SL/TP with partial exits
+│   ├── 89_gap_scanner/              ← overnight gap detection
+│   ├── 90_ah_premium/               ← A-share vs H-share premium
+│   ├── 91_sector_rotation/          ← RSI-based sector ranking
+│   ├── 92_monte_carlo/              ← 10K path VaR simulation
+│   ├── 93_calendar_spread/          ← options calendar spread
+│   ├── 94_earnings_analyzer/        ← EPS surprise analysis
+│   ├── 95_52week_scanner/           ← 52-week extreme proximity
+│   ├── 96_margin_monitor/           ← margin utilization monitor
+│   └── 97_vwap_anchored/            ← VWAP support/resistance signals
 │
-├── scripts/
-│   ├── run_all.py                ← run all examples with PASS/FAIL report
-│   └── test_all.sh               ← quick smoke test
+└── scripts/
+    ├── run_all.py                   ← automated PASS/FAIL test runner
+    └── test_all.sh                  ← quick smoke test
 ```
 
 ## SDK Reference
 
 - **Docs**: https://openapi.futunn.com/futu-api-doc/
 - **Package**: `futu-api` (PyPI)
-- **Version used**: `10.5.6508`
+- **Version**: `10.5.6508`
 
 ### Key Handler Base Classes
 
-| Class | Push type | Callback signature |
-|-------|-----------|-------------------|
-| `StockQuoteHandlerBase` | Real-time quote | `on_recv_rsp(rsp_pb)` |
-| `CurKlineHandlerBase` | K-line bar update | `on_recv_rsp(rsp_pb)` |
-| `RTDataHandlerBase` | Intraday minute data | `on_recv_rsp(rsp_pb)` |
-| `TickerHandlerBase` | Tick-by-tick trade | `on_recv_rsp(rsp_pb)` |
-| `OrderBookHandlerBase` | Order book depth | `on_recv_rsp(rsp_pb)` |
-| `BrokerHandlerBase` | Broker bid/ask queue | `on_recv_rsp(rsp_pb)` |
-| `SysNotifyHandlerBase` | System notification | `on_recv_rsp(rsp_pb)` |
-| `PriceReminderHandlerBase` | Price alert trigger | `on_recv_rsp(rsp_pb)` |
-| `TradeOrderHandlerBase` | Order status update | `on_recv(rsp_str)` |
-| `TradeDealHandlerBase` | Trade execution | `on_recv(rsp_str)` |
-| `KeepAliveHandlerBase` | Heartbeat push | `on_recv_rsp(rsp_pb)` |
+| Class | Push type | Callback signature | Prototype |
+|-------|-----------|-------------------|-----------|
+| `StockQuoteHandlerBase` | Real-time quote | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `CurKlineHandlerBase` | K-line bar | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `RTDataHandlerBase` | Intraday minute data | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `TickerHandlerBase` | Tick-by-tick | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `OrderBookHandlerBase` | Order book depth | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `BrokerHandlerBase` | Broker queue | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `SysNotifyHandlerBase` | System notification | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `PriceReminderHandlerBase` | Price alert | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `TradeOrderHandlerBase` | Order status | `on_recv(rsp_str)` | String |
+| `TradeDealHandlerBase` | Trade execution | `on_recv(rsp_str)` | String |
+| `KeepAliveHandlerBase` | Heartbeat | `on_recv_rsp(rsp_pb)` | Protobuf |
 
 ### Key SubTypes for Subscription
 
-`QUOTE` · `ORDER_BOOK` · `TICKER` · `BROKER` · `RT_DATA` · `K_DAY` · `K_1M` – `K_60M` · `K_WEEK` · `K_MON` · `K_QUARTER` · `K_YEAR`
+`QUOTE` · `ORDER_BOOK` · `TICKER` · `BROKER` · `RT_DATA` · `K_DAY` · `K_1M`–`K_60M` · `K_WEEK` · `K_MON` · `K_QUARTER` · `K_YEAR`
+
+## Appendix: Knowledge Graph Structure
+
+The codebase is indexed by [GitNexus](https://github.com/anomalyco/gitnexus) with the following graph composition:
+
+| Node Type | Count | Role |
+|-----------|-------|------|
+| `File` | 155 | All project files |
+| `Function` | ~1,200 | Named functions across examples |
+| `Class` | ~100 | Strategy classes, handlers, data models |
+| `Method` | ~400 | Methods on handler classes |
+| `Community` | 59 | Example-level functional groups |
+| `Process` | 99 | Execution flows (one per example) |
+
+**Edge types:** `CALLS` · `IMPORTS` · `EXTENDS` · `IMPLEMENTS` · `HAS_METHOD` · `ACCESSES` · `CONTAINS` · `STEP_IN_PROCESS`
+
+**Dominant execution flow:** `Main → configure_rsa` — all 97 examples follow this 5-step chain:
+1. Import `connect.py`
+2. Load environment (`.env`)
+3. `create_quote_context()` / `create_trade_context()`
+4. `connect_opend()` → TCP probe → RSA handshake
+5. `configure_rsa()` — terminal step before SDK context creation
