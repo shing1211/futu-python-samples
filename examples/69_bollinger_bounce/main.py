@@ -8,7 +8,6 @@ Usage:
 """
 
 import sys
-import os
 import logging
 import time
 import argparse
@@ -16,7 +15,8 @@ import statistics
 from collections import deque
 from datetime import datetime
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from connect import (
     create_quote_context,

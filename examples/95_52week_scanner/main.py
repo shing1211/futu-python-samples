@@ -8,11 +8,11 @@ Usage:
 """
 
 import sys
-import os
 import logging
 import argparse
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from connect import create_quote_context, clear_connection_cache
 import futu as ft
