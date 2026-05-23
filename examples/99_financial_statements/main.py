@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""财务报表 (get_financials_statements / revenue_breakdown / earnings_price_move / earnings_price_history)
-
-Demonstrates:
-  - get_financials_statements: fetch annual financial reports with EPS, revenue, net income, ROE, PE
-  - get_financials_revenue_breakdown: revenue by segment
-  - get_financials_earnings_price_move: stock price change around earnings announcements
-  - get_financials_earnings_price_history: historical earnings summary with price data
-"""
 import logging
 import sys
 import argparse
@@ -17,6 +9,24 @@ from connect import create_quote_context
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
+
+
+def show(label, ret, data):
+    if ret != 0:
+        logger.warning("%s ret=%d msg=%s", label, ret, data)
+        return
+    if data is None:
+        logger.warning("%s returned None", label)
+        return
+    if hasattr(data, "to_string"):
+        logger.info("%s DataFrame:\n%s", label, data.to_string())
+    elif isinstance(data, dict):
+        import json
+        logger.info("%s dict:\n%s", label, json.dumps(data, indent=2, ensure_ascii=False, default=str)[:2000])
+    elif isinstance(data, list):
+        logger.info("%s list[%d]: %s", label, len(data), str(data)[:500])
+    else:
+        logger.info("%s: %s", label, data)
 
 
 if __name__ == "__main__":
@@ -30,53 +40,29 @@ if __name__ == "__main__":
     ctx = create_quote_context()
 
     try:
-        # ── get_financials_statements ──────────────────────────────────────
-        logger.info("\n=== get_financials_statements (annual, last 4) ===")
+        logger.info("=== get_financials_statements ===")
         try:
-            ret, df = ctx.get_financials_statements(code, "annual", 4)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                logger.info("Retrieved %d reports | Columns: %s", len(df), list(df.columns))
-                logger.info("\n%s", df.to_string())
-            else:
-                logger.warning("get_financials_statements ret=%d", ret)
+            show("get_financials_statements", *ctx.get_financials_statements(code, 0, 0))
         except Exception as e:
-            logger.error("get_financials_statements error: %s", e)
+            logger.error("get_financials_statements: %s", e)
 
-        # ── get_financials_revenue_breakdown ──────────────────────────────
-        logger.info("\n=== get_financials_revenue_breakdown ===")
+        logger.info("=== get_financials_revenue_breakdown ===")
         try:
-            ret, df = ctx.get_financials_revenue_breakdown(code)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                logger.info("Retrieved %d rows | Columns: %s", len(df), list(df.columns))
-                logger.info("\n%s", df.to_string())
-            else:
-                logger.warning("get_financials_revenue_breakdown ret=%d", ret)
+            show("get_financials_revenue_breakdown", *ctx.get_financials_revenue_breakdown(code))
         except Exception as e:
-            logger.error("get_financials_revenue_breakdown error: %s", e)
+            logger.error("get_financials_revenue_breakdown: %s", e)
 
-        # ── get_financials_earnings_price_move ─────────────────────────────
-        logger.info("\n=== get_financials_earnings_price_move ===")
+        logger.info("=== get_financials_earnings_price_move ===")
         try:
-            ret, df = ctx.get_financials_earnings_price_move(code)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                logger.info("Retrieved %d rows | Columns: %s", len(df), list(df.columns))
-                logger.info("\n%s", df.to_string())
-            else:
-                logger.warning("get_financials_earnings_price_move ret=%d", ret)
+            show("get_financials_earnings_price_move", *ctx.get_financials_earnings_price_move(code))
         except Exception as e:
-            logger.error("get_financials_earnings_price_move error: %s", e)
+            logger.error("get_financials_earnings_price_move: %s", e)
 
-        # ── get_financials_earnings_price_history ──────────────────────────
-        logger.info("\n=== get_financials_earnings_price_history ===")
+        logger.info("=== get_financials_earnings_price_history ===")
         try:
-            ret, df = ctx.get_financials_earnings_price_history(code)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                logger.info("Retrieved %d rows | Columns: %s", len(df), list(df.columns))
-                logger.info("\n%s", df.to_string())
-            else:
-                logger.warning("get_financials_earnings_price_history ret=%d", ret)
+            show("get_financials_earnings_price_history", *ctx.get_financials_earnings_price_history(code))
         except Exception as e:
-            logger.error("get_financials_earnings_price_history error: %s", e)
+            logger.error("get_financials_earnings_price_history: %s", e)
 
     finally:
         ctx.close()

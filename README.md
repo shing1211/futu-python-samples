@@ -21,7 +21,7 @@
 
 ## What's New in v1.5.0
 
-- **97 examples** covering the full Futu OpenAPI surface — grid trading, pairs trading, Monte Carlo simulation, margin monitoring, gap scanning, sector rotation, calendar spreads, earnings analysis, AH premium tracking, VWAP signals
+- **106 examples** covering the full Futu OpenAPI surface — grid trading, pairs trading, Monte Carlo simulation, margin monitoring, gap scanning, sector rotation, calendar spreads, earnings analysis, AH premium tracking, VWAP signals
 - **10 new advanced examples (88–97)**: SL/TP engine, Monte Carlo, margin monitor, gap scanner, sector rotation, 52-week scanner, AH premium tracker, VWAP anchored trading, calendar spread builder, earnings surprise analyzer
 - Full v1.0.0 through v1.4.0 changelogs below
 

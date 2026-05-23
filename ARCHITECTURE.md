@@ -1,24 +1,24 @@
 # Architecture
 
-> Built on the [Futu OpenAPI Python SDK](https://openapi.futunn.com/futu-api-doc/). 97 standalone examples organized as a reference library, not a framework.
+> Built on the [Futu OpenAPI Python SDK](https://openapi.futunn.com/futu-api-doc/). 106 standalone examples organized as a reference library, not a framework.
 
 ## Codebase at a Glance (Knowledge Graph)
 
 | Metric | Value |
 |--------|-------|
 | Files | 155 |
-| Python modules | 136 (99 main.py, 37 supporting modules) |
-| Code symbols | 3,180 |
-| Relationships | 4,390 |
+| Python modules | 145 (108 main.py, 37 supporting modules) |
+| Code symbols | 3,395 |
+| Relationships | 4,907 |
 | Functional communities | 59 |
-| Execution flows | 99 |
+| Execution flows | 168 |
 
 **Layer architecture:**
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│                  97 Example Scripts                     │
-│  (00_connect_ha/  →  examples/97_vwap_anchored/)       │
+│                  106 Example Scripts                    │
+│  (00_connect_ha/  →  examples/106_option_analytics/)    │
 │  Each: import connect → call SDK → log → ctx.close()   │
 └──────────────────────┬─────────────────────────────────┘
                        │ imports from
@@ -44,10 +44,10 @@ The repo has two distinct layers:
 
 | Layer | Contents | KG Evidence |
 |-------|----------|------------|
-| **SDK Examples** | 97 example scripts (`examples/00`–`examples/97`), each demonstrating one Futu API feature | 99 `main.py` files indexed as separate communities |
+| **SDK Examples** | 106 example scripts (`examples/00`–`examples/106`), each demonstrating one Futu API feature | 108 `main.py` files indexed as separate communities |
 | **Shared Infrastructure** | `examples/connect.py` — HA gateway selection, connection caching, env-var loading | `create_quote_context` has 30+ callers across the example graph |
 
-All 97 examples follow the same pattern:
+All 106 examples follow the same pattern:
 
 1. **Import** `connect.py` (loads `.env`, populates environment)
 2. **Create context(s)** via `create_quote_context()` / `create_trade_context()` (triggers TCP probe, RSA setup)
@@ -55,7 +55,7 @@ All 97 examples follow the same pattern:
 4. **Log** all response fields
 5. **Clean up** — `ctx.close()` in `try/finally`
 
-The knowledge graph confirms this as the dominant execution flow: all 99 processes follow the `Main → Configure_rsa` chain.
+The knowledge graph confirms this as the dominant execution flow: all 168 processes follow the `Main → Configure_rsa` chain.
 
 ## System Architecture (Mermaid)
 
@@ -77,7 +77,7 @@ graph TB
         PWD["get_demo_trade_password()"]
     end
 
-    subgraph Examples["97 Examples<br/>(00–97)"]
+    subgraph Examples["106 Examples<br/>(00–106)"]
         direction LR
         M00["00_connect_ha"]
         M01["01_snapshot"]
@@ -144,7 +144,7 @@ graph TB
 | `create_trade_context()` | Returns `OpenSecTradeContext` — reuses cached probe | Called by 19 trade examples |
 | `get_demo_trade_password()` | Returns `FUTU_TRADE_PWD` from env | Called by 14 trade examples |
 
-**KG-verified connection flow (step-by-step from 99 processes):**
+**KG-verified connection flow (step-by-step from 168 processes):**
 
 ```
 1. import connect                  → triggers load_dotenv(), _parse_hosts()
@@ -344,7 +344,7 @@ Automated execution strategies — all SIMULATE-only:
 
 ## Key Execution Flows
 
-### Flow 1: HA Gateway Connection (99 processes follow this)
+### Flow 1: HA Gateway Connection (168 processes follow this)
 
 The knowledge graph shows this is the universal entry point — every example process follows the `Main → Configure_rsa` chain.
 
@@ -488,7 +488,7 @@ futu-python-samples/
 │
 ├── examples/
 │   ├── connect.py                   ← HA gateway helper (shared by all examples)
-│   ├── README.md                    ← full 97-example categorized index
+│   ├── README.md                    ← full 106-example categorized index
 │   │
 │   ├── 00_connect_ha/               ← standalone HA algorithm
 │   ├── 01_snapshot/                 ← get_market_snapshot
@@ -537,7 +537,16 @@ futu-python-samples/
 │   ├── 94_earnings_analyzer/        ← EPS surprise analysis
 │   ├── 95_52week_scanner/           ← 52-week extreme proximity
 │   ├── 96_margin_monitor/           ← margin utilization monitor
-│   └── 97_vwap_anchored/            ← VWAP support/resistance signals
+│   ├── 97_vwap_anchored/            ← VWAP support/resistance signals
+│   ├── 98_ha_diagnostics/           ← HA health + failover diagnostics
+│   ├── 99_financial_statements/     ← financial statements & earnings data
+│   ├── 100_research_ratings/        ← analyst consensus & research reports
+│   ├── 101_company_fundamentals/    ← company profile, execs, efficiency
+│   ├── 102_shareholders_insiders/   ← holders, institutions, insider trades
+│   ├── 103_corporate_actions/       ← dividends, buybacks, stock splits
+│   ├── 104_short_volume_interest/   ← short interest & daily short volume
+│   ├── 105_valuation_screener/      ← valuation metrics & stock screening
+│   └── 106_option_analytics/        ← option volatility & exercise probability
 │
 └── scripts/
     ├── run_all.py                   ← automated PASS/FAIL test runner
@@ -548,7 +557,7 @@ futu-python-samples/
 
 - **Docs**: https://openapi.futunn.com/futu-api-doc/
 - **Package**: `futu-api` (PyPI)
-- **Version**: `10.5.6508`
+- **Version**: `10.6.6608`
 
 ### Key Handler Base Classes
 
@@ -581,11 +590,11 @@ The codebase is indexed by [GitNexus](https://github.com/anomalyco/gitnexus) wit
 | `Class` | ~100 | Strategy classes, handlers, data models |
 | `Method` | ~400 | Methods on handler classes |
 | `Community` | 59 | Example-level functional groups |
-| `Process` | 99 | Execution flows (one per example) |
+| `Process` | 168 | Execution flows (one per example) |
 
 **Edge types:** `CALLS` · `IMPORTS` · `EXTENDS` · `IMPLEMENTS` · `HAS_METHOD` · `ACCESSES` · `CONTAINS` · `STEP_IN_PROCESS`
 
-**Dominant execution flow:** `Main → configure_rsa` — all 97 examples follow this 5-step chain:
+**Dominant execution flow:** `Main → configure_rsa` — all 106 examples follow this 5-step chain:
 1. Import `connect.py`
 2. Load environment (`.env`)
 3. `create_quote_context()` / `create_trade_context()`

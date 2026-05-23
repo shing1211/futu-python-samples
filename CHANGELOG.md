@@ -26,6 +26,13 @@ All notable changes to this project are documented here.
   - `86_market_breadth`, `89_gap_scanner`, `95_52week_scanner`: replaced `get_stock_list(…)` with `get_stock_basicinfo(…, stock_type=ft.SecurityType.STOCK)`
   - `83_dividend_tracker`: removed `get_code_change_history` block (API removed, no replacement)
   - `75_futures_term_structure`: replaced `get_instrument_info(code)` with `get_future_info([code])`
+- **8 new examples (99–106) fixed** during testing against upgraded OpenD:
+  - Added `ft.RetCode` compatibility shim in `connect.py` (SDK 10.6.6608 removed this class, broken 115 references)
+  - Fixed `get_financials_statements` parameter types (uses int enums, not strings)
+  - Fixed 3-tuple unpacking for `get_short_interest`/`get_daily_short_volume`
+  - Fixed `get_stock_screen`/`get_option_screen` to use protobuf request builders
+  - Fixed `get_valuation_plate_stock_list` to accept stock code (not market enum)
+  - Added dict/DataFrame dual-type `show()` helper for APIs returning mixed types
 
 ### Changed
 

@@ -1,32 +1,33 @@
-"""Option Analytics — get_option_volatility, get_option_exercise_probability, get_option_screen.
-
-Demonstrates three option-related SDK APIs:
-  - get_option_volatility(code)
-  - get_option_exercise_probability(code)
-  - get_option_screen(code, filter_list)
-
-Usage:
-    python3 main.py [--code US.AAPL260616C200000] [--underlying US.AAPL]
-"""
-import sys
+# -*- coding: utf-8 -*-
 import logging
+import sys
 import argparse
-
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from connect import create_quote_context
 import futu as ft
+from connect import create_quote_context
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%H:%M:%S",
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
-def main():
+def show(label, ret, data):
+    if ret != 0:
+        logger.warning("%s ret=%d msg=%s", label, ret, data)
+        return
+    if data is None:
+        logger.warning("%s returned None", label)
+        return
+    if hasattr(data, "to_string"):
+        logger.info("%s DataFrame:\n%s", label, data.to_string())
+    elif isinstance(data, dict):
+        import json
+        logger.info("%s dict:\n%s", label, json.dumps(data, indent=2, ensure_ascii=False, default=str)[:2000])
+    else:
+        logger.info("%s: %s", label, data)
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Option Analytics")
     parser.add_argument("--code", default="US.AAPL260616C200000", help="Option contract code")
     parser.add_argument("--underlying", default="US.AAPL", help="Underlying stock code")
@@ -34,44 +35,25 @@ def main():
 
     quote_ctx = create_quote_context()
     try:
-        logger.info("=== Option Volatility for %s ===", args.code)
+        logger.info("=== get_option_volatility ===")
         try:
-            ret, df = quote_ctx.get_option_volatility(args.code)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                cols = [c for c in ["timestamp_str", "implied_volatility", "history_volatility", "volatility_premium"] if c in df.columns]
-                if cols:
-                    print(df[cols].to_string(index=False))
-                else:
-                    print(df.to_string(index=False))
-            else:
-                logger.warning("No option volatility: %s", df)
+            show("get_option_volatility", *quote_ctx.get_option_volatility(args.code))
         except Exception as e:
-            logger.warning("Option volatility failed: %s", e)
+            logger.warning("get_option_volatility: %s", e)
 
-        logger.info("=== Option Exercise Probability for %s ===", args.code)
+        logger.info("=== get_option_exercise_probability ===")
         try:
-            ret, df = quote_ctx.get_option_exercise_probability(args.code)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                print(df.to_string(index=False))
-            else:
-                logger.warning("No exercise probability: %s", df)
+            show("get_option_exercise_probability", *quote_ctx.get_option_exercise_probability(args.code))
         except Exception as e:
-            logger.warning("Exercise probability failed: %s", e)
+            logger.warning("get_option_exercise_probability: %s", e)
 
-        logger.info("=== Option Screen for %s ===", args.underlying)
+        logger.info("=== get_option_screen ===")
         try:
-            ret, screen_data = quote_ctx.get_option_screen(args.underlying, [])
-            if ret == ft.RetCode.SUCCESS:
-                print(screen_data)
-            else:
-                logger.warning("Option screen failed: %s", screen_data)
+            req = ft.OptionScreenRequest([ft.OptMarketCategory.US_STOCK])
+            show("get_option_screen", *quote_ctx.get_option_screen(req))
         except Exception as e:
-            logger.warning("Option screen error: %s", e)
+            logger.warning("get_option_screen: %s", e)
 
     finally:
         quote_ctx.close()
         logger.info("Done.")
-
-
-if __name__ == "__main__":
-    main()

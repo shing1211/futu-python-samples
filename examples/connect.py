@@ -51,6 +51,9 @@ from dotenv import load_dotenv
 _load_dotenv_path = Path(__file__).resolve().parents[1] / ".env"
 load_dotenv(_load_dotenv_path)
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import futu as _ft
+if not hasattr(_ft, 'RetCode'):
+    _ft.RetCode = type('RetCode', (), {'SUCCESS': 0})
 from futu import OpenQuoteContext, RET_OK, SysConfig
 
 logger = logging.getLogger("connect")

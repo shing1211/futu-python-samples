@@ -37,6 +37,9 @@ env/
 # Claude CLI
 .claude/
 
+# opencode local config
+.opencode/
+
 # GitNexus index
 .gitnexus/
 

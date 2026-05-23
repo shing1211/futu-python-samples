@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-"""研究报告与评级 (get_research_analyst_consensus / get_research_rating_summary / get_research_morningstar_report)
-
-Demonstrates:
-  - get_research_analyst_consensus: average target price & analyst consensus
-  - get_research_rating_summary: buy/hold/sell rating counts from analysts
-  - get_research_morningstar_report: Morningstar analyst report metadata
-"""
 import logging
 import sys
 import argparse
@@ -16,6 +9,22 @@ from connect import create_quote_context
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
+
+
+def show(label, ret, data):
+    if ret != 0:
+        logger.warning("%s ret=%d msg=%s", label, ret, data)
+        return
+    if data is None:
+        logger.warning("%s returned None", label)
+        return
+    if hasattr(data, "to_string"):
+        logger.info("%s DataFrame:\n%s", label, data.to_string())
+    elif isinstance(data, dict):
+        import json
+        logger.info("%s dict:\n%s", label, json.dumps(data, indent=2, ensure_ascii=False, default=str)[:2000])
+    else:
+        logger.info("%s: %s", label, data)
 
 
 if __name__ == "__main__":
@@ -29,41 +38,23 @@ if __name__ == "__main__":
     ctx = create_quote_context()
 
     try:
-        # ── get_research_analyst_consensus ────────────────────────────────
-        logger.info("\n=== get_research_analyst_consensus ===")
+        logger.info("=== get_research_analyst_consensus ===")
         try:
-            ret, df = ctx.get_research_analyst_consensus(code)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                logger.info("Retrieved %d rows | Columns: %s", len(df), list(df.columns))
-                logger.info("\n%s", df.to_string())
-            else:
-                logger.warning("get_research_analyst_consensus ret=%d", ret)
+            show("get_research_analyst_consensus", *ctx.get_research_analyst_consensus(code))
         except Exception as e:
-            logger.error("get_research_analyst_consensus error: %s", e)
+            logger.error("get_research_analyst_consensus: %s", e)
 
-        # ── get_research_rating_summary ────────────────────────────────────
-        logger.info("\n=== get_research_rating_summary ===")
+        logger.info("=== get_research_rating_summary ===")
         try:
-            ret, df = ctx.get_research_rating_summary(code)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                logger.info("Retrieved %d rows | Columns: %s", len(df), list(df.columns))
-                logger.info("\n%s", df.to_string())
-            else:
-                logger.warning("get_research_rating_summary ret=%d", ret)
+            show("get_research_rating_summary", *ctx.get_research_rating_summary(code))
         except Exception as e:
-            logger.error("get_research_rating_summary error: %s", e)
+            logger.error("get_research_rating_summary: %s", e)
 
-        # ── get_research_morningstar_report ────────────────────────────────
-        logger.info("\n=== get_research_morningstar_report ===")
+        logger.info("=== get_research_morningstar_report ===")
         try:
-            ret, df = ctx.get_research_morningstar_report(code)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                logger.info("Retrieved %d rows | Columns: %s", len(df), list(df.columns))
-                logger.info("\n%s", df.to_string())
-            else:
-                logger.warning("get_research_morningstar_report ret=%d", ret)
+            show("get_research_morningstar_report", *ctx.get_research_morningstar_report(code))
         except Exception as e:
-            logger.error("get_research_morningstar_report error: %s", e)
+            logger.error("get_research_morningstar_report: %s", e)
 
     finally:
         ctx.close()
