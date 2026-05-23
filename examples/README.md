@@ -1,6 +1,6 @@
 # Examples
 
-98 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
+106 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -53,6 +53,7 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 |---|------|----------------|
 | [03](./03_filter/) | Stock Screener | 20+ filter criteria — price, PE, market cap, turnover, industry, flag day, and more |
 | [52](./52_option_chain_filter/) | Option Chain Filter | Slice option chains by delta, IV, moneyness, OI using `OptionDataFilter` |
+| [105](./105_valuation_screener/) | Valuation Screener | Valuation metrics (PE/PB), valuation plate stock list, stock screening API |
 
 ### Sectors, Plates & References
 
@@ -72,6 +73,17 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [29](./29_unusual/) | Unusual Activity | Unusual volume, price, technical and derivative signals — pick up early mover prints |
 | [27](./27_code_change/) | Code Changes | Stock rename, split, and code change history |
 | [41](./41_rehab/) | Rehabilitation Data | Ex-dividend, ex-rights, share consolidation dates — for adjusting historical prices |
+
+### Financial Statements & Research
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [99](./99_financial_statements/) | Financial Statements | Financial statements, revenue breakdown, earnings price move & history |
+| [100](./100_research_ratings/) | Research Ratings | Analyst consensus, rating summary, Morningstar research reports |
+| [101](./101_company_fundamentals/) | Company Fundamentals | Company profile, executives, executive background, operational efficiency |
+| [102](./102_shareholders_insiders/) | Shareholders & Insiders | Holder overview, holding changes, institutional holders, insider trades |
+| [103](./103_corporate_actions/) | Corporate Actions | Dividends, buybacks, stock splits data |
+| [104](./104_short_volume_interest/) | Short Volume & Interest | Short interest, daily short volume, top 10 buy/sell brokers |
 
 ### Advanced Analytics & Algo Execution
 
@@ -147,6 +159,7 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 |---|------|----------------|
 | [93](./93_calendar_spread/) | Options Calendar Spread Builder | Neutral theta plays via vol differential across expiries |
 | [94](./94_earnings_analyzer/) | Earnings Surprise Analyzer | EPS surprise detection + post-earnings price action |
+| [106](./106_option_analytics/) | Option Analytics | Implied/historical volatility, exercise probability, option screening |
 
 ### Real-Time Feeds (Push Handlers)
 

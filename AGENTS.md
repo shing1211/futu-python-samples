@@ -2,7 +2,7 @@
 
 ## What This Project Is
 
-**97** standalone examples for the Futu OpenAPI Python SDK. Every script fires real API calls against a live OpenD gateway — no mocks, no stubs.
+**106** standalone examples for the Futu OpenAPI Python SDK. Every script fires real API calls against a live OpenD gateway — no mocks, no stubs.
 
 **Repo:** `https://github.com/shing1211/futu-python-samples`
 **SDK docs:** https://openapi.futunn.com/futu-api-doc/
@@ -26,11 +26,11 @@ bash scripts/test_all.sh
 
 | Document | What it covers |
 |----------|---------------|
-| [README.md](README.md) | Project overview, 97-example index, quick start, configuration |
+| [README.md](README.md) | Project overview, 106-example index, quick start, configuration |
 | [examples/README.md](examples/README.md) | Full categorized example index with descriptions |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System design, directory tree, handler class table, Mermaid diagrams |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Connection, RSA, trade lockout, quota, pandas pitfalls |
-| [CHANGELOG.md](CHANGELOG.md) | Version history v1.0.0–v1.5.0 |
+| [CHANGELOG.md](CHANGELOG.md) | Version history v1.0.0–v1.7.0 |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Adding examples, code conventions, testing |
 | [PLANS.md](PLANS.md) | Implementation specs for all 39 advanced examples (all complete) |
 | [AGENTS.md](AGENTS.md) | ← You are here. SDK quirks reference for AI coding tools |

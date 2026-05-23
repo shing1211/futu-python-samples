@@ -51,9 +51,9 @@ def fetch_financial_reports(quote_ctx, code, num_reports=4):
     """
     reports = []
 
-    # Try get_financial_report
+    # Try get_financials_statements
     try:
-        ret, df = quote_ctx.get_financial_report(code, "annual", 0)
+        ret, df = quote_ctx.get_financials_statements(code, "annual", 0)
         if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
             for _, row in df.iterrows():
                 reports.append({
@@ -68,22 +68,6 @@ def fetch_financial_reports(quote_ctx, code, num_reports=4):
     except Exception:
         pass
 
-    # Fallback: try income statement
-    if not reports:
-        try:
-            ret, df = quote_ctx.get_income_statement(code, "annual", 0)
-            if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-                for _, row in df.iterrows():
-                    reports.append({
-                        "code": code,
-                        "period": str(row.get("report_date", "")),
-                        "eps": float(row.get("eps", 0) or 0),
-                        "revenue": float(row.get("total_revenue", 0) or 0),
-                        "net_income": float(row.get("net_income", 0) or 0),
-                    })
-        except Exception:
-            pass
-
     return reports[:num_reports]
 
 
@@ -91,7 +75,7 @@ def fetch_earnings_history(quote_ctx, code, num=4):
     """Fetch historical earnings per share from K-line data around earnings dates.
 
     Returns list of {period, reported_eps, estimated_eps, surprise_pct}.
-    Uses get_income_statement or get_financial_report.
+    Uses get_financials_statements.
     """
     reports = fetch_financial_reports(quote_ctx, code, num)
     results = []
@@ -281,7 +265,7 @@ def main():
                 analyze_code(quote_ctx, code, surprise_threshold)
         else:
             # Scan market for stocks with earnings data
-            ret, stock_list = quote_ctx.get_stock_list(market=market_enum)
+            ret, stock_list = quote_ctx.get_stock_basicinfo(market=market_enum, stock_type=ft.SecurityType.STOCK)
             if ret != ft.RetCode.SUCCESS or stock_list is None:
                 logger.error("Cannot get stock list for %s", args.market)
                 return

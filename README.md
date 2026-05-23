@@ -1,21 +1,23 @@
 # Futu Python Samples
 
-> **98 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **106 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org/)
-[![SDK Version](https://img.shields.io/badge/SDK-10.5.6508-blue)](https://pypi.org/project/futu-api/)
-[![Changelog](https://img.shields.io/badge/changelog-v1.6.0-orange)](./CHANGELOG.md)
+[![SDK Version](https://img.shields.io/badge/SDK-10.6.6608-blue)](https://pypi.org/project/futu-api/)
+[![Changelog](https://img.shields.io/badge/changelog-v1.7.0-orange)](./CHANGELOG.md)
 
 ---
 
-## What's New in v1.6.0
+## What's New in v1.7.0
 
-- **HA health monitoring + auto-failover** — `connect.py` now runs a background daemon thread that pings the active gateway every 15s, automatically fails over to the next-best host on N consecutive failures, and fires lifecycle hooks (`on_connect`, `on_failover`, `on_disconnect`, `on_heartbeat`)
-- **Retry with fallback chain** — if the fastest host fails API connect, tries every other reachable host before raising, with configurable exponential backoff
-- **New example 98 (`ha_diagnostics`)** — interactive HA diagnostic tool with real-time heartbeat display, failover detection, and connection statistics
-- All existing examples unchanged — 100% backward compatible
+- **SDK 10.6.6608 upgrade** — upgraded from Futu OpenAPI SDK 10.5.6508 to 10.6.6608
+- **8 new examples (99–106)** covering 30+ new SDK APIs across Financial Statements, Research Ratings, Company Fundamentals, Shareholders & Insiders, Corporate Actions, Short Volume & Interest, Valuation Screener, and Option Analytics
+- **6 broken examples fixed** — replaced 5 removed APIs (`get_financial_report`, `get_income_statement`, `get_stock_list`, `get_code_change_history`, `get_instrument_info`) with v10.6 equivalents
+- **Full 106-example test suite** — all existing examples verified compatible with SDK 10.6.6608
+
+## What's New in v1.6.0
 
 ## What's New in v1.5.0
 
@@ -143,7 +145,7 @@ What `connect.py` does for you:
 
 ---
 
-## Examples (98 total)
+## Examples (106 total)
 
 Full categorized index → [examples/README.md](examples/README.md)
 
@@ -153,9 +155,16 @@ Full categorized index → [examples/README.md](examples/README.md)
 |----------|----------|
 | **Connectivity & Core** | 00, 01, 98 |
 | **Market Data** | 07, 08, 09, 10, 14, 16, 22, 44 |
-| **Filters & Screens** | 03, 52 |
+| **Filters & Screens** | 03, 52, 105 |
 | **Sectors, Plates & References** | 13, 17, 18, 28 |
 | **Capital & Fundamentals** | 19, 27, 29, 41, 42 |
+| **Financial Statements** | 99 |
+| **Research & Ratings** | 100 |
+| **Company Fundamentals** | 101 |
+| **Shareholders & Insiders** | 102 |
+| **Corporate Actions** | 103 |
+| **Short Volume & Interest** | 104 |
+| **Options Analytics** | 106 |
 | **Advanced Analytics & Algo** | 58–67 |
 | **Advanced Execution Strategies** | 68–82 |
 | **Screening & Volatility** | 83–85 |
@@ -174,7 +183,7 @@ Full categorized index → [examples/README.md](examples/README.md)
 ## Running the Full Suite
 
 ```bash
-# The proper runner — shows PASS/FAIL for all 98 examples
+# The proper runner — shows PASS/FAIL for all 106 examples
 python3 scripts/run_all.py
 
 # Smoke test (just checks for exceptions)
@@ -223,7 +232,7 @@ ctx = OpenQuoteContext(host="remote-gateway", port=11111)
 ├── TROUBLESHOOTING.md      ← common problems and fixes
 ├── examples/
 │   ├── connect.py          ← HA gateway helper (shared by all examples)
-│   ├── README.md           ← full 98-example index
+│   ├── README.md           ← full 106-example index
 │   ├── 00_connect_ha/      ← standalone HA algorithm
 │   ├── 01_snapshot/        ← market snapshot
 │   │
@@ -239,7 +248,15 @@ ctx = OpenQuoteContext(host="remote-gateway", port=11111)
 │   ├── 95_52week_scanner/  ← 52-week extreme proximity scanner
 │   ├── 96_margin_monitor/  ← real-time margin utilization monitor
 │   ├── 97_vwap_anchored/   ← VWAP-based support/resistance signals
-│   └── 98_ha_diagnostics/  ← HA health + failover diagnostics
+│   ├── 98_ha_diagnostics/  ← HA health + failover diagnostics
+│   ├── 99_financial_statements/ ← financial statements & earnings data
+│   ├── 100_research_ratings/   ← analyst consensus & research reports
+│   ├── 101_company_fundamentals/ ← company profile, execs, efficiency
+│   ├── 102_shareholders_insiders/ ← holders, institutions, insider trades
+│   ├── 103_corporate_actions/   ← dividends, buybacks, stock splits
+│   ├── 104_short_volume_interest/ ← short interest & daily short volume
+│   ├── 105_valuation_screener/  ← valuation metrics & stock screening
+│   └── 106_option_analytics/   ← option volatility & exercise probability
 ├── scripts/
 │   └── run_all.py          ← automated test runner
 ```

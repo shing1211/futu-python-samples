@@ -4,6 +4,36 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.7.0] — 2026-05-23
+
+### Added
+
+- **SDK 10.6.6608 upgrade** — upgraded from Futu OpenAPI SDK 10.5.6508 to 10.6.6608. 30 new APIs added by the SDK, 5 removed APIs handled.
+- **8 new examples (99–106)** demonstrating 30+ new SDK APIs:
+  - 99 (`financial_statements`): `get_financials_statements`, `get_financials_revenue_breakdown`, `get_financials_earnings_price_move`, `get_financials_earnings_price_history`
+  - 100 (`research_ratings`): `get_research_analyst_consensus`, `get_research_rating_summary`, `get_research_morningstar_report`
+  - 101 (`company_fundamentals`): `get_company_profile`, `get_company_executives`, `get_company_executive_background`, `get_company_operational_efficiency`
+  - 102 (`shareholders_insiders`): `get_shareholders_overview`, `get_shareholders_holding_changes`, `get_shareholders_holder_detail`, `get_shareholders_institutional`, `get_insider_holder_list`, `get_insider_trade_list`
+  - 103 (`corporate_actions`): `get_corporate_actions_dividends`, `get_corporate_actions_buybacks`, `get_corporate_actions_stock_splits`
+  - 104 (`short_volume_interest`): `get_short_interest`, `get_daily_short_volume`, `get_top_ten_buy_sell_brokers`
+  - 105 (`valuation_screener`): `get_valuation_detail`, `get_valuation_plate_stock_list`, `get_stock_screen`
+  - 106 (`option_analytics`): `get_option_volatility`, `get_option_exercise_probability`, `get_option_screen`
+
+### Fixed
+
+- **6 examples updated** for SDK 10.6.6608 API compatibility:
+  - `94_earnings_analyzer`: replaced `get_financial_report`/`get_income_statement` with `get_financials_statements`; replaced `get_stock_list` with `get_stock_basicinfo(…, stock_type=…)`
+  - `86_market_breadth`, `89_gap_scanner`, `95_52week_scanner`: replaced `get_stock_list(…)` with `get_stock_basicinfo(…, stock_type=ft.SecurityType.STOCK)`
+  - `83_dividend_tracker`: removed `get_code_change_history` block (API removed, no replacement)
+  - `75_futures_term_structure`: replaced `get_instrument_info(code)` with `get_future_info([code])`
+
+### Changed
+
+- Added `7/8/9` prefixes to `run_all.py` directory discovery filter for examples 70–106
+- All documentation updated to reflect 106 total examples and SDK 10.6.6608
+
+---
+
 ## [1.6.0] — 2026-05-16
 
 ### Added

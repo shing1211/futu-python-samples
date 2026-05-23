@@ -124,7 +124,7 @@ def main():
     # Collect examples in order
     example_dirs = sorted(
         (d for d in EXAMPLES_DIR.iterdir()
-         if d.is_dir() and d.name.startswith(("0", "1", "2", "3", "4", "5", "6"))),
+         if d.is_dir() and d.name[0].isdigit()),
         key=lambda d: d.name,
     )
 

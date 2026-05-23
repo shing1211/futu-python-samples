@@ -49,7 +49,7 @@ def scan_market(quote_ctx, market_name, market_enum, gap_threshold):
     Returns list of gap candidates sorted by absolute gap percentage.
     """
     # Get stock list
-    ret, stock_list = quote_ctx.get_stock_list(market=market_enum)
+    ret, stock_list = quote_ctx.get_stock_basicinfo(market=market_enum, stock_type=ft.SecurityType.STOCK)
     if ret != ft.RetCode.SUCCESS or stock_list is None or stock_list.empty:
         logger.warning("Cannot get stock list for %s", market_name)
         return []

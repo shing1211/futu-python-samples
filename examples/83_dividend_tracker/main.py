@@ -104,24 +104,7 @@ def check_corporate_actions(quote_ctx, code):
             "date": listing_date,
         })
 
-    # 3. Check stock basic info change history (code changes / rehab)
-    #    The 27_code_change example approach: use get_code_change_history
-    try:
-        ret, df = quote_ctx.get_code_change_history(code=code)
-        if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
-            for _, row in df.iterrows():
-                action_type = str(row.get("type", ""))
-                detail = str(row.get("description", ""))
-                change_date = str(row.get("date", ""))
-                actions.append({
-                    "code": code,
-                    "name": code,
-                    "type": CORP_ACTION_TYPES.get(action_type, action_type),
-                    "detail": detail,
-                    "date": change_date,
-                })
-    except Exception:
-        pass
+    # 3. Stock code change history (removed API get_code_change_history no longer available)
 
     return actions
 

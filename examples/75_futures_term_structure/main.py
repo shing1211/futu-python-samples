@@ -97,8 +97,8 @@ def compute_roll_yield(near_price, far_price, near_expiry, far_expiry):
 
 
 def find_expiry(quote_ctx, code):
-    """Attempt to find expiry date via get_instrument_info or last_trade_time."""
-    ret, info = quote_ctx.get_instrument_info(code)
+    """Attempt to find expiry date via get_future_info or last_trade_time."""
+    ret, info = quote_ctx.get_future_info([code])
     if ret == ft.RetCode.SUCCESS and info is not None and not info.empty:
         # Try common expiry columns
         for col in ["end_date", "maturity_date", "expiry_date", "last_trade_time"]:

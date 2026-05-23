@@ -191,7 +191,7 @@ def main():
                 continue
 
             # Get stock list
-            ret, stock_list = quote_ctx.get_stock_list(market=market_enum)
+            ret, stock_list = quote_ctx.get_stock_basicinfo(market=market_enum, stock_type=ft.SecurityType.STOCK)
             if ret != ft.RetCode.SUCCESS or stock_list is None:
                 continue
 
