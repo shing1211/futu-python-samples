@@ -1,6 +1,6 @@
 # Examples
 
-106 examples covering the full Futu OpenAPI surface — every API call documented, every response demonstrated, zero mocks.
+114 examples covering the full Futu OpenAPI surface — every API call demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -73,6 +73,8 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [29](./29_unusual/) | Unusual Activity | Unusual volume, price, technical and derivative signals — pick up early mover prints |
 | [27](./27_code_change/) | Code Changes | Stock rename, split, and code change history |
 | [41](./41_rehab/) | Rehabilitation Data | Ex-dividend, ex-rights, share consolidation dates — for adjusting historical prices |
+| [109](./109_insider_monitor/) | Insider Activity Monitor | Insider trade aggregation with net ratio, trading signal, executive roster |
+| [113](./113_institutional_flow/) | Institutional Flow Tracker | Holder detail, institutional quantity changes, top accumulators/distributors |
 
 ### Financial Statements & Research
 
@@ -84,6 +86,8 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [102](./102_shareholders_insiders/) | Shareholders & Insiders | Holder overview, holding changes, institutional holders, insider trades |
 | [103](./103_corporate_actions/) | Corporate Actions | Dividends, buybacks, stock splits data |
 | [104](./104_short_volume_interest/) | Short Volume & Interest | Short interest, daily short volume, top 10 buy/sell brokers |
+| [107](./107_earnings_surprise/) | Earnings Surprise Dashboard | Multi-source earnings intelligence — IV crush, price move heatmap, surprise score, analyst consensus sweep |
+| [111](./111_company_health/) | Company Health Score | 4-dimension scoring (management, efficiency, financials, profile) with bar chart and letter grade |
 
 ### Advanced Analytics & Algo Execution
 
@@ -127,6 +131,8 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [83](./83_dividend_tracker/) | Dividend & Corporate Action Tracker | Upcoming dividends, ex-dates, splits, rights issues for watchlist |
 | [84](./84_vwap_analysis/) | VWAP Execution Analysis | Trade quality vs VWAP benchmark, slippage analysis, time-bucketed breakdown |
 | [85](./85_vol_skew/) | Options Volatility Skew | Implied vol surface across strikes/expiries with Newton-Raphson solver |
+| [108](./108_short_squeeze/) | Short Squeeze Risk Scanner | Short interest, daily volume, utilization ratio → composite squeeze score (LOW/MEDIUM/HIGH) |
+| [114](./114_valuation_heatmap/) | Valuation Heat Map | PE percentile, z-score vs 3-year mean, market distribution histogram, valuation signal |
 
 ### Market Breadth & Alerts
 
@@ -160,6 +166,7 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [93](./93_calendar_spread/) | Options Calendar Spread Builder | Neutral theta plays via vol differential across expiries |
 | [94](./94_earnings_analyzer/) | Earnings Surprise Analyzer | EPS surprise detection + post-earnings price action |
 | [106](./106_option_analytics/) | Option Analytics | Implied/historical volatility, exercise probability, option screening |
+| [112](./112_option_flow/) | Option Flow Screener | Option screen with filters (volume, OI, IV), flow score, drilldown into vol/exercise probability |
 
 ### Real-Time Feeds (Push Handlers)
 
@@ -205,6 +212,7 @@ All trade examples use the **SIMULATE** account only. No real orders are placed.
 | [20](./examples/20_ipo_list/) | IPO calendar | Upcoming and recent IPOs per market |
 | [21](./examples/21_future_info/) | Futures specs | Contract size, tick size, trading hours |
 | [53](./examples/53_option_expiration_cycle/) | Option expiration cycles | Full roll calendar grouped by WEEK/MONTH/QUARTER |
+| [110](./examples/110_dividend_calendar/) | Dividend Capture Calendar | Upcoming dividends, ex-dates, stock splits, rights issues with dividend yield analysis |
 
 ### User Data & Administration
 

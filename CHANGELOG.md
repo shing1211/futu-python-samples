@@ -4,6 +4,25 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.8.0] — 2026-05-24
+
+### Added
+
+- **8 new composite examples (107–114)** combining multiple SDK 10.6.6608 APIs into integrated analysis workflows:
+  - 107 (`earnings_surprise`): Multi-source earnings dashboard — IV crush, price move heatmap, analyst consensus sweep, surprise score
+  - 108 (`short_squeeze`): Short squeeze risk scanner — short interest, daily short volume, utilization ratio → composite score
+  - 109 (`insider_monitor`): Insider activity aggregation — net ratio, trade signal, executive roster with insider trades
+  - 110 (`dividend_calendar`): Dividend capture calendar — upcoming dividends, ex-dates, stock splits, rights issues, yield analysis
+  - 111 (`company_health`): 4-dimension health score (management, efficiency, financials, profile) with ASCII bar chart
+  - 112 (`option_flow`): Option screener with volume/OI/IV filters, flow score, drilldown into vol and exercise probability
+  - 113 (`institutional_flow`): Institutional holder tracking — top holders, quantity changes, accumulators/distributors
+  - 114 (`valuation_heatmap`): PE percentile, z-score vs 3-year mean, market distribution histogram, valuation signal
+
+### Changed
+
+- Updated `examples/README.md` and `README.md` — 106 → 114 example index
+- Updated `scripts/run_all.py` — added all 8 new examples to SLOW_EXAMPLES (45s each)
+
 ## [1.7.0] — 2026-05-23
 
 ### Added

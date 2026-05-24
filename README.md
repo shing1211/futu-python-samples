@@ -1,6 +1,6 @@
 # Futu Python Samples
 
-> **106 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **114 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
@@ -10,12 +10,13 @@
 
 ---
 
-## What's New in v1.7.0
+## What's New in v1.8.0
 
-- **SDK 10.6.6608 upgrade** — upgraded from Futu OpenAPI SDK 10.5.6508 to 10.6.6608
-- **8 new examples (99–106)** covering 30+ new SDK APIs across Financial Statements, Research Ratings, Company Fundamentals, Shareholders & Insiders, Corporate Actions, Short Volume & Interest, Valuation Screener, and Option Analytics
-- **6 broken examples fixed** — replaced 5 removed APIs (`get_financial_report`, `get_income_statement`, `get_stock_list`, `get_code_change_history`, `get_instrument_info`) with v10.6 equivalents
-- **Full 106-example test suite** — all existing examples verified compatible with SDK 10.6.6608
+- **8 new composite examples (107–114)** — Earnings Surprise Dashboard, Short Squeeze Risk Scanner, Insider Activity Monitor, Dividend Capture Calendar, Company Health Score, Option Flow Screener, Institutional Flow Tracker, Valuation Heat Map
+- **Live-tested against OpenD 10.6.6608** — all new examples verified to produce real data without crashes
+- **Full 114-example test suite** — all examples verified compatible with SDK 10.6.6608
+
+## What's New in v1.7.0
 
 ## What's New in v1.6.0
 
@@ -59,7 +60,7 @@ That's it. No API keys, no compile step, no boilerplate to write first.
 
 **Smart gateway selection.** The `connect.py` module probes all your configured OpenD hosts simultaneously, measures real TCP latency, and picks the fastest one. Both quote and trade contexts share the probe result — no redundant network calls.
 
-**A catalog, not a tutorial.** 98 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
+**A catalog, not a tutorial.** 114 focused examples, each doing one thing well. Browse the index, find the feature you need, read the code, run it.
 
 ---
 
@@ -145,7 +146,7 @@ What `connect.py` does for you:
 
 ---
 
-## Examples (106 total)
+## Examples (114 total)
 
 Full categorized index → [examples/README.md](examples/README.md)
 
@@ -155,15 +156,15 @@ Full categorized index → [examples/README.md](examples/README.md)
 |----------|----------|
 | **Connectivity & Core** | 00, 01, 98 |
 | **Market Data** | 07, 08, 09, 10, 14, 16, 22, 44 |
-| **Filters & Screens** | 03, 52, 105 |
+| **Filters & Screens** | 03, 52, 105, 114 |
 | **Sectors, Plates & References** | 13, 17, 18, 28 |
-| **Capital & Fundamentals** | 19, 27, 29, 41, 42 |
-| **Financial Statements** | 99 |
+| **Capital & Fundamentals** | 19, 27, 29, 41, 42, 109, 113 |
+| **Financial Statements** | 99, 107 |
 | **Research & Ratings** | 100 |
-| **Company Fundamentals** | 101 |
+| **Company Fundamentals** | 101, 111 |
 | **Shareholders & Insiders** | 102 |
 | **Corporate Actions** | 103 |
-| **Short Volume & Interest** | 104 |
+| **Short Volume & Interest** | 104, 108 |
 | **Options Analytics** | 106 |
 | **Advanced Analytics & Algo** | 58–67 |
 | **Advanced Execution Strategies** | 68–82 |
@@ -171,10 +172,10 @@ Full categorized index → [examples/README.md](examples/README.md)
 | **Market Breadth & Alerts** | 86, 87 |
 | **Risk Management (SIMULATE)** | 88, 92, 96 |
 | **Cross-Market & Signals** | 89, 90, 91, 95, 97 |
-| **Options Strategies (SIMULATE)** | 93, 94 |
+| **Options Strategies (SIMULATE)** | 93, 94, 112 |
 | **Real-Time Feeds (Push)** | 02, 05, 14, 39, 40, 45, 45b, 46, 47, 48 |
 | **Trading (SIMULATE)** | 04, 06, 11, 32–35, 37–40, 49–51 |
-| **Calendars & Reference** | 12, 20, 21, 53 |
+| **Calendars & Reference** | 12, 20, 21, 53, 110 |
 | **User Data & Alerts** | 23, 24, 30, 31 |
 | **Utilities** | 15, 25, 26, 36, 43 |
 
@@ -183,7 +184,7 @@ Full categorized index → [examples/README.md](examples/README.md)
 ## Running the Full Suite
 
 ```bash
-# The proper runner — shows PASS/FAIL for all 106 examples
+# The proper runner — shows PASS/FAIL for all 114 examples
 python3 scripts/run_all.py
 
 # Smoke test (just checks for exceptions)
@@ -232,7 +233,7 @@ ctx = OpenQuoteContext(host="remote-gateway", port=11111)
 ├── TROUBLESHOOTING.md      ← common problems and fixes
 ├── examples/
 │   ├── connect.py          ← HA gateway helper (shared by all examples)
-│   ├── README.md           ← full 106-example index
+│   ├── README.md           ← full 114-example index
 │   ├── 00_connect_ha/      ← standalone HA algorithm
 │   ├── 01_snapshot/        ← market snapshot
 │   │
@@ -256,7 +257,15 @@ ctx = OpenQuoteContext(host="remote-gateway", port=11111)
 │   ├── 103_corporate_actions/   ← dividends, buybacks, stock splits
 │   ├── 104_short_volume_interest/ ← short interest & daily short volume
 │   ├── 105_valuation_screener/  ← valuation metrics & stock screening
-│   └── 106_option_analytics/   ← option volatility & exercise probability
+│   ├── 106_option_analytics/   ← option volatility & exercise probability
+│   ├── 107_earnings_surprise/ ← composite earnings dashboard (IV crush, surprise, consensus)
+│   ├── 108_short_squeeze/     ← short squeeze risk score scanner
+│   ├── 109_insider_monitor/   ← insider activity aggregation & signal
+│   ├── 110_dividend_calendar/ ← dividend capture calendar with yield analysis
+│   ├── 111_company_health/    ← 4-dimension company health score
+│   ├── 112_option_flow/       ← option screen + flow score + vol drilldown
+│   ├── 113_institutional_flow/← institutional holder tracking & changes
+│   └── 114_valuation_heatmap/ ← PE percentile, z-score, market distribution
 ├── scripts/
 │   └── run_all.py          ← automated test runner
 ```

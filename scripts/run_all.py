@@ -34,7 +34,17 @@ PUSH_EXAMPLES = {
 }
 
 # Examples that need more time due to large API calls / multiple markets
-SLOW_EXAMPLES = {"01_snapshot": 400}  # fetches 21k+ stocks across 4 markets
+SLOW_EXAMPLES = {
+    "01_snapshot": 400,       # fetches 21k+ stocks across 4 markets
+    "107_earnings_surprise": 45,
+    "108_short_squeeze": 45,
+    "109_insider_monitor": 45,
+    "110_dividend_calendar": 45,
+    "111_company_health": 45,
+    "112_option_flow": 45,
+    "113_institutional_flow": 45,
+    "114_valuation_heatmap": 45,
+}
 
 
 def run_example(name: str, path: Path) -> tuple[str, str, int, float]:
