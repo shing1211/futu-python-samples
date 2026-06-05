@@ -479,7 +479,7 @@ sequenceDiagram
 ```
 futu-python-samples/
 ├── .env.example                     ← config template (copy to .env)
-├── CHANGELOG.md                     ← version history v1.0.0–v1.5.0
+├── CHANGELOG.md                     ← version history v1.0.0–v1.9.0
 ├── ARCHITECTURE.md                  ← this file
 ├── CONTRIBUTING.md                  ← how to add examples
 ├── TROUBLESHOOTING.md               ← common problems and fixes
