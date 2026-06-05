@@ -85,7 +85,7 @@ def main():
     print(f"  Stock: {STOCK}\n")
 
     quote_ctx = create_quote_context()
-    trd_ctx = create_trade_context(filter_trdmarket=ft.TrdMarket.ALL)
+    trd_ctx = create_trade_context(filter_trdmarket=ft.TrdMarket.NONE)
 
     try:
         ret, data = trd_ctx.unlock_trade(get_demo_trade_password())
