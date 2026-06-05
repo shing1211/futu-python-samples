@@ -557,7 +557,7 @@ futu-python-samples/
 
 - **Docs**: https://openapi.futunn.com/futu-api-doc/
 - **Package**: `futu-api` (PyPI)
-- **Version**: `10.6.6608`
+- **Version**: `10.7.6708`
 
 ### Key Handler Base Classes
 

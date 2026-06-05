@@ -39,6 +39,7 @@ TRADE_EXAMPLES = {
     "35_cashflow", "37_margin_ratio", "38_order_fee",
     "39_push_sysnotify", "40_push_trade",
     "61_twap_slicer", "66_multi_leg_order",
+    "116_option_combo_order",
 }
 
 # Examples that open a blocking push loop — run with a short timeout
@@ -59,6 +60,9 @@ SLOW_EXAMPLES = {
     "112_option_flow": 45,
     "113_institutional_flow": 45,
     "114_valuation_heatmap": 45,
+    "115_option_strategy_builder": 45,
+    "116_option_combo_order": 45,
+    "117_odd_lot_book": 45,
 }
 
 

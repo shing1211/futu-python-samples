@@ -1,13 +1,13 @@
-# Advanced Composite Examples — SDK 10.6.6608
+# Advanced Composite Examples — SDK 10.7.6708
 
-**Date:** 2026-05-24
-**SDK:** `futu-api==10.6.6608`
+**Date:** 2026-06-05
+**SDK:** `futu-api>=10.7.6708`
 **Series:** Examples 107–114
 **Status:** Design phase — not yet implemented
 
 ## Overview
 
-Eight composite examples that combine multiple new SDK 10.6.6608 APIs into
+Eight composite examples that combine multiple new SDK 10.7.6708 APIs into
 non-trivial analysis flows. Each example demonstrates a real-world trading or
 research workflow by chaining 2–6 API calls with data transformation logic.
 

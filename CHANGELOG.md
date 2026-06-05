@@ -4,6 +4,33 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.9.0] — 2026-06-05
+
+### Added
+
+- **SDK 10.7.6708 upgrade** — upgraded from 10.6.6608 to 10.7.6708. 6 new SDK APIs added, 0 removed:
+  - `get_option_strategy` / `get_option_strategy_analysis` / `get_option_strategy_spread`
+  - `place_combo_order` / `comboorder_tradinginfo_query`
+  - `get_order_book(…, order_book_type=OrderBookType.ODD)`
+- **3 new examples (115–117)** demonstrating SDK 10.7.6708 APIs:
+  - 115 (`option_strategy_builder`): Enumerate option strategies, analyze P&L profile (POP, breakeven, greeks), display valid spreads
+  - 116 (`option_combo_order`): Place multi-leg combo orders with margin impact check via `comboorder_tradinginfo_query`
+  - 117 (`odd_lot_book`): Subscribe to odd-lot order books and compare with normal order books
+- New enums: `OrderBookType`, `OptionStrategyType` (14 types), `StrategyLegAction`, `PositionType`, `TimeInForce.GTD`, `SubType.ORDER_BOOK_ODD`
+- New markets: `Market.SG`, `Market.MY`, `Market.JP` (equities)
+
+### Changed
+
+- `requirements.txt`: `futu-api>=5.0.0` → `>=10.7.6708`
+- `pyproject.toml`: `dependencies` now requires `futu-api>=10.7.6708`
+- `position_list_query` / `order_list_query` / `history_order_list_query` — new columns auto-appear: `combo_id`, `strategy_type`, `position_type`, `expire_time`, `amount`, `combo_legs`
+- All doc version strings updated to `10.7.6708`
+
+### Fixed
+
+- Zero breaking changes detected — all 114 existing examples compatible with SDK 10.7.6708 without modification
+- `connect.py` `RetCode` shim remains in place (SDK 10.7 still does not have `ft.RetCode`)
+
 ## [1.8.0] — 2026-05-24
 
 ### Added

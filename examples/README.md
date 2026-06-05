@@ -1,6 +1,6 @@
 # Examples
 
-114 examples covering the full Futu OpenAPI surface — every API call demonstrated, zero mocks.
+117 examples covering the full Futu OpenAPI surface — every API call demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -167,6 +167,8 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [94](./94_earnings_analyzer/) | Earnings Surprise Analyzer | EPS surprise detection + post-earnings price action |
 | [106](./106_option_analytics/) | Option Analytics | Implied/historical volatility, exercise probability, option screening |
 | [112](./112_option_flow/) | Option Flow Screener | Option screen with filters (volume, OI, IV), flow score, drilldown into vol/exercise probability |
+| [115](./115_option_strategy_builder/) | Option Strategy Builder | Enumerate strategies, analyze P&L (POP, breakeven, greeks), scan valid spreads (SDK 10.7.6708+) |
+| [116](./116_option_combo_order/) | Option Combo Order | Place multi-leg combo orders with margin impact check (SDK 10.7.6708+, SIMULATE) |
 
 ### Real-Time Feeds (Push Handlers)
 
@@ -184,6 +186,7 @@ Push handlers receive streaming data from OpenD as events occur. Subscribe once,
 | [46](./46_curkline_handler/) | CurKline Push | `CurKlineHandlerBase` for live candle build-up before bar closes |
 | [47](./47_price_reminder_handler/) | Price Reminder Push | `PriceReminderHandlerBase` for server-pushed price alerts |
 | [48](./48_keepalive_handler/) | KeepAlive Push | `KeepAliveHandlerBase` for connection heartbeat monitoring |
+| [117](./117_odd_lot_book/) | Odd-Lot Order Book | Subscribe to odd-lot order books via `OrderBookType.ODD` and compare with round-lot depth (SDK 10.7.6708+) |
 
 ### Trading (SIMULATE Account)
 
