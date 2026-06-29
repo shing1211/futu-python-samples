@@ -46,7 +46,7 @@ This project is indexed by GitNexus as **futu-python-samples** (3391 symbols, 48
 
 # futu-python-samples
 
-58 verified examples for the Futu OpenAPI Python SDK. Every script fires live API calls — no mocks.
+124 verified examples for the Futu OpenAPI Python SDK. Every script fires live API calls — no mocks.
 
 ## Project Config
 

@@ -9,7 +9,7 @@ description = "Standalone Python examples for Futu OpenAPI SDK"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
-dependencies = ["futu-api>=10.7.6708", "python-dotenv"]
+dependencies = ["futu-api>=10.8.6808", "python-dotenv"]
 
 [project.optional-dependencies]
 dev = ["pytest", "black", "ruff"]

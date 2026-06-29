@@ -4,6 +4,41 @@ All notable changes to this project are documented here.
 
 ---
 
+## [2.0.0] — 2026-06-29
+
+### Added
+
+- **SDK 10.8.6808 upgrade** — upgraded from 10.7.6708 to 10.8.6808. 35+ new SDK APIs, 0 removed:
+  - Market & news search: `get_search_quote`, `get_search_news`
+  - Technical indicator catalog: `get_indicator_list`
+  - Options data: Put/Call ratio via `get_option_market_statistic`, 0DTE screener, earnings options, seller strategy, option unusual activity, option contract ranking, historical volatility
+  - Macro & Fed: `get_macro_indicator_list`, `get_macro_indicator_history`, `get_fed_watch_target_rate`, `get_fed_watch_dot_plot`, `get_economic_calendar`
+  - Institutional tracking: `get_institution_list`, `get_institution_profile`, `get_institution_holding_list`, `get_institution_holding_change`, `get_institution_distribution`
+  - Industry chain: `get_industrial_chain_list`, `get_industrial_chain_detail`, `get_industrial_chain_by_plate`, `get_industrial_plate_info`, `get_industrial_plate_stock`
+  - Trending: `get_hot_list`
+- **7 new examples (118–124)** demonstrating SDK 10.8.6808 APIs:
+  - 118 (`market_search`): Keyword-based market instrument + news/announcement search
+  - 119 (`option_0dte`): 0DTE (zero-days-to-expiry) options underlying & contract screener
+  - 120 (`option_earnings`): Earnings options screener with IV crush, option flow & unusual activity
+  - 121 (`option_seller`): Option seller strategy screen with premium, annualized return & OTM probability
+  - 122 (`fedwatch_macro`): Fed rate monitor, macro indicator trends & economic calendar
+  - 123 (`institutional_13f`): 13F-style institutional holder tracking with position changes & portfolio allocation
+  - 124 (`industry_chain`): Industry chain explorer with upstream/downstream chain map & sector stock listing
+
+### Changed
+
+- `requirements.txt`: `futu-api>=10.7.6708` → `>=10.8.6808`
+- `pyproject.toml`: `dependencies` now requires `futu-api>=10.8.6808`
+- All doc version strings updated to `10.8.6808`
+- `README.md`: badge → SDK 10.8.6808, changelog → v2.0.0, count → 124 examples
+- `examples/README.md`: count → 124, 7 new entries across `Filters & Screening`, `Options Strategies`, `Capital & Fundamentals`, `Sectors, Plates & References`
+- `scripts/run_all.py`: 7 new SLOW_EXAMPLES entries (30s each)
+
+### Fixed
+
+- Zero breaking changes detected — all 117 existing examples compatible with SDK 10.8.6808 without modification
+- `connect.py` `RetCode` shim remains in place (SDK 10.8 still does not have `ft.RetCode`)
+
 ## [1.9.0] — 2026-06-05
 
 ### Added

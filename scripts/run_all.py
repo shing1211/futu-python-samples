@@ -63,6 +63,13 @@ SLOW_EXAMPLES = {
     "115_option_strategy_builder": 45,
     "116_option_combo_order": 45,
     "117_odd_lot_book": 45,
+    "118_market_search": 45,
+    "119_option_0dte": 45,
+    "120_option_earnings": 45,
+    "121_option_seller": 45,
+    "122_fedwatch_macro": 45,
+    "123_institutional_13f": 45,
+    "124_industry_chain": 45,
 }
 
 

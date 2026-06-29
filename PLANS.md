@@ -1,6 +1,6 @@
 # Implementation Plans — Advanced Examples
 
-**All 10 plans have been implemented.** See [examples/README.md](examples/README.md) for the full 106-example index.
+**All 10 plans have been implemented.** See [examples/README.md](examples/README.md) for the full 124-example index.
 
 Plans archive retained below for reference.
 

@@ -1,20 +1,20 @@
 # Futu Python Samples
 
-> **117 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **124 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org/)
-[![SDK Version](https://img.shields.io/badge/SDK-10.7.6708-blue)](https://pypi.org/project/futu-api/)
-[![Changelog](https://img.shields.io/badge/changelog-v1.9.0-orange)](./CHANGELOG.md)
+[![SDK Version](https://img.shields.io/badge/SDK-10.8.6808-blue)](https://pypi.org/project/futu-api/)
+[![Changelog](https://img.shields.io/badge/changelog-v2.0.0-orange)](./CHANGELOG.md)
 
 ---
 
-## What's New in v1.9.0
+## What's New in v2.0.0
 
-- **SDK 10.7.6708 upgrade** — 6 new SDK APIs: option strategy discovery analysis, combo order placement/margin check, odd-lot order book, GTD time-in-force
-- **3 new examples (115–117)** — option strategy builder, combo order executor, odd-lot book scanner
-- **Full 117-example test suite** — all examples verified compatible with SDK 10.7.6708
+- **SDK 10.8.6808 upgrade** — 35+ new SDK APIs: market & news search, technical indicator catalog, 0DTE/earnings/seller options screens, Put/Call ratio, FedWatch & macro indicators, institutional tracking, industry chain explorer
+- **7 new examples (118–124)** — market search, 0DTE options, earnings options, seller strategy, FedWatch/macro, institutional 13F tracker, industry chain explorer
+- **Full 124-example test suite** — all examples verified compatible with SDK 10.8.6808
 
 ## What's New in v1.8.0
 
@@ -51,7 +51,7 @@
 ```bash
 git clone https://github.com/shing1211/futu-python-samples.git
 cd futu-python-samples
-pip install futu-api python-dotenv    # tested with SDK 10.7.6708
+pip install futu-api python-dotenv    # tested with SDK 10.8.6808
 cp .env.example .env                  # ← edit with your gateway host
 
 # pick any example — they're all self-contained

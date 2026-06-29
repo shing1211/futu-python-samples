@@ -1,6 +1,6 @@
 # Examples
 
-117 examples covering the full Futu OpenAPI surface — every API call demonstrated, zero mocks.
+124 examples covering the full Futu OpenAPI surface — every API call demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -46,6 +46,7 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [10](./10_orderbook/) | Order Book | Full 10-level bid/ask ladder — price, volume, order count at each level |
 | [16](./16_stock_quote/) | Stock Quote | Last price, open, high, low, volume, turnover for a list of stocks |
 | [22](./22_market_state/) | Market State | Is the market pre-open, open, closed, or after-hours right now? |
+| [118](./118_market_search/) | Market Search & News | Search stocks/news by keyword; analyst rating + Chinese keyword support (SDK 10.8.6808+) |
 
 ### Filters & Screening
 
@@ -54,6 +55,9 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [03](./03_filter/) | Stock Screener | 20+ filter criteria — price, PE, market cap, turnover, industry, flag day, and more |
 | [52](./52_option_chain_filter/) | Option Chain Filter | Slice option chains by delta, IV, moneyness, OI using `OptionDataFilter` |
 | [105](./105_valuation_screener/) | Valuation Screener | Valuation metrics (PE/PB), valuation plate stock list, stock screening API |
+| [119](./119_option_0dte/) | 0DTE Options Screener | Zero-days-to-expiry underlyings + contract list with volume/OI/IV/delta (SDK 10.8.6808+) |
+| [120](./120_option_earnings/) | Earnings Options Screener | Top earnings-screen results, overview, unusual option activity with PUT SWEEP filter (SDK 10.8.6808+) |
+| [121](./121_option_seller/) | Options Seller Screener | PUT_SELL/CALL_SELL with premium, annualized return, OTM probability (SDK 10.8.6808+) |
 
 ### Sectors, Plates & References
 
@@ -63,6 +67,13 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [17](./17_owner_plate/) | Owner Plates | Which plate owns a given stock — useful for sector rotation |
 | [18](./18_referencestock/) | Reference Stocks | Warrant and bull-bear chain reference data — the underlying and its related instruments |
 | [28](./28_warrant/) | Warrant Data | All warrants for an underlying — issuer, implied volatility, premium, maturity |
+| [124](./124_industry_chain/) | Industry Chain Explorer | Browse chains by keyword (AI/semi/EV), upstream/downstream nodes, sector plates, component stocks (SDK 10.8.6808+) |
+
+### Macro & Economic Data
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [122](./122_fedwatch_macro/) | FedWatch & Macro Dashboard | Target rate probability, dot plot, macro indicators by region (US/CN), economic calendar with importance filter (SDK 10.8.6808+) |
 
 ### Capital & Fundamentals
 
@@ -75,6 +86,7 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [41](./41_rehab/) | Rehabilitation Data | Ex-dividend, ex-rights, share consolidation dates — for adjusting historical prices |
 | [109](./109_insider_monitor/) | Insider Activity Monitor | Insider trade aggregation with net ratio, trading signal, executive roster |
 | [113](./113_institutional_flow/) | Institutional Flow Tracker | Holder detail, institutional quantity changes, top accumulators/distributors |
+| [123](./123_institutional_13f/) | Institutional 13F Tracker | Top institutions by position value, holdings, sector distribution, new buy changes (SDK 10.8.6808+) |
 
 ### Financial Statements & Research
 
