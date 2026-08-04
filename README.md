@@ -1,14 +1,20 @@
 # Futu Python Samples
 
-> **124 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
+> **127 examples that actually work.** Plug in your OpenD gateway, run any script, see real market data stream back.
 > No mocks, no stubs — every example talks to a live Futu OpenD instance.
 
 [![OpenAPI Version](https://img.shields.io/badge/Futu%20OpenAPI-v5-blue)](https://openapi.futunn.com/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-green)](https://www.python.org/)
-[![SDK Version](https://img.shields.io/badge/SDK-10.8.6808-blue)](https://pypi.org/project/futu-api/)
-[![Changelog](https://img.shields.io/badge/changelog-v2.0.0-orange)](./CHANGELOG.md)
+[![SDK Version](https://img.shields.io/badge/SDK-10.9.6908-blue)](https://pypi.org/project/futu-api/)
+[![Changelog](https://img.shields.io/badge/changelog-v2.1.0-orange)](./CHANGELOG.md)
 
 ---
+
+## What's New in v2.1.0
+
+- **SDK 10.9.6908 upgrade** — Prediction Market (event contracts) APIs: binary YES/NO contracts on future events with full navigation, real-time feeds, and combo (parlay) RFQ + trading. 0 breaking changes.
+- **3 new examples (125–127)** — event contract discovery, event contract real-time (snapshot/order book/K-line/ticker/history + push handlers), prediction combo (RFQ + SIMULATE trade)
+- **Full 127-example test suite** — all examples verified compatible with SDK 10.9.6908
 
 ## What's New in v2.0.0
 
@@ -51,7 +57,7 @@
 ```bash
 git clone https://github.com/shing1211/futu-python-samples.git
 cd futu-python-samples
-pip install futu-api python-dotenv    # tested with SDK 10.8.6808
+pip install futu-api python-dotenv    # tested with SDK 10.9.6908
 cp .env.example .env                  # ← edit with your gateway host
 
 # pick any example — they're all self-contained

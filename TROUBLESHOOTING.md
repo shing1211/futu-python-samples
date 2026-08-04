@@ -72,7 +72,7 @@ The TCP handshake works, `OpenQuoteContext` is created, but the first API call c
 
 ```bash
 pip show futu-api | grep Version
-# Should be 10.8.6808 or compatible
+# Should be 10.9.6908 or compatible
 ```
 
 ---
@@ -287,4 +287,4 @@ services:
 
 - Open an issue at https://github.com/shing1211/futu-python-samples/issues
 - Check the Futu OpenAPI docs: https://openapi.futunn.com/futu-api-doc/
-- Verify SDK version: `pip show futu-api` (tested with `10.8.6808`)
+- Verify SDK version: `pip show futu-api` (tested with `10.9.6908`)

@@ -1,2 +1,2 @@
-futu-api>=10.8.6808
+futu-api>=10.9.6908
 python-dotenv

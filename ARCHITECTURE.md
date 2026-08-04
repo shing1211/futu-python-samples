@@ -204,6 +204,9 @@ Two handler patterns verified by the knowledge graph:
 | `BrokerHandlerBase` | Broker queue changes | 45, 59 |
 | `SysNotifyHandlerBase` | Login/disconnect events | 39 |
 | `PriceReminderHandlerBase` | Price alert triggers | 47 |
+| `EventContractOrderBookHandlerBase` | Event contract YES/NO depth | 126 |
+| `EventContractKlineHandlerBase` | Event contract K-line | 126 |
+| `EventContractTickerHandlerBase` | Event contract ticker | 126 |
 
 **Pattern B — Trade handlers** (string → `on_recv(rsp_str)`):
 
@@ -557,7 +560,7 @@ futu-python-samples/
 
 - **Docs**: https://openapi.futunn.com/futu-api-doc/
 - **Package**: `futu-api` (PyPI)
-- **Version**: `10.8.6808`
+- **Version**: `10.9.6908`
 
 ### Key Handler Base Classes
 
@@ -571,6 +574,9 @@ futu-python-samples/
 | `BrokerHandlerBase` | Broker queue | `on_recv_rsp(rsp_pb)` | Protobuf |
 | `SysNotifyHandlerBase` | System notification | `on_recv_rsp(rsp_pb)` | Protobuf |
 | `PriceReminderHandlerBase` | Price alert | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `EventContractOrderBookHandlerBase` | Event contract order book (YES/NO) | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `EventContractKlineHandlerBase` | Event contract K-line | `on_recv_rsp(rsp_pb)` | Protobuf |
+| `EventContractTickerHandlerBase` | Event contract ticker | `on_recv_rsp(rsp_pb)` | Protobuf |
 | `TradeOrderHandlerBase` | Order status | `on_recv(rsp_str)` | String |
 | `TradeDealHandlerBase` | Trade execution | `on_recv(rsp_str)` | String |
 | `KeepAliveHandlerBase` | Heartbeat | `on_recv_rsp(rsp_pb)` | Protobuf |

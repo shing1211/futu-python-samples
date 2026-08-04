@@ -40,6 +40,7 @@ TRADE_EXAMPLES = {
     "39_push_sysnotify", "40_push_trade",
     "61_twap_slicer", "66_multi_leg_order",
     "116_option_combo_order",
+    "127_prediction_combo",
 }
 
 # Examples that open a blocking push loop — run with a short timeout
@@ -70,6 +71,9 @@ SLOW_EXAMPLES = {
     "122_fedwatch_macro": 45,
     "123_institutional_13f": 45,
     "124_industry_chain": 45,
+    "125_event_contract_discovery": 45,
+    "126_event_contract_live": 45,
+    "127_prediction_combo": 45,
 }
 
 

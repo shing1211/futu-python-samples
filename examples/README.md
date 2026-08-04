@@ -1,6 +1,6 @@
 # Examples
 
-124 examples covering the full Futu OpenAPI surface — every API call demonstrated, zero mocks.
+127 examples covering the full Futu OpenAPI surface — every API call demonstrated, zero mocks.
 
 All scripts import `examples/connect.py` for HA gateway selection and RSA configuration.
 
@@ -87,6 +87,14 @@ All scripts import `examples/connect.py` for HA gateway selection and RSA config
 | [109](./109_insider_monitor/) | Insider Activity Monitor | Insider trade aggregation with net ratio, trading signal, executive roster |
 | [113](./113_institutional_flow/) | Institutional Flow Tracker | Holder detail, institutional quantity changes, top accumulators/distributors |
 | [123](./123_institutional_13f/) | Institutional 13F Tracker | Top institutions by position value, holdings, sector distribution, new buy changes (SDK 10.8.6808+) |
+
+### Prediction Market (Event Contracts)
+
+| # | Name | What you'll see |
+|---|------|----------------|
+| [125](./125_event_contract_discovery/) | Event Contract Discovery | Navigate Category → Series → Event → Contract; competition filters, milestones, YES/NO live snapshot (SDK 10.9.6908+) |
+| [126](./126_event_contract_live/) | Event Contract Real-Time | Subscribe QUOTE/ORDER_BOOK/TICKER/K_DAY; snapshot, order book depth, K-line, ticker, history K-line + push handlers (SDK 10.9.6908+) |
+| [127](./127_prediction_combo/) | Prediction Combo (Parlay) | Combo-eligible events, multi-leg RFQ via `request_combo_quotes`, guarded SIMULATE `place_combo_order` (SDK 10.9.6908+) |
 
 ### Financial Statements & Research
 

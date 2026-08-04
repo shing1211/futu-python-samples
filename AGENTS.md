@@ -2,7 +2,7 @@
 
 ## What This Project Is
 
-**124** standalone examples for the Futu OpenAPI Python SDK. Every script fires real API calls against a live OpenD gateway — no mocks, no stubs.
+**127** standalone examples for the Futu OpenAPI Python SDK. Every script fires real API calls against a live OpenD gateway — no mocks, no stubs.
 
 **Repo:** `https://github.com/shing1211/futu-python-samples`
 **SDK docs:** https://openapi.futunn.com/futu-api-doc/
@@ -30,7 +30,7 @@ bash scripts/test_all.sh
 | [examples/README.md](examples/README.md) | Full categorized example index with descriptions |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System design, directory tree, handler class table, Mermaid diagrams |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Connection, RSA, trade lockout, quota, pandas pitfalls |
-| [CHANGELOG.md](CHANGELOG.md) | Version history v1.0.0–v2.0.0 |
+| [CHANGELOG.md](CHANGELOG.md) | Version history v1.0.0–v2.1.0 |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Adding examples, code conventions, testing |
 | [PLANS.md](PLANS.md) | Implementation specs for all 39 advanced examples (all complete) |
 | [AGENTS.md](AGENTS.md) | ← You are here. SDK quirks reference for AI coding tools |
@@ -62,6 +62,17 @@ bash scripts/test_all.sh
 # ✗ if df: ...        → ValueError; use if df is not None and not df.empty
 # ✗ plate_df['name']  → KeyError; use plate_df['plate_name']
 ```
+
+### Prediction Market (SDK 10.9.6908+)
+
+- **Requires OpenD 10.9.6908+ AND event-contract quote permission** — without permission every call returns `No event contract quote permission`; examples must degrade gracefully (see 125–127).
+- `get_event_contract()` → 3-tuple `(ret, {"contract_list": df, "recommend_contracts": [...]}, next_page)`, not a bare df
+- `get_valid_combo_list()` → 4-tuple `(ret, df, mvc, next_page)` — the `mvc` must be passed through to `request_combo_quotes()`
+- `request_combo_quotes(combo_leg_list, mvc)` — legs are `ft.ComboLeg` objects (`code`/`trd_side`/`qty_ratio`/`pred_side`); returns dict with `bid_price`/`ask_price`/`quote_id`/`should_retry`
+- `get_event_contract_order_book()` → dict of `yes_bids`/`yes_asks`/`no_bids`/`no_asks` tuple lists (like `get_order_book()`), not a DataFrame
+- `get_event_contract_kline()` requires `pre_side` (`ft.PredSide.YES`/`NO`) for contract-level K-lines; `ktype` limited to `K_1M/K_5M/K_60M/K_DAY`
+- OpenD `server_ver` is numeric (`1009` = 10.9); compare as int, not dotted string
+- `ft.RetCode` still absent on SDK 10.9 — the `connect.py` shim stays
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence

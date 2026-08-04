@@ -4,6 +4,36 @@ All notable changes to this project are documented here.
 
 ---
 
+## [2.1.0] — 2026-08-04
+
+### Added
+
+- **SDK 10.9.6908 upgrade** — upgraded from 10.8.6808 to 10.9.6908. Prediction Market (event contract) support, 0 removed:
+  - Event contract navigation: `get_event_contract_category`, `filter_competition`, `get_event_contract_series_list`, `get_event_contract_event_list`, `get_event_contract`, `get_event_contract_milestone_list`
+  - Event contract real-time: `subscribe_event_contract` / `unsubscribe_event_contract` / `unsubscribe_all_event_contract`, `get_event_contract_snapshot` (YES/NO bid/ask), `get_event_contract_order_book`, `get_event_contract_kline`, `get_event_contract_ticker`, `request_history_event_contract_kline`
+  - Event contract push handlers: `EventContractOrderBookHandlerBase`, `EventContractKlineHandlerBase`, `EventContractTickerHandlerBase`
+  - Prediction combo (parlay): `get_valid_combo_list`, `request_combo_quotes`, `place_combo_order` (SIMULATE)
+- **3 new examples (125–127)** demonstrating SDK 10.9.6908 APIs:
+  - 125 (`event_contract_discovery`): Category → Series → Event → Contract navigation with competition filters, milestones & YES/NO snapshot
+  - 126 (`event_contract_live`): subscription + snapshot/order book/K-line/ticker/history K-line + the 3 EventContract push handlers
+  - 127 (`prediction_combo`): combo-eligible events, multi-leg RFQ via `request_combo_quotes`, guarded SIMULATE `place_combo_order`
+
+### Changed
+
+- `requirements.txt`: `futu-api>=10.8.6808` → `>=10.9.6908`
+- `pyproject.toml`: `dependencies` now requires `futu-api>=10.9.6908`
+- All current doc version strings updated to `10.9.6908`
+- `README.md`: badge → SDK 10.9.6908, changelog → v2.1.0, count → 127 examples
+- `examples/README.md`: count → 127, new "Prediction Market (Event Contracts)" section (125–127)
+- `ARCHITECTURE.md`: version → 10.9.6908, EventContract handlers added to both handler tables
+- `scripts/run_all.py`: 3 new SLOW_EXAMPLES entries (45s each); 127 added to TRADE_EXAMPLES
+
+### Fixed
+
+- Zero breaking changes detected — all 124 existing examples compatible with SDK 10.9.6908 without modification
+- `connect.py` `RetCode` shim remains in place (SDK 10.9 still does not have `ft.RetCode`)
+- Prediction Market data requires OpenD 10.9.6908+ and event-contract quote permission — new examples degrade gracefully with a clear message when the permission is missing (verified live: server returns "No event contract quote permission")
+
 ## [2.0.0] — 2026-06-29
 
 ### Added
