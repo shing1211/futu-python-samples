@@ -1,0 +1,53 @@
+name: static-tier
+
+# This workflow runs the STATIC tier only.
+#
+# It asserts properties decidable from source. A green result here is NOT
+# evidence that any example works against OpenD -- that requires a live gateway
+# and is run manually via scripts/run_all.py. See CONTRIBUTING.md, "Verification
+# -- Two Tiers".
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: Static tier (source properties only, no gateway)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The static tier is standard library only -- no futu, pandas, or
+      # python-dotenv needed, and no gateway reachable.
+      - name: Run static tier
+        run: python3 scripts/run_static.py
+
+      - name: List registered checks
+        run: python3 scripts/run_static.py --list
+
+  tests:
+    name: Unit tests for the verification tooling
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Tests cover the two verification tiers themselves. They are not a third
+      # tier and assert nothing about runtime behavior of the examples.
+      - name: Install test dependencies
+        run: python3 -m pip install --upgrade pip pytest
+
+      - name: Run unit tests
+        run: python3 -m pytest tests/ -q
