@@ -16,7 +16,7 @@ def safe_get_stock_price(ctx, code):
         if ret == 0 and data is not None and not data.empty:
             return float(data.iloc[0].get("last_price", 0))
     except Exception:
-        pass
+        pass  # static-checks: allow-suppress -- safe_get_stock_price returns None on any failure by contract
     return None
 
 

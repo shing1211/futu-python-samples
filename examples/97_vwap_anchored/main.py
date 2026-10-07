@@ -125,7 +125,7 @@ def main():
 
     try:
         # Unlock SIMULATE
-        ret, _ = trd_ctx.unlock_trade(pwd, trd_env=TRD_ENV)
+        ret, _ = trd_ctx.unlock_trade(pwd)
         if ret != ft.RetCode.SUCCESS:
             logger.warning("unlock_trade: %s", ret)
 
@@ -268,7 +268,7 @@ def main():
         logger.info("Stopped by user.")
     finally:
         logger.info("Cleaning up …")
-        trd_ctx.cancel_all_order(cancel_all_orders=True, trd_env=TRD_ENV)
+        trd_ctx.cancel_all_order(trd_env=TRD_ENV)
         quote_ctx.close()
         trd_ctx.close()
         logger.info("Done.")

@@ -79,8 +79,11 @@ def fetch_financial_reports(quote_ctx, code, num_reports=4):
                     "roe": float(row.get("return_on_equity", 0) or 0),
                     "pe": float(row.get("pe_ratio", 0) or 0),
                 })
-    except Exception:
-        pass
+    except Exception as exc:
+        # Recorded rather than swallowed: a caller cannot distinguish "no
+        # reports available" from "the fetch failed".
+        logger.error("fetch_financial_reports(%s) failed: %s: %s", code, type(exc).__name__, exc)
+        return []
 
     return reports[:num_reports]
 
@@ -126,7 +129,7 @@ def fetch_earnings_history(quote_ctx, code, num=4):
 def get_post_earnings_klines(quote_ctx, code, num_bars=10):
     """Get K-lines after the most recent earnings to check for unusual activity."""
     ret, df, _ = quote_ctx.request_history_kline(
-        code=code, start="", num_bars=num_bars, ktype=ft.KLType.K_DAY,
+        code=code, start="", max_count=num_bars, ktype=ft.KLType.K_DAY,
     )
     if ret != ft.RetCode.SUCCESS or df is None or df.empty:
         return []
@@ -299,6 +302,9 @@ def main():
                     if result:
                         analyzed += 1
                 except Exception as e:
+                    # One symbol failing should not abandon the rest, but the
+                    # failure is recorded so a partial sweep is not silent.
+                    logger.warning("analyze_code(%s) failed: %s: %s", code, type(e).__name__, e)
                     continue
 
     finally:
@@ -340,3 +346,5 @@ def analyze_code(quote_ctx, code, threshold):
     print_iv_analysis(quote_ctx, code, spot)
 
     return True
+if __name__ == "__main__":
+    main()

@@ -169,7 +169,7 @@ def main():
                     print(f"  No option data for {STOCK} expiry {expiry}")
             time.sleep(1)
     except KeyboardInterrupt:
-        pass
+        pass  # static-checks: allow-suppress -- Ctrl-C ends the subscribe loop; handled in finally
     finally:
         ctx.close()
 

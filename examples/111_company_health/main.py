@@ -172,7 +172,7 @@ def score_profile(prof_df):
         elif emp_count > 1000:
             score += 3
     except (ValueError, TypeError):
-        pass
+        pass  # static-checks: allow-suppress -- optional numeric field absent or unparsable; score skips this adjustment
 
     desc = str(prof_dict.get("business_description", prof_dict.get("description", ""))).upper()
     keyword_hits = 0

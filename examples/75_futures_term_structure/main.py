@@ -122,7 +122,7 @@ def find_expiry(quote_ctx, code):
                     try:
                         return datetime.strptime(str(val), "%Y-%m-%d")
                     except ValueError:
-                        pass
+                        pass  # static-checks: allow-suppress -- date field unparsable; caller falls through to the next column
     return None
 
 

@@ -64,8 +64,11 @@ def main():
         print(f"  subscribe({len(stocks)} stocks, {len(subtypes)} subtypes) -> ret={ret}")
     
         used_after, remain = get_quota(ctx)
-        delta = (used_after - used_before) if used_before else None
-        print(f"  Quota: used={used_after}, remain={remain} (delta={delta:+d})")
+        # delta is None when the "before" reading is unavailable, and the +d
+        # format specifier raises on None.
+        delta = (used_after - used_before) if (used_before is not None and used_after is not None) else None
+        delta_text = f"{delta:+d}" if delta is not None else "n/a"
+        print(f"  Quota: used={used_after}, remain={remain} (delta={delta_text})")
     
         # ── 2. Add more subtypes ─────────────────────────────────────
         print("\n=== ADD MORE SUBTYPES ===")
@@ -73,7 +76,9 @@ def main():
         ret, _ = ctx.subscribe(code_list=["HK.00700"], subtype_list=[ft.SubType.TICKER])
         print(f"  subscribe(HK.00700, TICKER) -> ret={ret}")
         used_after, remain = get_quota(ctx)
-        print(f"  Quota: used={used_after}, remain={remain} (delta={used_after - used_before:+d})")
+        delta = (used_after - used_before) if (used_before is not None and used_after is not None) else None
+        delta_text = f"{delta:+d}" if delta is not None else "n/a"
+        print(f"  Quota: used={used_after}, remain={remain} (delta={delta_text})")
     
         # ── 3. Unsubscribe specific ───────────────────────────────────
         print("\n=== UNSUBSCRIBE SPECIFIC ===")
@@ -81,7 +86,9 @@ def main():
         ret, _ = ctx.unsubscribe(code_list=["HK.09988"], subtype_list=[ft.SubType.QUOTE])
         print(f"  unsubscribe(HK.09988, QUOTE) -> ret={ret}")
         used_after, remain = get_quota(ctx)
-        print(f"  Quota: used={used_after}, remain={remain} (delta={used_after - used_before:+d})")
+        delta = (used_after - used_before) if (used_before is not None and used_after is not None) else None
+        delta_text = f"{delta:+d}" if delta is not None else "n/a"
+        print(f"  Quota: used={used_after}, remain={remain} (delta={delta_text})")
     
         # ── 4. Unsubscribe all ──────────────────────────────────────
         print("\n=== UNSUBSCRIBE ALL ===")
@@ -89,7 +96,9 @@ def main():
         ret, _ = ctx.unsubscribe_all()
         print(f"  unsubscribe_all() -> ret={ret}")
         used_after, remain = get_quota(ctx)
-        print(f"  Quota: used={used_after}, remain={remain} (delta={used_after - used_before:+d})")
+        delta = (used_after - used_before) if (used_before is not None and used_after is not None) else None
+        delta_text = f"{delta:+d}" if delta is not None else "n/a"
+        print(f"  Quota: used={used_after}, remain={remain} (delta={delta_text})")
     
     finally:
         ctx.close()

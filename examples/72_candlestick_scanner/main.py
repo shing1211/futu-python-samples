@@ -333,7 +333,7 @@ def fetch_initial_bars(quote_ctx, code, num):
     while len(bars) < num:
         need = num - len(bars)
         ret, df, next_token = quote_ctx.request_history_kline(
-            code=code, start=next_token, num_bars=min(need, 50),
+            code=code, start=next_token, max_count=min(need, 50),
             ktype=ft.KLType.K_DAY,
         )
         if ret != ft.RetCode.SUCCESS:
@@ -378,14 +378,14 @@ def main():
         handler = BarCollector()
         ret, _ = quote_ctx.subscribe(
             code_list=[code],
-            subtype_list=[ft.SubType.CUR_KLINE],
+            subtype_list=[ft.SubType.K_DAY],
             is_first_push=True,
         )
         if ret != ft.RetCode.SUCCESS:
             logger.error("subscribe failed: %s", ret)
             return
         quote_ctx.set_handler(handler)
-        logger.info("Subscribed to CUR_KLINE for %s", code)
+        logger.info("Subscribed to K_DAY for %s", code)
 
         print("\n" + "=" * 60)
         print(f"  🕯️  CANDLESTICK PATTERN SCANNER — {code}")

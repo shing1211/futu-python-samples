@@ -62,21 +62,15 @@ def main():
     
         for stock in stocks:
             print(f"=== {stock} ===")
-            ret, data = ctx.get_broker_queue(stock)
+            ret, bid_data, ask_data = ctx.get_broker_queue(stock)
             if ret != 0:
-                print(f"  get_broker_queue returned {ret}: {data}")
+                print(f"  get_broker_queue returned {ret}: {bid_data}")
                 print("  (BROKER push requires LV1 data permission — this account has LV2)")
                 print("  See BrokerHandlerBase for the push-based alternative.")
             else:
-                # data is (bid_df, ask_df) tuple
-                if isinstance(data, tuple) and len(data) == 2:
-                    print_broker_queue(data[0], "BID")
-                    print_broker_queue(data[1], "ASK")
-                elif isinstance(data, dict):
-                    print_broker_queue(data.get("bid"), "BID")
-                    print_broker_queue(data.get("ask"), "ASK")
-                else:
-                    print(f"  {data}")
+                # get_broker_queue returns (ret, bid_frame, ask_frame).
+                print_broker_queue(bid_data, "BID")
+                print_broker_queue(ask_data, "ASK")
             print()
     
     finally:

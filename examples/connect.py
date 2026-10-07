@@ -114,7 +114,7 @@ def _parse_hosts():
         else:
             host = addr
             port = 11111
-        result.append((host, port, False))
+        result.append((host, port, True))
 
     return result
 
@@ -166,8 +166,47 @@ _hooks: ConnectionHooks | None = None
 # ---------------------------------------------------------------------------
 
 
+class RsaKeyConfigurationError(RuntimeError):
+    """Raised when RSA is enabled but the configured private key is unusable.
+
+    The SDK retries a failed handshake internally and indefinitely, so an
+    unreadable key does not surface as an error -- it surfaces as a process
+    that never exits, and to a caller as a timeout with `check sha error` and
+    no indication that the cause is a filesystem path. Validating first turns
+    an unbounded hang into an immediate, actionable message.
+    """
+
+
+def _validate_rsa_key(path: str) -> None:
+    """Raise unless the RSA private key at ``path`` is a readable regular file."""
+    try:
+        if os.path.isfile(path):
+            with open(path, "rb") as handle:
+                handle.read(1)
+            return
+        exists = os.path.exists(path)
+    except OSError as exc:
+        raise RsaKeyConfigurationError(
+            f"RSA private key at {path!r} could not be read: {exc}. "
+            "Set FUTU_RSA_KEY to the path of the OpenD protocol-encryption key "
+            "(<rsa_private_key> in FutuOpenD.xml)."
+        ) from exc
+    detail = "is a directory" if exists else "does not exist"
+    raise RsaKeyConfigurationError(
+        f"RSA private key at {path!r} {detail}. "
+        "Set FUTU_RSA_KEY to the path of the OpenD protocol-encryption key "
+        "(<rsa_private_key> in FutuOpenD.xml). If your OpenD runs without "
+        "protocol encryption, configure the host as "
+        "FUTU_OPEND_HOSTS=<host>:<port>:False instead."
+    )
+
+
 def configure_rsa(enable: bool):
     logger.debug("configure_rsa: enable=%s, key=%s", enable, RSA_KEY)
+    if enable:
+        # Validate before touching the SDK: once a handshake starts failing it
+        # does not return, so there is no later point at which to report this.
+        _validate_rsa_key(RSA_KEY)
     SysConfig.enable_proto_encrypt(enable)
     if enable:
         SysConfig.set_init_rsa_file(RSA_KEY)

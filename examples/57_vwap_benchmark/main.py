@@ -41,10 +41,10 @@ import sys
 import time
 from pathlib import Path
 
-# Resolve repo root once, add to sys.path
-_REPO_ROOT = str(Path(__file__).resolve().parent.parent.parent)
-if _REPO_ROOT not in sys.path:
-    sys.path.insert(0, _REPO_ROOT)
+# Resolve the examples directory (where connect.py lives) once, add to sys.path
+_EXAMPLES_ROOT = str(Path(__file__).resolve().parent.parent)
+if _EXAMPLES_ROOT not in sys.path:
+    sys.path.insert(0, _EXAMPLES_ROOT)
 
 # Unbuffered stdout — print() calls reach terminal immediately
 sys.stdout.reconfigure(line_buffering=True)
@@ -208,7 +208,7 @@ def main():
                     print(f"  [{vwap_acc.elapsed_s:.0f}s] waiting for ticks...")
                 last_report = time.time()
     except KeyboardInterrupt:
-        pass
+        pass  # static-checks: allow-suppress -- Ctrl-C ends the listen loop; handled in finally
     finally:
         ctx.close()
 

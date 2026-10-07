@@ -48,9 +48,19 @@ if __name__ == "__main__":
         )
         if ret != ft.RET_OK:
             logger.error("get_option_earnings_screener failed: %s", data)
-        elif data is not None and not data.empty:
-            logger.info("  %d results", len(data))
-            for _, row in data.iterrows():
+        else:
+            # The screener returns (ret, dict), not a DataFrame: rows live in
+            # 'item_list', alongside 'next_page', 'update_timestamp', 'all_count'.
+            payload = data if isinstance(data, dict) else {}
+            frame = payload.get("item_list")
+            logger.info("  next_page=%s all_count=%s updated=%s",
+                        payload.get("next_page", "?"),
+                        payload.get("all_count", "?"),
+                        payload.get("update_timestamp", "?"))
+            frame = frame if frame is not None else []
+            logger.info("  %d results", len(frame))
+            rows = frame.iterrows() if hasattr(frame, "iterrows") else enumerate(frame)
+            for _, row in rows:
                 logger.info("    %-16s vol=%-8s OI=%-8s IV=%-6s IV%%=%-6s exp=%s",
                             row.get("owner", "?"),
                             row.get("volume", "?"),
@@ -58,8 +68,8 @@ if __name__ == "__main__":
                             row.get("iv", "?"),
                             row.get("iv_rank", row.get("iv_percentile", "?")),
                             row.get("strike_date_time", row.get("strike_date_timestamp", "?")))
-        else:
-            logger.info("  (server returned empty)\n")
+            if len(frame) == 0:
+                logger.info("  (server returned empty)\n")
 
         codes = ["US.AAPL", "US.NVDA", "US.TSLA", "US.MSFT", "US.AMZN"]
         logger.info("\n── Option Underlying Overview (Top US tech) ──")
@@ -81,6 +91,12 @@ if __name__ == "__main__":
             ft.OptionMarket.US_SECURITY,
             count=10,
         )
+        # get_option_event returns (ret, dict): events are a frame under
+        # 'event_list', alongside 'next_page' and 'all_count'.
+        if isinstance(data, dict):
+            logger.info("  next_page=%s all_count=%s",
+                        data.get("next_page", "?"), data.get("all_count", "?"))
+            data = data.get("event_list")
         if ret == ft.RET_OK and data is not None and not data.empty:
             logger.info("  %d events", len(data))
             for _, row in data.iterrows():
@@ -105,6 +121,8 @@ if __name__ == "__main__":
             count=5,
             filter_list=filters,
         )
+        if isinstance(data, dict):
+            data = data.get("event_list")
         if ret == ft.RET_OK and data is not None and not data.empty:
             for _, row in data.iterrows():
                 logger.info("    %-16s time=%-12s vol=%-8s price=%-8s",

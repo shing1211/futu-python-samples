@@ -53,12 +53,16 @@ if __name__ == "__main__":
             if ret != ft.RET_OK:
                 logger.warning("  get_industrial_chain_list failed: %s", data)
                 continue
-            if not data:
+            # `if not data` raises on a DataFrame: its truth value is
+            # ambiguous. Test for null and empty explicitly.
+            if data is None or data.empty:
                 logger.info("  No chains found\n")
                 continue
 
             logger.info("  Found %d chains", len(data))
-            for chain in data[:3]:
+            # data is a DataFrame, so iterate rows rather than treating each
+            # element as a mapping.
+            for _, chain in data.head(3).iterrows():
                 chain_id = chain.get("chain_id")
                 chain_name = chain.get("name", "?")
                 chain_type = chain.get("chain_type", "?")
@@ -66,7 +70,7 @@ if __name__ == "__main__":
 
                 if chain_id:
                     ret_d, detail = ctx.get_industrial_chain_detail(chain_id)
-                    if ret_d == ft.RET_OK and detail:
+                    if ret_d == ft.RET_OK and isinstance(detail, dict):
                         nodes = detail.get("node_list", [])
                         if nodes:
                             logger.info("      Nodes (%d):", len(nodes))
@@ -76,12 +80,12 @@ if __name__ == "__main__":
 
         logger.info("── Industry Plate Info & Stocks ──")
         ret, plates, *_ = ctx.get_industrial_chain_list(ft.Market.HK, keyword="tech", count=3)
-        if ret == ft.RET_OK and plates:
-            for plate in plates:
-                plate_id = plate.get("plate_id")
+        if ret == ft.RET_OK and plates is not None and not plates.empty:
+            for _, plate in plates.iterrows():
+                plate_id = plate.get("chain_id")
                 if plate_id:
                     ret_i, info = ctx.get_industrial_plate_info(plate_id)
-                    if ret_i == ft.RET_OK and info:
+                    if ret_i == ft.RET_OK and isinstance(info, dict):
                         logger.info("  Plate info: %s", (info.get("summary", "") or "")[:100])
 
                     ret_s, stocks, *_ = ctx.get_industrial_plate_stock(

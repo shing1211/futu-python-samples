@@ -105,7 +105,7 @@ def get_margin_info(trd_ctx, quote_ctx, symbols):
                         margin_ratio = float(df_ti.iloc[-1][col]) / 100
                         break
                     except (ValueError, TypeError):
-                        pass
+                        pass  # static-checks: allow-suppress -- column is non-numeric; loop continues to the next candidate column
 
         pos = positions[code]
         current_price = prices.get(code, pos.get("cost_price", 0))
@@ -192,7 +192,7 @@ def main():
 
     try:
         # Unlock SIMULATE
-        ret, _ = trd_ctx.unlock_trade(pwd, trd_env=TRD_ENV)
+        ret, _ = trd_ctx.unlock_trade(pwd)
         if ret != ft.RetCode.SUCCESS:
             logger.warning("unlock_trade returned %s (may be already unlocked)", ret)
 
@@ -271,7 +271,7 @@ def main():
         logger.info("Stopped by user.")
     finally:
         logger.info("Cleaning up …")
-        trd_ctx.cancel_all_order(cancel_all_orders=True, trd_env=TRD_ENV)
+        trd_ctx.cancel_all_order(trd_env=TRD_ENV)
         quote_ctx.close()
         trd_ctx.close()
         logger.info("Done.")

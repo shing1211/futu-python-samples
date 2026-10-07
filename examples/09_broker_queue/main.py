@@ -49,7 +49,8 @@ if __name__ == "__main__":
 
         # ── get_broker_queue ─────────────────────────────────────────────
         logger.info("\n=== get_broker_queue: %s ===", code)
-        ret, (bid_data, ask_data) = ctx.get_broker_queue(code)
+        # get_broker_queue returns (ret, bid_frame, ask_frame) -- a 3-tuple.
+        ret, bid_data, ask_data = ctx.get_broker_queue(code)
         if ret != 0:
             logger.error("get_broker_queue failed: bid_data=%s", bid_data)
         else:
@@ -76,11 +77,10 @@ if __name__ == "__main__":
         logger.info("\n=== get_broker_queue: %s ===", code2)
         ret2, _ = ctx.subscribe(code2, ft.SubType.BROKER)
         logger.info("subscribe ret=%d", ret2)
-        ret2, data2 = ctx.get_broker_queue(code2)
+        ret2, bid2, ask2 = ctx.get_broker_queue(code2)
         if ret2 != 0:
-            logger.error("get_broker_queue (%s) failed: %s", code2, data2)
+            logger.error("get_broker_queue (%s) failed: %s", code2, bid2)
         else:
-            bid2, ask2 = data2 if isinstance(data2, tuple) and len(data2) == 2 else (data2, None)
             bid_len = len(bid2) if bid2 is not None and not bid2.empty else 0
             ask_len = len(ask2) if ask2 is not None and not ask2.empty else 0
             logger.info("%s BID brokers: %d | ASK brokers: %d", code2, bid_len, ask_len)

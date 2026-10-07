@@ -59,21 +59,24 @@ VOL_BREAKOUT_MULT = 2.0
 # ADX computation (pure stdlib)
 # ---------------------------------------------------------------------------
 
-def tr(dm_plus, dm_minus, high, low, close_prev):
-    """True Range and Directional Movement for one bar."""
+def tr(high, low, close_prev, high_prev, low_prev):
+    """True Range and Directional Movement for one bar.
+
+    Uses Wilder's definitions against the previous bar's high and low.
+    """
     tr_val = max(
         high - low,
         abs(high - close_prev),
         abs(low - close_prev),
     )
-    # +DM
-    diff_up = high - dm_plus[1] if dm_plus[1] is not None else 0
-    diff_down = dm_minus[1] - low if dm_minus[1] is not None else 0
+    # +DM: up move that dominates the down move
+    diff_up = high - high_prev
+    diff_down = low_prev - low
     if diff_up > diff_down and diff_up > 0:
         dm_plus_val = diff_up
     else:
         dm_plus_val = 0
-    # -DM
+    # -DM: down move that dominates the up move
     if diff_down > diff_up and diff_down > 0:
         dm_minus_val = diff_down
     else:
@@ -98,7 +101,7 @@ def compute_adx(bars, period=14):
     for i in range(1, n):
         t, dp, dm = tr(
             bars[i]["high"], bars[i]["low"], bars[i]["close"],
-            bars[i - 1]["close"],
+            bars[i - 1]["high"], bars[i - 1]["low"],
         )
         tr_vals.append(t)
         dm_plus_vals.append(dp)
@@ -234,9 +237,14 @@ def fetch_initial_bars(quote_ctx, code, num):
     while len(bars) < num:
         need = num - len(bars)
         ret, df, next_token = quote_ctx.request_history_kline(
-            code=code, start=next_token, num_bars=min(need, 50),
+            code=code, start=next_token, max_count=min(need, 50),
             ktype=ft.KLType.K_DAY,
         )
+        # The page key comes back as bytes, but the SDK's date parser tests
+        # `":" not in start`, which raises TypeError on a bytes operand. Decode
+        # before feeding it back in.
+        if isinstance(next_token, bytes):
+            next_token = next_token.decode("utf-8", "replace")
         if ret != ft.RetCode.SUCCESS:
             logger.error("request_history_kline failed: %s", ret)
             break
@@ -279,14 +287,14 @@ def main():
         handler = BarCollector()
         ret, _ = quote_ctx.subscribe(
             code_list=[code],
-            subtype_list=[ft.SubType.CUR_KLINE],
+            subtype_list=[ft.SubType.K_DAY],
             is_first_push=True,
         )
         if ret != ft.RetCode.SUCCESS:
             logger.error("subscribe failed: %s", ret)
             return
         quote_ctx.set_handler(handler)
-        logger.info("Subscribed to CUR_KLINE for %s", code)
+        logger.info("Subscribed to K_DAY for %s", code)
 
         print("\n" + "=" * 50)
         print(f"  MARKET REGIME DETECTOR — {code}")

@@ -179,7 +179,7 @@ def main():
     try:
         time.sleep(30)
     except KeyboardInterrupt:
-        pass
+        pass  # static-checks: allow-suppress -- Ctrl-C ends the listen window; handled in finally
     finally:
         print(f"\n  {'='*70}")
         ctx.close()
