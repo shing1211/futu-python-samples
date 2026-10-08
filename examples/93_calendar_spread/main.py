@@ -149,7 +149,7 @@ def find_calendar_opportunities(quote_ctx, stock, spot):
             exp_date = datetime.strptime(expiry_str, "%Y-%m-%d")
             days_to_exp = max(1, (exp_date - datetime.now()).days)
         except (ValueError, TypeError):
-            pass
+            pass  # static-checks: allow-suppress -- expiry string unparsable; days_to_exp keeps its documented default
 
         key = (strike, opt_type)
         if key not in groups:
@@ -243,7 +243,7 @@ def main():
 
     try:
         # Unlock SIMULATE
-        ret, _ = trd_ctx.unlock_trade(pwd, trd_env=ft.TrdEnv.SIMULATE)
+        ret, _ = trd_ctx.unlock_trade(pwd)
         if ret != ft.RetCode.SUCCESS:
             logger.warning("unlock_trade: %s (may already be unlocked)", ret)
 
@@ -317,7 +317,7 @@ def main():
 
     finally:
         logger.info("Cleaning up …")
-        trd_ctx.cancel_all_order(cancel_all_orders=True, trd_env=ft.TrdEnv.SIMULATE)
+        trd_ctx.cancel_all_order(trd_env=ft.TrdEnv.SIMULATE)
         quote_ctx.close()
         trd_ctx.close()
         logger.info("Done.")

@@ -25,14 +25,14 @@ Demonstrates:
   - place_order: buy/sell with proper lot sizing
   - Proper logging of all fields and signals
 """
-import pandas as pd
 import math
 import datetime
 import logging
-import futu as ft
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+import pandas as pd
+import futu as ft
 from connect import create_quote_context, create_trade_context, get_demo_trade_password
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")

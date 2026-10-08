@@ -52,12 +52,19 @@ if __name__ == "__main__":
             if ret != ft.RET_OK:
                 logger.warning("  get_option_zero_dte_screener failed: %s", data)
                 continue
-            if data is None or data.empty:
+            # The screener returns (ret, dict), not a DataFrame: the rows are a
+            # frame under 'item_list', alongside 'next_page' and
+            # 'update_timestamp'.
+            payload = data if isinstance(data, dict) else {}
+            frame = payload.get("item_list")
+            logger.info("  next_page=%s updated=%s",
+                        payload.get("next_page", "?"), payload.get("update_timestamp", "?"))
+            if frame is None or frame.empty:
                 logger.info("  No 0DTE underlyings found\n")
                 continue
 
             logger.info("  Top 5 0DTE underlyings by volume:")
-            for _, row in data.iterrows():
+            for _, row in frame.iterrows():
                 logger.info("    %-16s vol=%-8s IV=%-6s price=%-8s chain_info=%s",
                             row.get("owner", "?"),
                             row.get("volume", "?"),
@@ -65,7 +72,7 @@ if __name__ == "__main__":
                             row.get("price", "?"),
                             "yes" if row.get("chain_info") else "no")
 
-            best = data.iloc[0]
+            best = frame.iloc[0]
             owner = best.get("owner", "")
             chain_info = best.get("chain_info")
             strike_ts = best.get("strike_date_timestamp", 0)
@@ -76,6 +83,8 @@ if __name__ == "__main__":
                     sort_type=ft.ZeroDteContractSortType.VOLUME,
                     is_asc=False,
                 )
+                if isinstance(contracts, dict):
+                    contracts = contracts.get("contract_list")
                 if ret_c == ft.RET_OK and contracts is not None and not contracts.empty:
                     for _, c in contracts.head(10).iterrows():
                         logger.info("    %-20s type=%-6s vol=%-8s OI=%-8s IV=%-6s delta=%-6s",
@@ -101,6 +110,8 @@ if __name__ == "__main__":
             count=5,
             filter_list=filters,
         )
+        if isinstance(data, dict):
+            data = data.get("item_list")
         if ret == ft.RET_OK and data is not None and not data.empty:
             logger.info("  Filtered results: %d", len(data))
             for _, row in data.iterrows():

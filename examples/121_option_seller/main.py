@@ -40,8 +40,8 @@ if __name__ == "__main__":
 
     try:
         for seller_type, label in [
-            (ft.SellerType.PUT_SELL, "Cash-Secured Put"),
-            (ft.SellerType.CALL_SELL, "Covered Call"),
+            (ft.SellerType.CASH_SECURED_PUT, "Cash-Secured Put"),
+            (ft.SellerType.COVERED_CALL, "Covered Call"),
         ]:
             logger.info("── SellerType=%s (%s) ──", seller_type, label)
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         ]
         ret, data = ctx.get_option_seller_screener(
             ft.OptionMarket.US_SECURITY,
-            ft.SellerType.PUT_SELL,
+            ft.SellerType.CASH_SECURED_PUT,
             sort_type=ft.SellerSortType.PREMIUM,
             is_asc=False,
             filter_list=filters,

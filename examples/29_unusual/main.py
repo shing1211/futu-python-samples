@@ -35,6 +35,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 logger = logging.getLogger(__name__)
 
 
+# Every get_*_unusual() method returns (ret, dict) -- not a DataFrame. The dict
+# carries err_code / retMsg / time_range / content, where content is a
+# newline-separated alert string. Treating it as a frame raises AttributeError.
+def _unusual_content(data) -> list[str]:
+    if not isinstance(data, dict):
+        return []
+    return [r for r in str(data.get("content", "")).splitlines() if r.strip()]
+
+
+def _unusual_time_range(data) -> str:
+    return data.get("time_range", "?") if isinstance(data, dict) else "?"
+
+
 if __name__ == "__main__":
     logger.info("=== Unusual/Screener Alerts Demo ===")
 
@@ -49,14 +62,17 @@ if __name__ == "__main__":
         if ret != 0:
             logger.error("get_technical_unusual failed: %s", data)
         else:
-            if data.empty:
+            # get_technical_unusual returns (ret, dict) -- not a DataFrame.
+            # The dict carries err_code / retMsg / time_range / content, where
+            # content is a newline-separated alert string.
+            content = _unusual_content(data)
+            if not content:
                 logger.info("No unusual technical alerts for %s", code)
             else:
-                logger.info("Technical unusual records (%d):", len(data))
-                logger.info("Columns: %s", list(data.columns))
-                for col in data.columns:
-                    logger.info("  %-20s = %s", col, data[col].tolist())
-                logger.info("\n%s", data.to_string())
+                logger.info("Technical unusual records (%d):", len(content))
+                logger.info("time_range: %s", _unusual_time_range(data))
+                for record in content:
+                    logger.info("  %s", record)
 
         # ── Financial unusual ─────────────────────────────────────────────
         logger.info("\n=== get_financial_unusual: %s ===", code)
@@ -64,14 +80,15 @@ if __name__ == "__main__":
         if ret != 0:
             logger.error("get_financial_unusual failed: %s", data)
         else:
-            if data.empty:
+            # Same dict shape as get_technical_unusual.
+            content = _unusual_content(data)
+            if not content:
                 logger.info("No unusual financial alerts for %s", code)
             else:
-                logger.info("Financial unusual records (%d):", len(data))
-                logger.info("Columns: %s", list(data.columns))
-                for col in data.columns:
-                    logger.info("  %-20s = %s", col, data[col].tolist())
-                logger.info("\n%s", data.to_string())
+                logger.info("Financial unusual records (%d):", len(content))
+                logger.info("time_range: %s", _unusual_time_range(data))
+                for record in content:
+                    logger.info("  %s", record)
 
         # ── Derivative unusual ───────────────────────────────────────────
         logger.info("\n=== get_derivative_unusual: %s ===", code)
@@ -79,14 +96,14 @@ if __name__ == "__main__":
         if ret != 0:
             logger.error("get_derivative_unusual failed: %s", data)
         else:
-            if data.empty:
+            content = _unusual_content(data)
+            if not content:
                 logger.info("No unusual derivative alerts for %s", code)
             else:
-                logger.info("Derivative unusual records (%d):", len(data))
-                logger.info("Columns: %s", list(data.columns))
-                for col in data.columns:
-                    logger.info("  %-20s = %s", col, data[col].tolist())
-                logger.info("\n%s", data.to_string())
+                logger.info("Derivative unusual records (%d):", len(content))
+                logger.info("time_range: %s", _unusual_time_range(data))
+                for record in content:
+                    logger.info("  %s", record)
 
     finally:
         ctx.close()

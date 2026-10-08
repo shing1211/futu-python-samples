@@ -60,21 +60,33 @@ def main():
         cycle = exp_row["expiration_cycle"]
     
         print(f"=== Filtering {stock} {exp_date} ({cycle}) ===")
-        print(f"  Filter: CALL options, ITM (moneyness 0.7-1.3), delta > 0.3\n")
+        print(f"  Filter: CALL options, delta > 0.3, moneyness 0.7-1.3 applied client-side\n")
     
-        # Build a filter -- ITM calls with delta > 0.3
-        filt = ft.OptionDataFilter()
-        filt.filter_call_put = ft.OptionCondType.CALL
-        filt.moneyness_min   = 0.7   # ITM
-        filt.moneyness_max   = 1.3
-        filt.delta_min       = 0.3   # delta > 0.3
-    
-        ret, chain = ctx.get_option_chain(stock, start=exp_date, end=exp_date, option_type=ft.OptionType.CALL, option_data_filter=filt)
+        # Build a filter -- calls with delta > 0.3
+        #
+        # OptionDataFilter only defines the Greeks and volume/interest bounds;
+        # it has no filter_call_put or moneyness_min/max. Call/put selection is
+        # the option_type argument on get_option_chain, and moneyness has no
+        # filter equivalent, so it is applied client-side after the fetch.
+        filt = ft.OptionDataFilter(delta_min=0.3)
+        MON_Y_MIN, MON_Y_MAX = 0.7, 1.3
+
+        ret, chain = ctx.get_option_chain(
+            stock, start=exp_date, end=exp_date,
+            option_type=ft.OptionType.CALL,
+            data_filter=filt,
+        )
         if ret != 0:
             print(f"  get_option_chain failed: {chain}")
         elif chain is None or (hasattr(chain, "empty") and chain.empty):
             print("  (no contracts match filter)")
         else:
+            if {"strike_price", "last_price"} <= set(chain.columns):
+                chain = chain[
+                    (chain["strike_price"] / chain["last_price"]).between(
+                        MON_Y_MIN, MON_Y_MAX
+                    )
+                ]
             print(f"  Matched {len(chain)} contract(s).")
             show_cols = [c for c in ["code", "strike_price", "last_price",
                                       "implied_volatility", "delta", "open_interest"]

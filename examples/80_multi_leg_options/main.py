@@ -368,7 +368,7 @@ def main():
 
     finally:
         logger.info("Cleaning up …")
-        trd_ctx.cancel_all_order(cancel_all_orders=True,
+        trd_ctx.cancel_all_order(
                                  trd_env=ft.TrdEnv.SIMULATE)
         quote_ctx.close()
         trd_ctx.close()

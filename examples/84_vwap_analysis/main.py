@@ -200,7 +200,7 @@ def fetch_live_market_data(quote_ctx, code, num_minutes=60):
         ret, df_kl, next_token = quote_ctx.request_history_kline(
             code=code,
             start=next_token,
-            num_bars=50,
+            max_count=50,
             ktype=ft.KLType.K_1M,  # 1-minute bars
         )
         if ret != ft.RetCode.SUCCESS:

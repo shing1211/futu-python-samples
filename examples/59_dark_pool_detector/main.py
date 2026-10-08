@@ -156,7 +156,7 @@ def main():
     try:
         time.sleep(DURATION_SEC)
     except KeyboardInterrupt:
-        pass
+        pass  # static-checks: allow-suppress -- Ctrl-C ends the listen window; handled in finally
     finally:
         print(f"\n  Block trades detected: {acc.__class__.__name__}")
         ctx.close()

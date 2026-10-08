@@ -149,20 +149,26 @@ def phase2_post_earnings(ctx, code: str, name: str, earnings_date: str):
     end = (ed + timedelta(days=5)).strftime("%Y-%m-%d")
 
     ret, tech = ctx.get_technical_unusual(code)
-    if ret == 0 and tech is not None and not tech.empty:
+    # get_technical_unusual returns (ret, dict), not a DataFrame: the alerts are
+    # a newline-separated string under 'content'.
+    alerts = []
+    if ret == 0 and isinstance(tech, dict):
+        alerts = [a for a in str(tech.get("content", "")).splitlines() if a.strip()]
+    if alerts:
         print(f"    Technical unusual detected:")
-        for _, row in tech.iterrows():
-            print(f"      {row.get('code','')} {row.get('unusual_type','')} "
-                  f"value={row.get('value','')} desc={row.get('desc','')}")
+        for alert in alerts:
+            print(f"      {alert}")
     else:
         print(f"    No technical anomalies")
 
     ret, fin = ctx.get_financial_unusual(code)
-    if ret == 0 and fin is not None and not fin.empty:
+    fin_alerts = []
+    if ret == 0 and isinstance(fin, dict):
+        fin_alerts = [a for a in str(fin.get("content", "")).splitlines() if a.strip()]
+    if fin_alerts:
         print(f"    Financial unusual detected:")
-        for _, row in fin.iterrows():
-            print(f"      {row.get('unusual_type','')} "
-                  f"value={row.get('value','')} desc={row.get('desc','')}")
+        for alert in fin_alerts:
+            print(f"      {alert}")
     else:
         print(f"    No financial anomalies")
 

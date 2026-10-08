@@ -64,22 +64,24 @@ class HealthMonitor:
         now = time.time()
         t = int(now - self.start_ts)
 
+        errors: list[str] = []
+
         latency = None
         try:
             ret, stats = self.ctx.get_delay_statistics()
             if ret == ft.RET_OK and isinstance(stats, dict):
                 latency = float(stats.get("delay_ms", stats.get("avg_delay_ms", 0)))
                 self.latencies.append(latency)
-        except Exception:
-            pass
+        except Exception as exc:
+            errors.append(f"delay probe raised {type(exc).__name__}: {exc}")
 
         state = {}
         try:
             ret, data = self.ctx.get_global_state()
             if ret == ft.RET_OK and isinstance(data, dict):
                 state = data
-        except Exception:
-            pass
+        except Exception as exc:
+            errors.append(f"global state probe raised {type(exc).__name__}: {exc}")
 
         subs_used = subs_total = None
         try:
@@ -87,8 +89,8 @@ class HealthMonitor:
             if ret == ft.RET_OK and isinstance(sub_data, dict):
                 subs_used = sub_data.get("total_used", sub_data.get("used", 0))
                 subs_total = sub_data.get("total", sub_data.get("quota", 0))
-        except Exception:
-            pass
+        except Exception as exc:
+            errors.append(f"subscription probe raised {type(exc).__name__}: {exc}")
 
         quota_used = quota_remain = None
         try:
@@ -99,8 +101,8 @@ class HealthMonitor:
                 elif isinstance(quota_data, dict):
                     quota_used = quota_data.get("used_quota")
                     quota_remain = quota_data.get("remain_quota")
-        except Exception:
-            pass
+        except Exception as exc:
+            errors.append(f"K-line quota probe raised {type(exc).__name__}: {exc}")
 
         ver = state.get("server_ver", "?")
         hk = state.get("market_hk", "?")
@@ -119,7 +121,16 @@ class HealthMonitor:
         if quota_used is not None and quota_remain is not None:
             parts.append(f"klquota={quota_remain}")
         parts.append(f"hk={hk} us={us} sh={sh} sz={sz}")
+        if errors:
+            parts.append(f"errors={len(errors)}")
         print("  " + " | ".join(parts))
+
+        # A probe that raised is reported, not swallowed: a monitor that hides
+        # its own failures cannot tell healthy from broken.
+        for err in errors:
+            msg = f"probe failed: {err}"
+            print(f"    ⚠ ALERT: {msg}")
+            self.alerts.append(msg)
 
         if latency is not None and latency > LATENCY_WARN_MS:
             msg = f"latency {latency:.0f}ms exceeds {LATENCY_WARN_MS}ms threshold"
@@ -173,7 +184,7 @@ def main():
             time.sleep(POLL_INTERVAL)
             monitor.poll()
     except KeyboardInterrupt:
-        pass
+        pass  # static-checks: allow-suppress -- Ctrl-C ends the monitor loop; handled in finally
     finally:
         monitor.summary()
         ctx.close()

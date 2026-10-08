@@ -105,7 +105,7 @@ if __name__ == "__main__":
         import datetime
         today = datetime.date.today()
         end = today + datetime.timedelta(days=7)
-        ret, data = ctx.get_economic_calendar(
+        ret, data, next_page, has_more = ctx.get_economic_calendar(
             begin_date=today.isoformat(),
             end_date=end.isoformat(),
             market_list=[ft.Market.US],
@@ -113,6 +113,7 @@ if __name__ == "__main__":
             count=10,
         )
         if ret == ft.RET_OK and data is not None and not data.empty:
+            logger.info("  has_more=%s next_page=%s", has_more, next_page)
             for _, row in data.iterrows():
                 logger.info("  %-12s %-30s importance=%-6s prev=%-10s forecast=%-10s",
                             row.get("date", "?"),

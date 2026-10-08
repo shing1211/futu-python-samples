@@ -82,7 +82,7 @@ def fetch_historical_kline_for_option(quote_ctx, code, num_days):
     start = ""
     for _ in range(5):
         ret, df, next_page = quote_ctx.request_history_kline(
-            code=code, start=start, num_bars=num_days,
+            code=code, start=start, max_count=num_days,
             ktype=ft.KLType.K_DAY,
         )
         if ret != ft.RetCode.SUCCESS:

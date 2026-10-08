@@ -185,16 +185,195 @@ for row in bid_levels.itertuples():
 
 ---
 
-## Testing Your Example
+## Connecting to OpenD
+
+Every example reaches OpenD through `examples/connect.py`, which resolves its
+configuration from the environment. Copy `.env.example` to `.env` and set at
+least a host and the RSA key path.
+
+### RSA is required whenever the gateway uses protocol encryption
+
+FutuOpenD enables protocol encryption whenever it is started with a
+protocol-encryption key — `<rsa_private_key>` in its `FutuOpenD.xml`. **That
+includes a gateway on localhost.** "It's local, so it doesn't need RSA" is the
+single most common cause of a connection that appears to hang.
+
+The path in `FUTU_RSA_KEY` must match `<rsa_private_key>`:
 
 ```bash
-# Run one example in isolation
-python3 examples/07_kline/main.py
-
-# Run all 124 through the full test suite
-python3 scripts/run_all.py
+grep rsa_private_key /opt/futu/opend/FutuOpenD.xml
 ```
 
-`run_all.py` checks each example for exceptions and classifies them. Push examples (`02`, `05`, `39`, `40`) are expected to time out or exit quickly — that's normal, not a failure.
+A wrong or unreadable path does **not** fail fast. The SDK retries a failed
+handshake internally and indefinitely, so the symptom is an example that hangs
+until it is killed, reported as a timeout with `check sha error` and no hint
+that the cause is a filesystem path. `connect.py` therefore validates the key
+before any handshake and raises an error naming the path:
 
-If your example makes a trade API call and the gateway returns "password locked" (too many failed attempts), the runner records it as **PASS** with a "trade locked" annotation. This is a time-based gateway cooldown, not a bug in your code.
+```
+RSA private key at '/wrong/path.pem' does not exist. Set FUTU_RSA_KEY to the
+path of the OpenD protocol-encryption key (<rsa_private_key> in FutuOpenD.xml).
+```
+
+### Configuring hosts
+
+```bash
+# host:port:is_rsa, comma-separated, for HA selection
+FUTU_OPEND_HOSTS="127.0.0.1:11111:True"
+
+# single host, no HA -- only consulted when FUTU_OPEND_HOSTS is unset
+FUTU_ADDR=127.0.0.1:11111
+```
+
+`is_rsa` defaults to **True** in both forms when the flag is omitted, because
+that is correct for nearly every gateway including local ones. Both variables
+apply the same default; they used to disagree, which made the same host behave
+differently depending on which one you set.
+
+If your gateway genuinely runs without protocol encryption, state it
+explicitly:
+
+```bash
+FUTU_OPEND_HOSTS="127.0.0.1:11111:False"
+```
+
+## Verification — Two Tiers
+
+There are two independent verification tiers. They assert different things and
+neither implies the other.
+
+| | Live tier | Static tier |
+|---|---|---|
+| Command | `python3 scripts/run_all.py` | `python3 scripts/run_static.py` |
+| Needs a gateway | **Yes** | No |
+| Asserts | runtime behavior against OpenD | source properties only |
+| Speed | minutes to hours | seconds |
+
+A clean static run says **nothing** about whether an example works. Only the
+live tier can establish that, because only it can reach OpenD.
+
+### The live tier
+
+```bash
+python3 scripts/run_all.py              # every example
+python3 scripts/run_all.py --only 07_kline
+python3 scripts/run_all.py --list
+```
+
+It reads connection settings from your environment or `.env` and never injects
+a host, key path, or password of its own. The example set is discovered from
+the filesystem, so it cannot drift out of agreement with the repository.
+
+Every example ends in exactly one of four states:
+
+| State | Meaning | Counts as a pass? |
+|---|---|---|
+| `PASS` | ran to completion, exit 0 | yes |
+| `FAIL` | ran and exited non-zero, or errored | no |
+| `BLOCKED` | refused by external state — no gateway, no session, gateway cooldown, refused handshake | **no** |
+| `NOT-VERIFIED` | discovered but not run | **no** |
+
+A pass means the example ran and demonstrated its behavior. `BLOCKED` and
+`NOT-VERIFIED` are reported separately and never inflate the pass count, so the
+number is worth reading.
+
+Verdicts are derived from **exit status**. A non-zero exit is a failure,
+unconditionally. The runner inspects captured output only to *downgrade* a
+failure — to `BLOCKED`, or to the expected outcome for an example designed not
+to terminate — and never to turn a failure into a pass. An example that crashes
+silently is a failure, not a pass.
+
+### Declaring an example's run class
+
+An example is time-limited by default (30s). Two classifications adjust that,
+and the runner fails fast on startup if either names an example that does not
+exist or if the two overlap:
+
+- **Not terminating** (`UNBOUNDED_EXAMPLES`) — a `while True` loop that exits
+  only on Ctrl-C. For these, a timeout is the expected outcome. Only genuinely
+  unbounded examples belong here: declaring a bounded example unbounded turns a
+  real hang into an expected outcome, which is the exact failure this runner
+  exists to catch.
+- **Slow** (`SLOW_EXAMPLES`) — bounded, but longer than the default. Give it a
+  ceiling above its own runtime.
+
+If your example runs for a caller-chosen window, take a `--max-minutes`
+argument (see `examples/68_trailing_stop`). The runner then asks for a short
+window via `DURATION_LIMITED_EXAMPLES` and the example completes and reports a
+real verdict, instead of being killed at the ceiling.
+
+### The static tier
+
+```bash
+python3 scripts/run_static.py --list
+python3 scripts/run_static.py
+python3 scripts/run_static.py --checks error-suppression
+```
+
+Gateway-free, standard library only. It checks a deliberately closed set of
+properties decidable from source: byte-compilation, license header, the example
+skeleton, error suppression, dead constants, index coverage, and contract-table
+duplication. It asserts nothing about runtime behavior and cannot tell you an
+example works.
+
+Findings carry a severity. Only `fail` affects the exit status; `report`
+surfaces a finding for a human to judge.
+
+```bash
+python3 scripts/run_static.py --style --style-severity=info
+```
+
+`--style` additionally runs `ruff` and `black` if they are installed. **Style is
+advisory, not a gate**: `black` and `ruff` are configured in `pyproject.toml`
+but have never been enforced, and this repository has no consistent formatting
+baseline to enforce one against. Style findings therefore default to `info` and
+never fail the tier. Pass `--style-severity=fail` to opt into gating locally.
+
+## Reporting errors instead of swallowing them
+
+The live tier trusts exit status, which only works if an example can actually
+exit non-zero. So an example must not make its own failures invisible.
+
+```python
+# ✗ wrong — the caller cannot tell "nothing available" from "the fetch failed"
+try:
+    reports = fetch(code)
+except Exception:
+    pass
+
+# ✓ right — record the failure, then decide
+try:
+    reports = fetch(code)
+except Exception as exc:
+    logger.error("fetch(%s) failed: %s: %s", code, type(exc).__name__, exc)
+    reports = []
+```
+
+### When suppression is correct
+
+Sometimes you genuinely want to continue past a failure — a monitor loop
+surviving a transient error, an interruptible listen loop, a best-effort helper
+that returns a sentinel. Narrow the handler to the case you actually handle and
+record the justification inline:
+
+```python
+# Ctrl-C ends the listen loop; handled in finally
+except KeyboardInterrupt:
+    pass  # static-checks: allow-suppress -- Ctrl-C ends the listen loop
+```
+
+The `error-suppression` check accepts a handler only when its entire body is
+`pass` or `continue`. A handler that logs, counts, or re-raises is already
+observable and needs no marker. Without a marker, the check reports the site —
+so a newly added suppression cannot inherit an earlier review by accident.
+
+## Known debt
+
+- **Contract tables are duplicated.** The return-shape, enum, and pandas tables
+  in this file and in `AGENTS.md` are near-identical copies with a manual
+  obligation to keep both in sync. The `contract-table-duplication` check
+  reports this. The OpenSpec change `sdk-contracts-and-verification` introduces
+  a single authoritative artifact that will replace both; until it is archived,
+  these prose tables remain the practical source.
+- **The index is incomplete.** Some baseline API-coverage examples are not yet
+  listed in `examples/README.md`. The `index-coverage` check reports them.

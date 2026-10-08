@@ -42,7 +42,8 @@ if __name__ == "__main__":
 
     try:
         logger.info("── Top Institutions by Position Value (US) ──")
-        ret, data = ctx.get_institution_list(
+        # get_institution_list returns (ret, frame, next_page, all_count) -- a 4-tuple.
+        ret, data, next_page, all_count = ctx.get_institution_list(
             ft.Market.US,
             sort_field=ft.InstitutionListSortField.POSITION_VALUE,
             sort_dir=ft.RankSortDir.DESCENDING,
@@ -59,7 +60,7 @@ if __name__ == "__main__":
             logger.warning("  get_institution_list: %s", data)
 
         logger.info("\n── Top Institutions (HK) ──")
-        ret, data = ctx.get_institution_list(
+        ret, data, next_page, all_count = ctx.get_institution_list(
             ft.Market.HK,
             sort_field=ft.InstitutionListSortField.POSITION_VALUE,
             sort_dir=ft.RankSortDir.DESCENDING,
@@ -75,7 +76,7 @@ if __name__ == "__main__":
             logger.warning("  (no HK data)\n")
 
         inst_id = None
-        ret, data = ctx.get_institution_list(
+        ret, data, next_page, all_count = ctx.get_institution_list(
             ft.Market.US,
             sort_field=ft.InstitutionListSortField.POSITION_VALUE,
             sort_dir=ft.RankSortDir.DESCENDING,
@@ -92,7 +93,7 @@ if __name__ == "__main__":
                 logger.info("  summary=%s", (data.get("summary", "") or "")[:200])
 
             logger.info("\n── Top 10 Holdings ──")
-            ret, data = ctx.get_institution_holding_list(
+            ret, data, next_page, all_count = ctx.get_institution_holding_list(
                 ft.Market.US, inst_id,
                 sort_field=ft.InstitutionHoldingListSortField.HOLDING_VALUE,
                 sort_dir=ft.RankSortDir.DESCENDING,
@@ -107,7 +108,7 @@ if __name__ == "__main__":
                                 row.get("change_shares", "?"))
 
             logger.info("\n── Recent Position Changes (New Buys) ──")
-            ret, data = ctx.get_institution_holding_change(
+            ret, data, next_page, all_count = ctx.get_institution_holding_change(
                 ft.Market.US, inst_id,
                 change_type=ft.InstitutionHoldingChangeType.NEW,
                 sort_field=ft.InstitutionHoldingChangeSortField.CHANGE_SHARES,

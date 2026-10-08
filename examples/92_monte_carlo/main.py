@@ -69,9 +69,13 @@ def fetch_history(quote_ctx, code, num_days):
     while len(closes) < num_days + 10:
         need = num_days + 10 - len(closes)
         ret, df, next_page = quote_ctx.request_history_kline(
-            code=code, start=start, num_bars=min(need, 50),
+            code=code, start=start, max_count=min(need, 50),
             ktype=ft.KLType.K_DAY,
         )
+        # The page key comes back as bytes; the SDK's date parser tests
+        # `":" not in start`, which raises TypeError on bytes. Decode first.
+        if isinstance(next_page, bytes):
+            next_page = next_page.decode("utf-8", "replace")
         if ret != ft.RetCode.SUCCESS:
             break
         if df is not None and not df.empty:
@@ -338,7 +342,7 @@ def main():
             return
 
         # ── Results ─────────────────────────────────────────────────────
-        print(format_distribution(results, initial_value, n_days))
+        print(format_distribution(results, initial_value))
         print(render_histogram(results, initial_value))
 
         # ── Percentile table ────────────────────────────────────────────

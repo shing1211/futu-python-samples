@@ -35,10 +35,14 @@ Configuration (environment variables override hardcoded defaults):
 """
 import os
 import socket
+import sys
 import time
 import logging
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from futu import OpenQuoteContext, RET_OK, SysConfig
 from dotenv import load_dotenv
 
@@ -68,7 +72,9 @@ def _parse_hosts():
         return result
     addr = _FUTU_ADDR
     host, port_str = (addr.rsplit(":", 1) if ":" in addr else (addr, "11111"))
-    return [(host, int(port_str), False)]
+    # Same default as the host-list branches: a gateway with protocol encryption
+    # needs RSA, and that includes one on localhost.
+    return [(host, int(port_str), True)]
 
 
 HOSTS = _parse_hosts()
@@ -79,6 +85,17 @@ TCP_TIMEOUT = _FUTU_TCP_TIMEOUT
 
 def configure_rsa(enable: bool):
     logger.debug("configure_rsa: enable=%s key=%s", enable, RSA_KEY)
+    if enable:
+        # The SDK retries a failed handshake indefinitely, so a bad key path
+        # would show up as a hang and then a timeout rather than an error.
+        # Check the path first and say what is wrong.
+        if not os.path.isfile(RSA_KEY):
+            raise RuntimeError(
+                f"RSA private key at {RSA_KEY!r} does not exist. Set FUTU_RSA_KEY "
+                "to the path of the OpenD protocol-encryption key "
+                "(<rsa_private_key> in FutuOpenD.xml), or configure the host as "
+                "FUTU_OPEND_HOSTS=<host>:<port>:False if it runs without one."
+            )
     SysConfig.enable_proto_encrypt(enable)
     if enable:
         SysConfig.set_init_rsa_file(RSA_KEY)

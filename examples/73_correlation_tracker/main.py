@@ -253,14 +253,14 @@ def main():
     try:
         ret, _ = quote_ctx.subscribe(
             code_list=tickers,
-            subtype_list=[ft.SubType.CUR_KLINE],
+            subtype_list=[ft.SubType.K_DAY],
             is_first_push=True,
         )
         if ret != ft.RetCode.SUCCESS:
             logger.error("subscribe failed: %s", ret)
             return
         quote_ctx.set_handler(collector)
-        logger.info("Subscribed to CUR_KLINE for %d tickers", len(tickers))
+        logger.info("Subscribed to K_DAY for %d tickers", len(tickers))
 
         last_bar_counts = {t: 0 for t in tickers}
         last_display = 0

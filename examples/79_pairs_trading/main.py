@@ -132,7 +132,7 @@ def fetch_daily_history(quote_ctx, code, num_days):
     while len(bars) < num_days + 10:
         need = num_days + 10 - len(bars)
         ret, df, next_token = quote_ctx.request_history_kline(
-            code=code, start=next_token, num_bars=min(need, 50),
+            code=code, start=next_token, max_count=min(need, 50),
             ktype=ft.KLType.K_DAY,
         )
         if ret != ft.RetCode.SUCCESS:
@@ -170,7 +170,7 @@ def main():
 
     try:
         # ── Unlock SIMULATE ────────────────────────────────────────────
-        ret, _ = trd_ctx.unlock_trade(pwd, trd_env=TRD_ENV)
+        ret, _ = trd_ctx.unlock_trade(pwd)
         if ret != ft.RetCode.SUCCESS:
             logger.error("unlock_trade failed: %s", ret)
             return
@@ -287,7 +287,7 @@ def main():
 
     finally:
         logger.info("Cleaning up …")
-        trd_ctx.cancel_all_order(cancel_all_orders=True, trd_env=TRD_ENV)
+        trd_ctx.cancel_all_order(trd_env=TRD_ENV)
         quote_ctx.close()
         trd_ctx.close()
         logger.info("Done.")

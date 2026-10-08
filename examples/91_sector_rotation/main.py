@@ -26,6 +26,7 @@ import logging
 import argparse
 import statistics
 
+import pandas as pd
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -91,17 +92,33 @@ def compute_rsi(values, period):
 # ---------------------------------------------------------------------------
 
 def get_plates(quote_ctx, market_enum):
-    """Get all plates for a market."""
-    ret, df = quote_ctx.get_plate_list(market=market_enum)
-    if ret != ft.RetCode.SUCCESS or df is None or df.empty:
+    """Get all plates for a market, across every plate class.
+
+    get_plate_list takes (market, plate_class) -- plate_class is required, so
+    the classes are queried in turn and the results concatenated.
+    """
+    frames = []
+    for plate_class in (ft.Plate.INDUSTRY, ft.Plate.CONCEPT):
+        ret, df = quote_ctx.get_plate_list(market=market_enum, plate_class=plate_class)
+        if ret == ft.RetCode.SUCCESS and df is not None and not df.empty:
+            df = df.copy()
+            df["plate_class"] = plate_class
+            frames.append(df)
+        else:
+            logger.debug("No %s plates for market %s", plate_class, market_enum)
+    if not frames:
         logger.warning("Cannot get plate list for market %s", market_enum)
         return []
-    return df.to_dict("records")
+    return pd.concat(frames, ignore_index=True).to_dict("records")
 
 
 def get_plate_stocks(quote_ctx, plate_code, market_enum):
-    """Get all stocks in a plate."""
-    ret, df = quote_ctx.get_plate_stock(code_list=[plate_code], market=market_enum)
+    """Get all stocks in a plate.
+
+    get_plate_stock takes a single plate_code and takes no market argument --
+    the market is implied by the plate.
+    """
+    ret, df = quote_ctx.get_plate_stock(plate_code=plate_code)
     if ret != ft.RetCode.SUCCESS or df is None or df.empty:
         return []
     return [row.get("code", "") for row in df.to_dict("records")]
@@ -135,7 +152,7 @@ def compute_sector_rsi(quote_ctx, plate_code, market_enum, rsi_period, lookback)
 
             # Fetch recent K-lines for RSI
             kl_ret, kl_df, _ = quote_ctx.request_history_kline(
-                code=code, num_bars=lookback + rsi_period + 5,
+                code=code, max_count=lookback + rsi_period + 5,
                 ktype=ft.KLType.K_DAY,
             )
             if kl_ret != ft.RetCode.SUCCESS or kl_df is None or kl_df.empty:

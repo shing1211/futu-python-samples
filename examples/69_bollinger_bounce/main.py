@@ -68,7 +68,7 @@ def fetch_history_kline(quote_ctx, code, num_bars):
         ret, df, next_token = quote_ctx.request_history_kline(
             code=code,
             start=next_token if next_token else "",
-            num_bars=num_bars + 5 - len(bars),
+            max_count=num_bars + 5 - len(bars),
             ktype=ft.KLType.K_DAY,
         )
         if ret != ft.RetCode.SUCCESS:
@@ -124,7 +124,7 @@ def place_stop_order(trd_ctx, code, direction, qty, stop_price):
 
 def cancel_all(trd_ctx):
     """Cancel all open orders."""
-    ret, _ = trd_ctx.cancel_all_order(cancel_all_orders=True, trd_env=TRD_ENV)
+    ret, _ = trd_ctx.cancel_all_order(trd_env=TRD_ENV)
     if ret != ft.RetCode.SUCCESS:
         logger.warning("cancel_all_order returned: %s", ret)
 

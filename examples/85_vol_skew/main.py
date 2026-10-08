@@ -190,7 +190,7 @@ def main():
                 exp_date = datetime.strptime(expiry_str, "%Y-%m-%d")
                 days_to_expiry = max(1, (exp_date - datetime.now()).days)
             except (ValueError, TypeError):
-                pass
+                pass  # static-checks: allow-suppress -- expiry string unparsable; days_to_expiry keeps its documented default
 
             T = days_to_expiry / 365.0
             iv = implied_vol_newton(last, spot, strike, T, risk_free, opt_type.lower())

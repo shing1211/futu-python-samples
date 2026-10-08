@@ -117,7 +117,7 @@ def fetch_closes(quote_ctx, code, num_days):
     remaining = num_days
     while remaining > 0:
         ret, df, next_page = quote_ctx.request_history_kline(
-            code=code, start=start, num_bars=min(50, remaining),
+            code=code, start=start, max_count=min(50, remaining),
             ktype=ft.KLType.K_DAY,
         )
         if ret != ft.RetCode.SUCCESS:

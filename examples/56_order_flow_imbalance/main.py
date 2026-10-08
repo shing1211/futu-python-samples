@@ -200,7 +200,7 @@ def main():
                 accumulator.mini_report()
                 last_report = time.time()
     except KeyboardInterrupt:
-        pass
+        pass  # static-checks: allow-suppress -- Ctrl-C ends the listen loop; handled in finally
     finally:
         ctx.close()
 
@@ -210,3 +210,6 @@ def main():
     accumulator.mini_report()
 
     print("\nDone.")
+
+if __name__ == "__main__":
+    main()

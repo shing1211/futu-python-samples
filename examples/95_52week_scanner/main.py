@@ -70,7 +70,7 @@ def scan_stock(quote_ctx, code, threshold, vol_ratio_threshold):
     next_token = ""
     for _ in range(5):
         ret, df, next_page = quote_ctx.request_history_kline(
-            code=code, start=next_token, num_bars=50,
+            code=code, start=next_token, max_count=50,
             ktype=ft.KLType.K_DAY,
         )
         if ret != ft.RetCode.SUCCESS:

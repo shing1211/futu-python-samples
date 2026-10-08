@@ -173,7 +173,7 @@ def main():
             time.sleep(POLL_INTERVAL)
 
     except KeyboardInterrupt:
-        pass
+        pass  # static-checks: allow-suppress -- Ctrl-C ends the poll loop; handled in finally
     finally:
         quote_ctx.close()
         trd_ctx.close()
